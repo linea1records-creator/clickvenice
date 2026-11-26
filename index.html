@@ -1826,7 +1826,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.90</p>
+      <p class="sub">clickVenice · versione 3.91</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2313,6 +2313,7 @@ const SRV_IC = {
   cam: '<rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3"/>',
   mic: '<rect x="9" y="3.5" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5M8.5 20.5h7"/>',
   pen: '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>',
+  web: '<rect x="3" y="4.5" width="18" height="13" rx="2"/><path d="M3 8h18M8.5 21h7M12 17.5V21"/><path d="M9.5 11.5l-2 1.7 2 1.7M14.5 11.5l2 1.7-2 1.7"/>',
   boat: '<path d="M3 14.5h18l-2.6 5H5.6z"/><rect x="8" y="7.5" width="8" height="7" rx="1"/><path d="M12 7.5v7"/>',
   sofa: '<path d="M5 11V8.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2V11"/><path d="M3 12a1.5 1.5 0 0 1 3 0v2.5h12V12a1.5 1.5 0 0 1 3 0v6H3z"/><path d="M5 18v1.5M19 18v1.5"/>',
   cart: '<path d="M6.5 4v13h12"/><rect x="9" y="8" width="7.5" height="7" rx="1"/><circle cx="8" cy="19.2" r="1.4"/><circle cx="17" cy="19.2" r="1.4"/>',
@@ -2351,6 +2352,8 @@ const SRV = {
       { k: "beat", q: "Quale beat?", opt: true, chipsFn: () => [...new Set((SRV_AUDIO.beat || []).map(a => a.titolo))].slice(0, 12), when: v => v.lavoro !== "Beat su misura" }] },
   grafico: { m: "media", ic: "pen", pro: "Grafico / Social Media", s: "Grafica e Social Media", d: "Logo, grafiche e gestione dei social", noLuogo: true,
     ask: [{ k: "lavoro", q: "Cosa ti serve?", o: ["Logo", "Grafiche per i social", "Gestione dei social", "Volantino o menù"] }] },
+  sitiweb: { m: "media", ic: "web", pro: "Siti web e servizi digitali", s: "Siti web e servizi digitali", d: "Siti, app, prenotazioni online e presenza su Google", noLuogo: true,
+    ask: [{ k: "lavoro", q: "Cosa ti serve?", o: ["Sito web", "App o web app", "Negozio online", "Prenotazioni online", "Scheda Google e mappe", "Sistemare un sito che ho già"] }] },
   barca: { m: "trasporti", ic: "boat", pro: "Trasportatore Barca (targa RV)", s: "Trasporto merci in barca", d: "Bancali, attrezzature, forniture commerciali", ship: "barca" },
   facchino: { m: "trasporti", ic: "sofa", pro: "Facchino / Traslochi", s: "Trasloco / Facchinaggio", d: "Mobili, elettrodomestici, appartamenti o negozi", ship: "trasloco" },
   fattorino: { m: "trasporti", ic: "cart", pro: "Fattorino a piedi / Carrello", s: "Consegna veloce a piedi", d: "Pacchi e commissioni rapide in centro storico", ship: "piedi" },
