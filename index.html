@@ -607,6 +607,13 @@
   .pk2Row i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:12px;color:#fff}
   .pk2Row i.a, .pk2Pin.a{background:#111} .pk2Row i.b, .pk2Pin.b{background:#a8743f}
   .pk2Btns{display:flex;gap:8px;margin-top:8px} .pk2Btns .btn{margin:0} .pk2Btns .btn.ghost{flex:0 0 96px}
+  .pk2Walk{pointer-events:none;width:44px;height:36px} .pk2Walk>div{width:44px;height:36px;animation:pkBob .42s ease-in-out infinite alternate} .pk2Walk svg{width:44px;height:36px;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+  .pk2Walk.flip>div{transform:scaleX(-1)} @keyframes pkBob{from{margin-top:0}to{margin-top:-3px}}
+  #wxFx{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden} #wxFx canvas{position:absolute;inset:0;width:100%;height:100%}
+  #wxFx .fog{position:absolute;inset:-20%;opacity:0;transition:opacity 2s;background:radial-gradient(ellipse 40% 30% at 30% 40%,rgba(255,255,255,.55),transparent 70%),radial-gradient(ellipse 45% 35% at 75% 65%,rgba(255,255,255,.5),transparent 70%),radial-gradient(ellipse 35% 25% at 55% 20%,rgba(255,255,255,.45),transparent 70%);animation:fogDrift 60s linear infinite alternate}
+  #wxFx .fog2{animation-duration:90s;animation-direction:alternate-reverse;transform:scale(1.3)} #wxFx.nebbia .fog{opacity:.55} #wxFx.nebbia .fog2{opacity:.4}
+  #wxFx.nebbia::after{content:"";position:absolute;inset:0;background:rgba(236,240,243,.22)}
+  @keyframes fogDrift{from{translate:-6% -2%}to{translate:6% 3%}}
   .pk2Pin{width:30px;height:30px;border-radius:50%;color:#fff;font-weight:900;font-size:13px;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
   .spro{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;color:#111;background:#f6f7f8;border:1px solid #e6e8ea;border-radius:16px;padding:12px;margin:0 0 8px;cursor:pointer}
   .spro > span{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px} .spro > span small{color:#6b7078;font-size:12.5px} .spro > i{font-style:normal;color:#999;font-size:22px}
@@ -1813,7 +1820,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.77</p>
+      <p class="sub">clickVenice · versione 3.78</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2486,15 +2493,26 @@ function pick2Map(onDone){
     $("#pk2T").textContent = !A ? "Tocca dove ritiriamo" : !B ? "Ora tocca dove consegniamo" : "Tutto pronto: tocca Avanti";
     $("#pk2A").textContent = A ? "Ritiro: " + A.name : "Ritiro: tocca la mappa"; $("#pk2B").textContent = B ? "Consegna: " + B.name : "Consegna";
     const ok = $("#pk2Ok"); ok.disabled = !(A && B); ok.style.opacity = A && B ? "" : ".4"; draw(); };
-  const reset = () => { A = B = null; if (mA) mA.remove(); if (mB) mB.remove(); mA = mB = null; paint(); };
+  const reset = () => { droneStop(); A = B = null; if (mA) mA.remove(); if (mB) mB.remove(); mA = mB = null; paint(); };
   addMode = "pick2"; map.on("move", draw);
+  // l'omino con il carrello che va da A a B lungo la linea tratteggiata
+  let walker = null, wRaf = 0, wT0 = 0;
+  const walk = now => { if (!A || !B){ if (walker){ walker.remove(); walker = null; } wRaf = 0; return; }
+    if (!walker){ const el = document.createElement("div"); el.className = "pk2Walk"; el.innerHTML = `<div>${OMINO_SVG}</div>`; walker = new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat([A.lng, A.lat]).addTo(map); wT0 = now; }
+    const DUR = 5200, PAUSA = 900, k = ((now - wT0) % (DUR + PAUSA)) / DUR, t = Math.min(1, k), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const pa = map.project([A.lng, A.lat]), pb = map.project([B.lng, B.lat]), d = Math.hypot(pb.x - pa.x, pb.y - pa.y);
+    const c = { x: (pa.x + pb.x) / 2, y: Math.min(pa.y, pb.y) - Math.max(40, d * 0.45) };
+    const x = (1 - e) * (1 - e) * pa.x + 2 * (1 - e) * e * c.x + e * e * pb.x, y = (1 - e) * (1 - e) * pa.y + 2 * (1 - e) * e * c.y + e * e * pb.y;
+    walker.setLngLat(map.unproject([x, y])); walker.getElement().classList.toggle("flip", pb.x < pa.x);
+    wRaf = requestAnimationFrame(walk); };
   window._pk2Click = e => { const ll = { lat: +e.lat.toFixed(6), lng: +e.lng.toFixed(6) }; ll.name = nome(ll); haptic();
     if (!A){ A = ll; mA = pin(A, "a"); }
     else if (!B){ B = ll; mB = pin(B, "b");
-      try{ const b = new maplibregl.LngLatBounds([A.lng, A.lat], [A.lng, A.lat]).extend([B.lng, B.lat]); map.fitBounds(b, { padding: { top: 150, bottom: 230, left: 50, right: 50 }, maxZoom: 17.5, duration: 500 }); }catch(err){} }
+      try{ const b = new maplibregl.LngLatBounds([A.lng, A.lat], [A.lng, A.lat]).extend([B.lng, B.lat]); map.fitBounds(b, { padding: { top: 150, bottom: 230, left: 50, right: 50 }, maxZoom: 17.5, duration: 500 }); droneStart(); }catch(err){} }
     else { B = ll; mB.setLngLat([B.lng, B.lat]); }   // terzo tocco: sposta la consegna
-    paint(); };
+    paint(); if (A && B && !wRaf) wRaf = requestAnimationFrame(walk); };
   const fine = r => { addMode = null; window._pk2Click = null; map.off("move", draw); if (mA) mA.remove(); if (mB) mB.remove();
+    cancelAnimationFrame(wRaf); wRaf = 0; if (walker){ walker.remove(); walker = null; } droneStop();
     try{ map.getSource("pk2l").setData({ type: "FeatureCollection", features: [] }); }catch(e){}
     o.remove(); mapPickEnd(); onDone(r); };
   try{ loadCivici().then(() => { if (A) A.name = nome(A); if (B) B.name = nome(B); paint(); }); }catch(e){}
@@ -4667,7 +4685,7 @@ function say(t){ return;   // voce delle indicazioni tolta
 function fpLock(on){ if (!map) return;
   ["dragPan", "dragRotate", "touchPitch", "keyboard", "doubleClickZoom"].forEach(k => { try{ if (map[k]) on ? map[k].disable() : map[k].enable(); }catch(e){} });
   try{ on ? map.touchZoomRotate.disableRotation() : map.touchZoomRotate.enableRotation(); }catch(e){} }
-function setFollow(v){ if (!v && view3d) setFirstPerson(false); follow = v; $("#fabGps").classList.toggle("follow", v && watchId !== null); if (!v) camC = null; }
+function setFollow(v){ if (v) droneStop(); if (!v && view3d) setFirstPerson(false); follow = v; $("#fabGps").classList.toggle("follow", v && watchId !== null); if (!v) camC = null; }
 function screenAngle(){ try{ return (screen.orientation && typeof screen.orientation.angle === "number") ? screen.orientation.angle : (window.orientation || 0); }catch(e){ return 0; } }
 function onOrient(ev){
   let h = null;
@@ -5618,7 +5636,7 @@ async function startNav(dest, opt){
     NAV.R = opt.R || walkAir(from, dest); NAV.lastCalc = Date.now();
     if (!opt.R) walkRoute(from, dest).then(W => { if (NAV === myNav){ NAV.R = W; NAV.idx = 0; drawRoute(); navTick(lastPos); } });
     drawRoute();
-    if (!lastPos){ const b = new maplibregl.LngLatBounds(); NAV.R.pts.forEach(p => b.extend([p[1], p[0]])); map.fitBounds(b, { padding: 80, duration: 800 }); }
+    if (!lastPos){ const b = new maplibregl.LngLatBounds(); NAV.R.pts.forEach(p => b.extend([p[1], p[0]])); map.fitBounds(b, { padding: 80, duration: 800 }); droneStart(); }
     else { setFollow(true); camera(true); }
     navTick(lastPos); say(NAV.pending ? "Vai al punto di partenza" : "Percorso a piedi calcolato");
     return;
@@ -5628,14 +5646,14 @@ async function startNav(dest, opt){
     drawRoute(); navTick(lastPos);
     $("#etaSub").textContent = "Scarico la rete dei canali…";
     loadGraph().then(() => { if (NAV === myNav){ NAV.R = computeRoute(NAV.pending ? NAV.origin : (lastPos || from), dest); NAV.idx = 0; drawRoute(); navTick(lastPos); say("Percorso calcolato"); } });
-    if (!lastPos){ const b = new maplibregl.LngLatBounds(); NAV.R.pts.forEach(p => b.extend([p[1], p[0]])); map.fitBounds(b, { padding: 80, duration: 800 }); }
+    if (!lastPos){ const b = new maplibregl.LngLatBounds(); NAV.R.pts.forEach(p => b.extend([p[1], p[0]])); map.fitBounds(b, { padding: 80, duration: 800 }); droneStart(); }
     else { setFollow(true); camera(true); }
     if (!NAV.pending) startRec(true);
     return;
   }
   NAV.R = opt.R || computeRoute(from, dest); NAV.lastCalc = Date.now();
   drawRoute();
-  if (!lastPos){ const b = new maplibregl.LngLatBounds(); NAV.R.pts.forEach(p => b.extend([p[1], p[0]])); map.fitBounds(b, { padding: 80, duration: 800 }); }
+  if (!lastPos){ const b = new maplibregl.LngLatBounds(); NAV.R.pts.forEach(p => b.extend([p[1], p[0]])); map.fitBounds(b, { padding: 80, duration: 800 }); droneStart(); }
   else { setFollow(true); camera(true); }
   navTick(lastPos); if (!NAV.pending) startRec(true);
   if (NAV.pending) say("Vai al punto di partenza"); else say(NAV.R.src === "lavoro" ? "Percorso calcolato sui tragitti abituali" : "Percorso calcolato");
@@ -5930,7 +5948,7 @@ async function planBoat(seq){
 }
 function fitPlan(R){
   if (!R || !map) return; const b = new maplibregl.LngLatBounds(); R.pts.forEach(p => b.extend([p[1], p[0]]));
-  setFollow(false); map.fitBounds(b, { padding: { top: 290, bottom: 120, left: 50, right: 50 }, duration: 700, bearing: 0, pitch: 0 });
+  setFollow(false); map.fitBounds(b, { padding: { top: 290, bottom: 120, left: 50, right: 50 }, duration: 700, bearing: 0, pitch: 0 }); droneStart();
 }
 /* anteprima del viaggio in vaporetto: a piedi fino alla fermata, le fermate del battello lungo i canali, a piedi fino all'arrivo */
 async function tripPreview(j, from, to){
@@ -5965,7 +5983,7 @@ async function tripPreview(j, from, to){
 function fitFeats(F){
   if (!map || !F || !F.length) return; const b = new maplibregl.LngLatBounds();
   F.forEach(f => { const c = f.geometry.coordinates; if (f.geometry.type === "Point") b.extend(c); else c.forEach(x => b.extend(x)); });
-  setFollow(false); map.fitBounds(b, { padding: { top: 290, bottom: 120, left: 50, right: 50 }, duration: 700, bearing: 0, pitch: 0, maxZoom: 17 });
+  setFollow(false); map.fitBounds(b, { padding: { top: 290, bottom: 120, left: 50, right: 50 }, duration: 700, bearing: 0, pitch: 0, maxZoom: 17 }); droneStart();
 }
 /* Kiwitaxi: taxi in auto su ogni tragitto che tocca la terraferma o l'aeroporto (non dentro Venezia).
    Se l'altro capo è a Venezia, l'auto arriva a Piazzale Roma o al Tronchetto, quello più vicino al punto di Venezia. */
@@ -9073,14 +9091,78 @@ $("#trClose").onclick = () => setAppMode("nautica");
 
 /* ---------- mini widget in basso a sinistra: velocità · velox · marea · acqua sotto il piede ---------- */
 setTimeout(() => { loadTide(); }, 1500);
+/* effetto drone: quando si imposta un tragitto la visuale dall'alto scorre piano a destra e a sinistra; si ferma appena tocchi la mappa */
+const OMINO_SVG = `<svg viewBox="0 0 44 36"><g fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="3.2" fill="#111"/><path d="M9 9l1 10M10 19l-4 9M10 19l4 9M9.5 12l7 4"/>
+  <path d="M16 15h3l2 12h16l3-10H20"/></g><path d="M21 17h18l-2.6 8.5H22.6z" fill="#3dc991" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/><circle cx="24" cy="31" r="2.6" fill="#111"/><circle cx="35" cy="31" r="2.6" fill="#111"/></svg>`;
+const DRONE = { on: false, id: 0, dir: 1, tm: null, t0: 0, ours: false };
+function droneStop(){ if (!DRONE.on) return; DRONE.on = false; DRONE.id++; clearTimeout(DRONE.tm); if (DRONE.ours){ DRONE.ours = false; try{ map.stop(); }catch(e){} } }
+function droneStart(){
+  if (!map || follow) return; clearTimeout(DRONE.tm); DRONE.ours = false; DRONE.on = true; const id = ++DRONE.id; DRONE.dir = Math.random() < .5 ? 1 : -1; DRONE.t0 = Date.now();
+  let first = true;
+  const step = () => {
+    if (!DRONE.on || DRONE.id !== id) return;
+    if (follow || Date.now() - DRONE.t0 > 4 * 60000) return droneStop();   // dopo 4 minuti si riposa, per la batteria
+    if (document.hidden || !map.getContainer().offsetParent){ DRONE.tm = setTimeout(step, 1500); return; }
+    const w = map.getContainer().clientWidth, dx = DRONE.dir * Math.round(w * (first ? .07 : .14)), dur = first ? 6000 : 11000; first = false;
+    DRONE.ours = true; map.panBy([dx, 0], { duration: dur, easing: t => .5 - .5 * Math.cos(Math.PI * t) });
+    map.once("moveend", () => { DRONE.ours = false; if (!DRONE.on || DRONE.id !== id) return; DRONE.dir *= -1; DRONE.tm = setTimeout(step, 250); }); };
+  // parte quando la mappa ha finito di inquadrare il tragitto
+  let started = false; const go = () => { if (started || DRONE.id !== id) return; started = true; DRONE.tm = setTimeout(step, 700); };
+  map.once("moveend", go); setTimeout(go, 1600);
+}
+setTimeout(() => { if (!map) return; const c = map.getContainer(); ["touchstart", "mousedown", "wheel"].forEach(ev => c.addEventListener(ev, () => droneStop(), { passive: true })); }, 2500);
+
+/* meteo vero sulla mappa: pioggia, neve o un velo di nebbia leggero (si vede sempre la mappa) */
+const WX = { tipo: null, int: 0, raf: 0, drops: [], cv: null };
+function wxTipo(){
+  const f = /[?&#]meteo=(pioggia|neve|nebbia|sereno)/.exec(location.search + location.hash); if (f) return [f[1], 2.5];   // ?meteo=pioggia per provare
+  if (!METEO) return [null, 0]; const c = METEO.c, mm = METEO.p || 0;
+  if (c === 45 || c === 48) return ["nebbia", 1];
+  if ((c >= 71 && c <= 77) || c === 85 || c === 86) return ["neve", Math.max(1, mm * 2)];
+  if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82) || c >= 95) return ["pioggia", Math.max(c <= 57 ? .5 : 1, mm)];
+  return [null, 0];
+}
+function wxApply(){
+  const host = $("#map"); if (!host) return;
+  let fx = $("#wxFx"); if (!fx){ fx = document.createElement("div"); fx.id = "wxFx"; fx.innerHTML = `<canvas></canvas><div class="fog"></div><div class="fog fog2"></div>`; host.appendChild(fx); WX.cv = fx.querySelector("canvas"); }
+  const [tipo, int] = wxTipo(); WX.tipo = tipo === "sereno" ? null : tipo; WX.int = int;
+  fx.className = WX.tipo === "nebbia" ? "nebbia" : "";
+  const n = WX.tipo === "pioggia" ? Math.round(Math.min(320, 70 + int * 60)) : WX.tipo === "neve" ? Math.round(Math.min(160, 50 + int * 30)) : 0;
+  WX.drops = Array.from({ length: n }, () => ({ x: Math.random(), y: Math.random(), v: .6 + Math.random() * .6, l: .5 + Math.random() * .7 }));
+  if (n && !WX.raf) WX.raf = requestAnimationFrame(wxFrame);
+  if (!n){ cancelAnimationFrame(WX.raf); WX.raf = 0; const g = WX.cv.getContext("2d"); g.clearRect(0, 0, WX.cv.width, WX.cv.height); }
+}
+let wxLast = 0;
+function wxFrame(now){
+  WX.raf = 0; if (!WX.drops.length) return;
+  if (document.hidden || !$("#map").offsetParent){ setTimeout(() => { if (!WX.raf) WX.raf = requestAnimationFrame(wxFrame); }, 1000); return; }
+  const cv = WX.cv, dpr = Math.min(1.5, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const dt = Math.min(50, now - (wxLast || now)) / 1000; wxLast = now;
+  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const vento = Math.min(.35, ((METEO && METEO.w) || 8) / 80);
+  if (WX.tipo === "pioggia"){
+    g.strokeStyle = "rgba(60,90,125,.45)"; g.lineWidth = 1.2; g.lineCap = "round"; g.beginPath();
+    for (const d of WX.drops){ d.y += d.v * dt * 1.25; d.x += vento * d.v * dt * 1.25 * H / W; if (d.y > 1.05){ d.y = -.05; d.x = Math.random() * 1.2 - .1; } if (d.x > 1.05) d.x -= 1.1;
+      const x = d.x * W, y = d.y * H, L = 14 * d.l; g.moveTo(x, y); g.lineTo(x - vento * L, y - L); }
+    g.stroke();
+  } else if (WX.tipo === "neve"){
+    g.fillStyle = "rgba(255,255,255,.9)"; g.strokeStyle = "rgba(120,140,160,.35)"; g.lineWidth = .6;
+    for (const d of WX.drops){ d.y += d.v * dt * .12; d.x += (Math.sin(now / 900 + d.l * 9) * .02 + vento * .1) * dt; if (d.y > 1.03){ d.y = -.03; d.x = Math.random(); } if (d.x > 1.03) d.x -= 1.06; if (d.x < -.03) d.x += 1.06;
+      g.beginPath(); g.arc(d.x * W, d.y * H, 1.4 + d.l * 1.6, 0, 7); g.fill(); g.stroke(); }
+  }
+  WX.raf = requestAnimationFrame(wxFrame);
+}
+setTimeout(async () => { await loadMeteo(); wxApply(); }, 3000);
+setInterval(async () => { await loadMeteo(); wxApply(); }, 15 * 60000 + 5000);
 /* meteo di Venezia (Open-Meteo, senza chiave), aggiornato ogni 15 minuti */
 let METEO = null, meteoAt = 0;
 const WMO = c => c === 0 ? ["☀️", "sereno"] : c <= 2 ? ["🌤️", "poco nuvoloso"] : c === 3 ? ["☁️", "nuvoloso"] : c <= 48 ? ["🌫️", "nebbia"] : c <= 57 ? ["🌦️", "pioviggine"] : c <= 67 ? ["🌧️", "pioggia"] : c <= 77 ? ["🌨️", "neve"] : c <= 82 ? ["🌧️", "rovesci"] : c <= 86 ? ["🌨️", "neve"] : ["⛈️", "temporale"];
 async function loadMeteo(){
   if (Date.now() - meteoAt < 15 * 60000) return; meteoAt = Date.now();
   const p = lastPos || { lat: 45.4371, lng: 12.3326 };
-  try{ const j = await fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${p.lat.toFixed(3)}&longitude=${p.lng.toFixed(3)}&current=temperature_2m,weather_code,wind_speed_10m&timezone=Europe%2FRome`, {}, 12000).then(r => r.json());
-    if (j && j.current) METEO = { t: j.current.temperature_2m, c: j.current.weather_code, w: j.current.wind_speed_10m }; }catch(e){ meteoAt = Date.now() - 13 * 60000; }
+  try{ const j = await fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${p.lat.toFixed(3)}&longitude=${p.lng.toFixed(3)}&current=temperature_2m,weather_code,wind_speed_10m,precipitation&timezone=Europe%2FRome`, {}, 12000).then(r => r.json());
+    if (j && j.current) METEO = { t: j.current.temperature_2m, c: j.current.weather_code, w: j.current.wind_speed_10m, p: j.current.precipitation || 0 }; }catch(e){ meteoAt = Date.now() - 13 * 60000; }
 }
 function paintMeteo(){
   if (Date.now() - meteoAt > 15 * 60000) loadMeteo();
