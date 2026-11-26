@@ -1461,6 +1461,28 @@
   #mkPanel .mkQ{margin:0 0 4px;font-size:15px;font-weight:800;color:var(--f-ink)}
   body.mode-market #mkPanel{border-top-color:var(--f-red)!important}
   #mkPanel .stop b{color:var(--f-red)!important}
+  /* Servizi: logo in alto e sei tasti larghi e bassi, tutto in una schermata */
+  .sx2 .sxHead{background:#fff;color:#0f172a;padding:calc(10px + var(--safe-t)) 18px 8px;border-radius:0;text-align:center}
+  .sx2 .sxLogo{display:block;width:min(74%,270px);height:auto;margin:0 auto}
+  .sx2 .sxHead p{color:#64748b;margin:4px 0 0;font-size:13.5px}
+  .sxBig{display:flex;flex-direction:column;gap:9px;padding:10px 14px 16px}
+  .sxBig button{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:9px 12px;border:1px solid #e5e7eb;border-left:5px solid var(--sc);border-radius:16px;background:#fff;text-align:left;color:#0f172a;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+  .sxBig button:active{transform:scale(.98);background:#f8fafc}
+  .sxBig .ic{flex:0 0 40px;width:40px;height:40px;border-radius:12px;background:var(--sc);display:flex;align-items:center;justify-content:center}
+  .sxBig .ic svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .sxBig span{flex:1;min-width:0} .sxBig b{display:block;font-size:15.5px;line-height:1.2;font-weight:800}
+  .sxBig small{display:block;font-size:12.5px;color:#64748b;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sxBig em{font-style:normal;font-size:24px;color:var(--sc);font-weight:700}
+  /* tasto Servizi: il dito tocca lo schermo del telefono */
+  #tabs .srvIc{position:relative;display:block;width:26px;height:26px;flex:none}
+  #tabs .srvIc img{position:absolute;left:50%;top:50%;width:31px;height:31px;margin:-16px 0 0 -15.5px;-webkit-user-drag:none;user-select:none;pointer-events:none;filter:grayscale(1) opacity(.55);transition:filter .25s}
+  #tabs .srvRip{position:absolute;left:11.5px;top:14.3px;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;border:1.6px solid #2b9cc9;opacity:0;pointer-events:none}
+  #tabs button[data-pm="ship"].on .srvIc img{filter:none}
+  #tabs button[data-pm="ship"].on .srvHand{animation:srvTap 2.2s cubic-bezier(.45,0,.55,1) infinite}
+  #tabs button[data-pm="ship"].on .srvRip{animation:srvRip 2.2s ease-out infinite}
+  @keyframes srvTap{0%,100%{transform:translate(2.2px,2.2px)}38%{transform:translate(0,0)}46%{transform:translate(-.3px,-.3px) scale(.96)}56%{transform:translate(0,0)}}
+  @keyframes srvRip{0%,40%{transform:scale(.3);opacity:0}46%{transform:scale(.5);opacity:1}90%,100%{transform:scale(1.7);opacity:0}}
+  #tabs button[data-pm="ship"].pop .srvIc{animation:tabHop .55s cubic-bezier(.34,1.56,.64,1)}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2005,7 +2027,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.08</p>
+      <p class="sub">clickVenice · versione 4.09</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2446,6 +2468,7 @@ const TAB_IC = {   // linea sottile · .s si riempie quando la scheda è selezio
 function buildDial(){
   $("#tabs").innerHTML = MODES.filter(x => !x.hidden).map(x => x.k === "nautica"
     ? `<button role="tab" data-pm="${x.k}" class="mid"><i class="ring"><img class="logoTab" src="logo-tab.png" alt="" draggable="false"></i><span>${x.n}</span></button>`
+    : x.k === "ship" ? `<button role="tab" data-pm="ship"><i class="srvIc" aria-hidden="true"><img class="srvPh" src="srv-phone.png" alt="" draggable="false"><b class="srvRip"></b><img class="srvHand" src="srv-hand.png" alt="" draggable="false"></i><span>${x.n}</span></button>`
     : x.k === "market" ? `<button role="tab" data-pm="market"><i class="foodIc" aria-hidden="true"><img class="foodTab" src="food-tab.png" alt="" draggable="false"><img class="foodSmoke" src="food-smoke.png" alt="" draggable="false"><img class="foodSmoke s2" src="food-smoke.png" alt="" draggable="false"></i><span>${x.n}</span></button>`
     : `<button role="tab" data-pm="${x.k}"><svg viewBox="${x.k === "shop" ? "3 7.5 21 16" : "0 0 24 24"}" aria-hidden="true">${TAB_IC[x.k] || ""}</svg><span>${x.n}</span></button>`).join("");
 }
@@ -2657,7 +2680,9 @@ const SX_IC = {
   cam: '<rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3"/>',
   web: '<rect x="3" y="4.5" width="18" height="13" rx="2"/><path d="M3 8h18M8.5 21h7M12 17.5V21"/><path d="M9.5 11.5l-2 1.7 2 1.7M14.5 11.5l2 1.7-2 1.7"/>',
   mic: '<rect x="9" y="3.5" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5M8.5 20.5h7"/>',
-  plus: '<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/>' };
+  plus: '<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/>',
+  pro: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.4 2.8-5.3 5.5-5.3s4.9 1.9 5.5 5.3"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.4c2.4-.2 4.3 1.4 4.9 4.6"/>',
+  conv: '<path d="M3.5 12.2V4.5h7.7l9.3 9.3-7.7 7.7z"/><circle cx="7.8" cy="8.8" r="1.5"/><path d="M10.5 15l4.5-4.5"/>' };
 const sxSvg = k => `<svg viewBox="0 0 24 24">${SX_IC[k]}</svg>`;
 function sxDa(cats, fall){   // prezzo di partenza vero (la tariffa più bassa dei professionisti attivi), altrimenti il testo di base
   const A = srvAtt(), v = cats.map(c => A[c]).filter(a => a && a.tariffa != null);
@@ -2685,28 +2710,31 @@ function sxSuMisura(){
     if (!r || !r.codice){ b.disabled = false; b.textContent = "Chiedi il preventivo"; return toast(r && r.errore === "non_autorizzato" ? "Per chiedere un preventivo serve l'account." : r && r.errore === "troppe" ? "Hai inviato tante richieste oggi: riprova domani." : "Non inviata: controlla la connessione."); }
     store.set("ln_ship_contatto", Object.assign({}, last, { nome, tel })); haptic(); closeSheet(); toast("Richiesta " + r.codice + " inviata ✓ · ti rispondiamo presto"); loadShipMine(); };
 }
-function paintSrv(){
-  const F = SX_F, show = g => F === "tutti" || F === g;
-  const feat = [
-    { g: "taxi", ic: "taxi", t: "Ordina un Taxi Acqueo", d: "Transfer rapidi in laguna, aeroporto e stazione", a: "Prenota", go: () => { setMode("nautica"); setTimeout(taxiFab, 250); } },
-    { g: "delivery", ic: "food", t: "Consegne & Food in Barca", d: "Cibo, spesa e pacchi consegnati dove sei", a: "Ordina ora", go: () => setMode("market") } ].filter(x => show(x.g));
-  const rows = [
-    { g: "taxi", ic: "merci", t: "Trasporti Merci & Traslochi", d: "Spostamenti in barca, facchinaggio e logistica", a: sxDa(["barca", "facchino", "fattorino"], "da 150 €"), go: () => sxScegli("Trasporti Merci & Traslochi", ["barca", "facchino", "fattorino"]) },
-    { g: "barche", ic: "barca", t: "Compra o Vendi Barca", tag: "Barketplace", d: "Annunci verificati e aste barche in laguna", a: "Esplora", go: () => setMode("shop") },
-    { g: "media", ic: "cam", t: "Video & Foto Pro", d: "Riprese per eventi, attività e matrimoni", l: "Guarda portfolio", a: sxDa(["videomaker"], "da 150 €"), go: () => srvPros("videomaker") },
-    { g: "media", ic: "web", t: "Siti Web & Servizi Digitali", d: "Siti veloci, prenotazioni online e Google Maps", a: "Richiedi", go: () => srvPros("sitiweb") },
-    { g: "media", ic: "mic", t: "Studio, Mix & Master", d: "Registrazione voce e suono pronto per Spotify", l: "Ascolta demo", a: sxDa(["studio", "mixmaster"], "da 15 €/ora"), go: () => sxScegli("Studio, Mix & Master", ["studio", "mixmaster"]) } ].filter(x => show(x.g));
-  const ALL = feat.concat(rows);
-  $("#shipTypes").innerHTML = `<div class="sx">
-    <div class="sxHead"><h2>Servizi su misura</h2><p>Prenota, ordina o richiedi un professionista a Venezia in un click.</p>
-      <div class="sxPills">${[["tutti", "Tutti"], ["taxi", "Trasporti & Taxi"], ["delivery", "Delivery"], ["barche", "Barche"], ["media", "Media & Web"]].map(([k, n]) => `<button data-sxf="${k}" class="${F === k ? "on" : ""}">${n}</button>`).join("")}</div></div>
-    ${feat.length ? `<div class="sxSec">In evidenza</div><div class="sxFeat"${feat.length === 1 ? ' style="grid-template-columns:1fr"' : ""}>${feat.map((x, i) => `<button data-sxi="${i}">${sxSvg(x.ic)}<b>${x.t}</b><small>${x.d}</small><em class="sxAct">${x.a}</em></button>`).join("")}</div>` : ""}
-    ${rows.length ? `<div class="sxSec">Servizi</div>` : ""}
-    <div class="sxList">${rows.map((x, i) => `<button class="sxRow" data-sxi="${feat.length + i}"><i class="ic">${sxSvg(x.ic)}</i><span><b>${x.t}${x.tag ? `<em class="tag">${x.tag}</em>` : ""}</b><small>${x.d}${x.l ? ` • <em class="lnk">${x.l}</em>` : ""}</small></span><em class="sxAct">${x.a}</em></button>`).join("")}
-      <button class="sxRow last" id="sxMis"><i class="ic">${sxSvg("plus")}</i><span><b>Hai un'esigenza su misura?</b><small>Descrivi cosa ti serve a Venezia e ricevi un preventivo rapido</small></span><em class="sxAct">Chiedi ora</em></button></div></div>`;
-  document.querySelectorAll("#shipTypes [data-sxf]").forEach(b => b.onclick = () => { if (SX_F === b.dataset.sxf) return; SX_F = b.dataset.sxf; haptic(); paintSrv(); });
+function paintSrv(){   // una sola schermata: sei tasti larghi e bassi
+  const MERCI = ["barca", "facchino", "fattorino"];
+  const ALL = [
+    { ic: "taxi", c: "#1d4e89", t: "Chiama un taxi", d: "Taxi acqueo in laguna, aeroporto e stazione", go: () => { setMode("nautica"); setTimeout(taxiFab, 250); } },
+    { ic: "food", c: "#ac3d21", t: "Consegne a domicilio", d: "Cibo dei ristoranti convenzionati a casa tua", go: () => setMode("market") },
+    { ic: "pro", c: "#2b7bba", t: "Trova professionisti a Venezia", d: "Video, foto, siti web, musica e altro", go: () => sxScegli("Professionisti a Venezia", Object.keys(SRV).filter(k => !MERCI.includes(k))) },
+    { ic: "merci", c: "#13294b", t: "Trasporto merci e traslochi", d: "In barca o a piedi, con facchinaggio", go: () => sxScegli("Trasporto merci e traslochi", MERCI) },
+    { ic: "conv", c: "#d6551b", t: "Attività convenzionate e sconto residenti", d: "Negozi e locali con lo sconto per chi vive qui", go: sxConv },
+    { ic: "barca", c: "#1d4e89", t: "Compravendita di barche", d: "Barche, motori e accessori su Barketplace", go: () => setMode("shop") } ];
+  $("#shipTypes").innerHTML = `<div class="sx sx2">
+    <div class="sxHead"><img class="sxLogo" src="logo-word.png" alt="clickVenice.com"><p>Tutto quello che ti serve a Venezia, in un click.</p></div>
+    <div class="sxBig">${ALL.map((x, i) => `<button data-sxi="${i}" style="--sc:${x.c}"><i class="ic">${sxSvg(x.ic)}</i><span><b>${x.t}</b><small>${x.d}</small></span><em>›</em></button>`).join("")}</div></div>`;
   document.querySelectorAll("#shipTypes [data-sxi]").forEach(b => b.onclick = () => { haptic(); ALL[+b.dataset.sxi].go(); });
-  $("#sxMis").onclick = () => { haptic(); sxSuMisura(); };
+}
+async function sxConv(){   // attività convenzionate: chi fa lo sconto ai residenti
+  const paint = () => {
+    const L = PARTNERS.slice().sort((a, b) => (+b.sconto_pct || 0) - (+a.sconto_pct || 0));
+    openSheet(`<h3>Attività convenzionate</h3><p class="muted" style="margin-top:-4px;line-height:1.4">Sconti per chi vive a Venezia: mostra l'app alla cassa o ordina da qui.</p>
+      ${L.length ? L.map(p => `<button class="sxRow" data-cv="${p.id}" style="border-radius:0"><i class="ic">${sxSvg(p.category === "food" ? "food" : "conv")}</i><span><b>${esc(p.name)}</b><small>${esc(p.address || "Venezia")}</small></span>${+p.sconto_pct ? `<em class="sxAct" style="background:#d6551b;color:#fff;border-radius:99px;padding:3px 9px;font-style:normal;font-weight:800">-${+p.sconto_pct}%</em>` : ""}</button>`).join("")
+        : `<p style="line-height:1.45">Le prime attività convenzionate arrivano a breve.</p>`}
+      <button class="btn ghost" style="margin-top:12px" onclick="closeSheet()">Chiudi</button>`, "light");
+    document.querySelectorAll("[data-cv]").forEach(b => b.onclick = () => { const p = PARTNERS.find(z => z.id === +b.dataset.cv); if (p) openPartner(p); });
+  };
+  if (!PARTNERS.length){ try{ await loadPartners(); }catch(e){} }
+  paint();
 }
 // titoli e sottotitoli della pagina Servizi (più diretti); il micro-link apre i lavori del professionista
 const SRV_TXT = {
