@@ -1575,6 +1575,9 @@
   body.guest #pfScroll > *:not(.mchead):not(#pfGuest){display:none!important} body:not(.guest) #pfGuest{display:none}
   #pfGuest{text-align:center;padding:30px 20px 10px} #pfGuest .pfgIc{font-size:46px} #pfGuest h3{margin:8px 0 6px;font-size:22px} #pfGuest p{color:#64748b;line-height:1.45;margin:0 0 16px}
   body.guest .mchead .mcic{display:none!important}
+  .espMk{width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px #c9a24a,0 2px 8px rgba(0,0,0,.35);display:grid;place-items:center;font-size:19px;cursor:pointer}
+  body.hide-esp .espMk, body.mode-market .espMk, body.mode-incontra .espMk, body.mode-trasporti .espMk{display:none!important}
+  body.hide-esp .gonMk.tour{display:none!important}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1881,6 +1884,7 @@
       <button class="srow" data-set="sat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.8 5.4 3.8 8.5s-1.3 5.9-3.8 8.5c-2.5-2.6-3.8-5.4-3.8-8.5S9.5 6.1 12 3.5z"/></svg><span>Satellitare</span><i class="sw"></i></button>
       <label class="srow hidden" id="waterColRow"><svg viewBox="0 0 24 24"><path d="M3 15c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/><path d="M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/><path d="M12 3.5c2.4 3 4 5.2 4 7a4 4 0 0 1-8 0c0-1.8 1.6-4 4-7z"/></svg><span>Colore dell'acqua</span><input type="color" id="waterCol" value="#3dc991"><button type="button" id="waterColReset" title="Colore di default">↺</button></label>
       <button class="srow" data-set="tesori"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9 9.5h6M9 14.5h6M12 7v10"/></svg><span>Tesori</span><i class="sw"></i></button>
+      <button class="srow" data-set="esperienze"><svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.4.6-4 3.8 1.1 5.4L12 15.1l-4.9 2.7 1.1-5.4-4-3.8 5.4-.6z"/></svg><span>Esperienze</span><i class="sw"></i></button>
       <button class="srow" data-set="gondole"><svg viewBox="0 0 24 24"><path d="M3 15c4 3 14 3 18-3M6 14l2-7M10 14.5V9"/></svg><span>Gondole e traghetti</span><i class="sw"></i></button>
       <button class="srow" data-set="segnal"><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg><span>Segnalazioni</span><i class="sw"></i></button>
       <button class="srow" data-set="boat"><svg viewBox="0 0 24 24"><path d="M3 15.5h18l-2.6 4.5H5.6z"/><path d="M12 3v12.5M12 4.5l6 9h-6"/></svg><span>La tua barca</span><i class="sw"></i></button>
@@ -2120,7 +2124,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.26</p>
+      <p class="sub">clickVenice · versione 4.27</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -8029,7 +8033,7 @@ document.querySelectorAll("#setPanel [data-set]").forEach(b => b.onclick = () =>
   paintSet(); try{ haptic(); }catch(e){}
 });
 paintSet();
-function mkVis(){ document.body.classList.toggle("hide-tesori", LY.tesori === false); document.body.classList.toggle("hide-segnal", LY.segnal === false); try{ gondVis(); }catch(e){} }
+function mkVis(){ document.body.classList.toggle("hide-tesori", LY.tesori === false); document.body.classList.toggle("hide-segnal", LY.segnal === false); try{ gondVis(); }catch(e){} document.body.classList.toggle("hide-esp", LY.esperienze === false); }
 mkVis();
 // ogni tocco cambia mappa: semplice ⇄ satellite
 $("#fabSat").onclick = e => { e.stopPropagation(); mapMode = mapMode === "sat" ? "simple" : "sat";
@@ -11473,6 +11477,37 @@ function gondTour(){
   EXT_HOOK = "Tour in gondola"; tpMount($("#gonW"), "gondtour", GON_TOUR_W, "Tour in gondola");
   setTimeout(() => { const b = $("#gonW"); if (b && b.firstElementChild && b.firstElementChild.tagName === "P" && b.children.length > 1) b.firstElementChild.remove(); }, 2500);
   $("#gonTGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: "Tour in gondola · Calle San Gallo", lat: GON_TOUR.lat, lng: GON_TOUR.lng }); };
+}
+/* ---------- Esperienze su Naviga: tour e laboratori prenotabili online (widget Travelpayouts) ---------- */
+const ESP = [
+  { n: "Laboratorio di maschere veneziane", sub: "Venice: Mask-Making Tour · crea la tua maschera con un artigiano", luogo: "Palazzo delle Prigioni, vicino a Palazzo Ducale", ic: "🎭", lat: 45.43392, lng: 12.34098,
+    w: "https://tpembd.com/content?currency=EUR&trs=606360&shmarker=811379&product=1051825&language=it&layout=compact&orientation=vertical&powered_by=true&campaign_id=89&promo_id=3984" },
+  { n: "Tour in gondola", sub: "Giro in gondola con Venice Tours", luogo: "Calle San Gallo 1093/b, vicino a Piazza San Marco", ic: "🚣", lat: 45.43432, lng: 12.33708, w: null, gond: true } ];
+let ESP_MK = [];
+function espDraw(){
+  if (!map || !window.maplibregl) return setTimeout(espDraw, 3000);
+  ESP_MK.forEach(m => m.remove()); ESP_MK = [];
+  ESP.filter(x => !x.gond).forEach(x => { const el = document.createElement("div"); el.className = "espMk"; el.setAttribute("data-noico", ""); el.innerHTML = `<span>${x.ic}</span>`;
+    el.onclick = ev => { ev.stopPropagation(); espOpen(x); }; ESP_MK.push(new maplibregl.Marker({ element: el, anchor: "center" }).setLngLat([x.lng, x.lat]).addTo(map)); });
+}
+setTimeout(espDraw, 4600);
+function espOpen(x){
+  if (x.gond) return gondTour();
+  openSheet(`<h3>${x.ic} ${esc(x.n)}</h3><p class="muted" style="margin-top:-4px;line-height:1.4">${esc(x.sub)}<br>📍 ${esc(x.luogo)}</p>
+    <div id="espW" class="carW"><p class="muted">Carico le disponibilità…</p></div>
+    <button class="btn ghost" id="espGo" style="margin-top:10px">Portami qui</button>
+    <button class="btn ghost" id="espAll" style="margin-top:8px">Altre esperienze</button>
+    <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`, "light");
+  EXT_HOOK = x.n; tpMount($("#espW"), "esp|" + x.n, x.w, x.n);
+  setTimeout(() => { const b = $("#espW"); if (b && b.firstElementChild && b.firstElementChild.tagName === "P" && b.children.length > 1) b.firstElementChild.remove(); }, 2500);
+  $("#espGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: x.n, lat: x.lat, lng: x.lng }); };
+  $("#espAll").onclick = espList;
+}
+function espList(){
+  openSheet(`<h3>⭐ Esperienze a Venezia</h3><p class="muted" style="margin-top:-4px">Tour e laboratori da prenotare online.</p>
+    ${ESP.map((x, i) => `<button class="sxRow" data-esp="${i}" style="border-radius:0"><i class="ic" style="font-size:22px;background:#fff8e6">${x.ic}</i><span><b>${esc(x.n)}</b><small>${esc(x.luogo)}</small></span><em class="sxAct">Prenota</em></button>`).join("")}
+    <button class="btn ghost" style="margin-top:12px" onclick="closeSheet()">Chiudi</button>`, "light");
+  document.querySelectorAll("[data-esp]").forEach(b => b.onclick = () => espOpen(ESP[+b.dataset.esp]));
 }
 function gondTraghetto(t, p){
   const other = p === t.a ? t.b : t.a;
