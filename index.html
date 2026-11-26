@@ -1222,6 +1222,51 @@
   .gmSpot i{width:46px;height:46px;border-radius:50%;background:#fff;border:2px solid #111;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.35)}
   .gmSpot svg{width:26px;height:26px;fill:none;stroke:#111;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   .gmSpot span{margin-top:3px;font-size:11px;font-weight:800;color:#111;background:#fff;padding:1px 7px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+  /* ---------- Barketplace: barche nei rii e in vendita (stile clickVenice: bianco, nero, verde acqua) ---------- */
+  .bkseg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:#f4f6f5;border:1px solid #e6e9e7;border-radius:999px;padding:4px;margin:0 0 12px}
+  .bkseg button{border:0;background:none;border-radius:999px;padding:9px 8px;font-weight:800;font-size:13px;color:#6f7a74;display:flex;align-items:center;justify-content:center;gap:6px}
+  .bkseg button.on{background:#111;color:#fff} .bkseg button em{font-style:normal;font-size:11px;padding:1px 7px;border-radius:99px;background:rgba(127,127,127,.18)}
+  .bkhud{background:#111;color:#fff;border-radius:16px;overflow:hidden;margin:0 0 10px}
+  .bkhud .g{display:grid;grid-template-columns:1fr 1fr 1fr} .bkhud .g>div{padding:10px 12px;border-right:1px solid rgba(255,255,255,.1)} .bkhud .g>div:last-child{border:0}
+  .bkhud small{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9aa3a0} .bkhud b{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+  .bkhud p{margin:0;padding:8px 12px;background:#1c1c1f;border-top:1px solid rgba(255,255,255,.08);font-size:12px;color:#c9cfcc;line-height:1.35}
+  .bkpills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 10px;padding-bottom:2px} .bkpills::-webkit-scrollbar{display:none}
+  .bkpills button{flex:0 0 auto;border:1px solid #dcdfdd;background:#fff;color:#333;border-radius:99px;padding:6px 12px;font-weight:700;font-size:12.5px}
+  .bkpills button.on{background:#111;border-color:#111;color:#fff}
+  .bkgrid{display:grid;grid-template-columns:1fr;gap:12px} @media(min-width:620px){.bkgrid{grid-template-columns:1fr 1fr}}
+  .bkc{display:block;width:100%;padding:0;text-align:left;background:#fff;border:1px solid #eceeed;border-radius:16px;overflow:hidden;color:#111;box-shadow:0 4px 14px -4px rgba(0,0,0,.08)}
+  .bkc.sold{opacity:.7}
+  .bkph{position:relative;height:150px;background:#dcebfa;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .bkph.big{height:200px;border-radius:14px;margin-bottom:10px}
+  .bkph::before{content:"";position:absolute;inset:0;opacity:.35;background-image:radial-gradient(#4a90c8 1px,transparent 1px);background-size:16px 16px}
+  .bkph>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover} .bkph>svg{position:relative;width:150px;height:80px} .bkph span svg{width:12px;height:12px;vertical-align:-2px}
+  .bkph .pin{position:absolute;left:8px;top:8px;background:#111;color:#fff;font-size:11px;font-weight:800;padding:3px 7px;border-radius:8px;display:flex;align-items:center;gap:5px}
+  .bkph .pin i{font-style:normal;background:#3dc991;border-radius:4px;width:15px;height:15px;font-size:10px;display:flex;align-items:center;justify-content:center}
+  .bkph .who{position:absolute;right:8px;top:8px;background:#3dc991;color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px} .bkph .who.sold{background:#e05a47}
+  .bkph .posto{position:absolute;right:8px;bottom:8px;background:#facc15;color:#111;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px}
+  .bkph .tg{position:absolute;left:8px;bottom:8px;background:rgba(255,255,255,.94);color:#444;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px}
+  .bkc .bd{padding:10px 12px 4px} .bkc .z{display:flex;justify-content:space-between;gap:6px;align-items:center;font-size:11.5px;font-weight:700;color:#1f9e6e}
+  .bkc h4{margin:3px 0 2px;font-size:16px;font-weight:800;line-height:1.25} .bkc .sp{font-size:12.5px;color:#6f7a74;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+  .bkst{font-size:10px;font-weight:800;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:#f1f3f2;color:#555;white-space:nowrap}
+  .bkst.ok{background:#e3f6ee;color:#1f9e6e} .bkst.sold{background:#e05a47;color:#fff} .bkst.hid{background:#facc15;color:#111}
+  .bkstrip{margin:8px 10px 10px;background:#111;color:#fff;border-radius:12px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .bkstrip small{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9aa3a0} .bkstrip b{font-size:16px;font-variant-numeric:tabular-nums}
+  .bkstrip span{display:flex;align-items:center;gap:8px;font-size:11px;color:#9aa3a0} .bkstrip em{font-style:normal;background:#3dc991;color:#fff;font-weight:800;font-size:12px;padding:5px 12px;border-radius:99px}
+  .bkspec{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:10px 0} .bkspec div{background:#111;color:#fff;border-radius:12px;padding:8px 10px}
+  .bkspec small{display:block;font-size:9.5px;color:#9aa3a0;text-transform:uppercase;font-weight:700} .bkspec b{font-size:13.5px}
+  .bkoff{background:#111;color:#fff;border-radius:16px;padding:14px;margin:10px 0} .bkoff .r{display:flex;justify-content:space-between;align-items:center}
+  .bkoff small{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9aa3a0} .bkoff .r em{font-style:normal;background:#3dc991;font-size:11.5px;font-weight:800;padding:2px 9px;border-radius:99px}
+  .bkoff .big{font-size:32px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:4px} .bkoff .sub{font-size:12px;color:#c9cfcc;margin-top:2px}
+  .bkoff.flash{animation:bkflash .55s ease-out} @keyframes bkflash{0%{background:#1f9e6e;transform:scale(1.02)}100%{background:#111;transform:none}}
+  .bkbid{background:#f4f6f5;border:1px solid #e6e9e7;border-radius:16px;padding:12px;margin:10px 0}
+  .bkbid .q{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:8px 0} .bkbid .q button{border:1px solid #dcdfdd;background:#fff;border-radius:10px;padding:8px 0;font-weight:800;font-size:13px;color:#111}
+  .bkbid .bkin{display:flex;gap:8px} .bkbid input{flex:1;min-width:0;font-size:17px;font-weight:800;border-radius:10px;border:1px solid #cfd4d1;padding:9px 10px;background:#fff;color:#111}
+  .bkbid .bkin button{flex:0 0 auto;width:auto;background:#3dc991;color:#fff;border:0;border-radius:10px;padding:0 16px;font-weight:800}
+  .bkrow{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:10px;background:#f4f6f5;margin-bottom:5px;font-size:13px}
+  .bkrow.top{background:#e3f6ee;border:1px solid #bfe9d6} .bkrow b{font-variant-numeric:tabular-nums} .bkrow small{color:#8a948f}
+  .bkqr{background:#111;color:#fff;border:2px dashed #facc15;border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center}
+  .bkqr img{width:96px;height:96px;background:#fff;padding:6px;border-radius:12px;flex:0 0 auto} .bkqr em{font-style:normal;background:#facc15;color:#111;font-size:10px;font-weight:900;padding:2px 7px;border-radius:5px;text-transform:uppercase}
+  .bkqr h4{margin:6px 0 4px;font-size:15px;line-height:1.3;color:#fff} .bkqr p{margin:0;font-size:12px;color:#c9cfcc;line-height:1.35}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1630,11 +1675,15 @@
   <section class="view hidden" id="v-shop">
     <div class="scroll lightv" id="shopScroll">
       <div class="igh"><h2>Marketplace</h2><button class="mpadd" id="mpAdd">+ Aggiungi articolo</button></div>
+      <div class="bkseg" id="mpSeg"><button data-ms="usato" class="on">🛍️ Usato</button><button data-ms="barche">⚓ Barketplace</button></div>
+      <div id="bkBox" class="hidden"></div>
+      <div id="mpUsato">
       <div class="mpbar"><button id="mpCatBtn" class="mpcat">☰ <span id="mpCatName">Tutte le categorie</span></button><button id="mpMine" class="mpcat">I miei</button></div>
       <div id="mpCatMenu" class="mpmenu hidden"></div>
       <div class="field" style="margin:8px 0 10px"><input id="shopQ" type="search" placeholder="Cerca negli annunci…"></div>
       <div id="shopBody" class="mpgrid"></div>
       <button class="btn ghost hidden" id="mpMore" style="margin-top:12px">Altri annunci</button>
+      </div>
     </div>
   </section>
 
@@ -1764,7 +1813,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.76</p>
+      <p class="sub">clickVenice · versione 3.77</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -3380,7 +3429,7 @@ const MP_IC = { elettronica: '<rect x="4" y="5" width="16" height="11" rx="1.5"/
   bambini: '<circle cx="12" cy="9" r="4"/><path d="M5 20c1-4 3.5-6 7-6s6 2 7 6"/>', altro: '<circle cx="6" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="18" cy="12" r="1.4"/>' };
 let MP = { cat: null, mine: false, list: [], end: false, q: "" };
 const mpEur = v => (Math.round(v * 100) / 100).toLocaleString("it-IT", { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }) + " €";
-function renderShop(){ paintMpMenu(); loadMp(); }
+function renderShop(){ paintMpMenu(); if (BK.seg === "barche") bkLoad(); else loadMp(); }
 function paintMpMenu(){
   $("#mpCatName").textContent = MP.cat ? MP_CATS[MP.cat] : "Tutte le categorie"; $("#mpMine").classList.toggle("on", MP.mine);
   $("#mpCatMenu").innerHTML = `<button data-mc="">Tutte le categorie</button>` + Object.entries(MP_CATS).map(([k, n]) => `<button data-mc="${k}" class="${MP.cat === k ? "on" : ""}"><svg viewBox="0 0 24 24">${MP_IC[k]}</svg>${n}</button>`).join("");
@@ -3457,11 +3506,199 @@ function mpNew(){
   if (!TOKEN) return toast("Per vendere serve l'account.");
   stepFoto();
 }
-$("#mpAdd").onclick = mpNew;
+$("#mpAdd").onclick = () => BK.seg === "barche" ? bkNew() : mpNew();
 $("#mpCatBtn").onclick = () => $("#mpCatMenu").classList.toggle("hidden");
 $("#mpMine").onclick = () => { MP.mine = !MP.mine; MP.cat = null; paintMpMenu(); loadMp(); };
 $("#mpMore").onclick = () => loadMp(true);
 $("#shopQ").oninput = e => { MP.q = e.target.value; paintMp(); };
+/* =========================================================
+   BARKETPLACE: barche avvistate nei rii (offerte anonime, bigliettino QR per il proprietario) e barche in vendita
+   ========================================================= */
+const BK = { seg: "usato", modo: "rii", f: "tutte", q: "", list: [], admin: false, reclami: 0, n: {} };
+const BK_TIPI = { open: "Open / Barchino", pilotina: "Pilotina / Topa", motore: "Solo fuoribordo", altro: "Altro" };
+const BK_ZONE = ["Cannaregio", "Castello", "Dorsoduro", "San Polo", "Santa Croce", "San Marco", "Giudecca", "Sant'Elena", "Sacca Fisola", "Certosa", "Lido", "Murano", "Burano", "Laguna nord", "Laguna sud"];
+const bkEur = v => v == null || v === "" ? "—" : "€ " + Number(v).toLocaleString("it-IT", { maximumFractionDigits: 0 });
+const agoShort = t => { const m = Math.max(1, Math.round((Date.now() - new Date(t)) / 60000)); return m < 60 ? m + " min" : m < 1440 ? Math.round(m / 60) + " h" : Math.round(m / 1440) + " g"; };
+function bkSvg(t){
+  if (t === "motore") return `<svg viewBox="0 0 100 100" style="width:80px;height:80px"><rect x="33" y="14" width="34" height="32" rx="8" fill="#111" stroke="#3dc991" stroke-width="2.5"/><path d="M40 24h20M40 31h14" stroke="#facc15" stroke-width="2.2" stroke-linecap="round"/><path d="M42 46h16l-3 32H45z" fill="#27272a"/><path d="M35 76h28l4 6H31z" fill="#3dc991"/></svg>`;
+  if (t === "pilotina") return `<svg viewBox="0 0 180 90"><path d="M18 58h138l12-14H55l-8-14H24z" fill="#fff" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/><rect x="30" y="35" width="14" height="8" rx="2" fill="#3dc991"/><path d="M10 66c15-3 30-3 45 0s30 3 45 0 30-3 45 0 20 2 25 0" stroke="#0284c7" stroke-opacity=".45" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
+  return `<svg viewBox="0 0 180 90"><path d="M16 54c35 6 105 6 144-6l-8 14c-35 8-98 8-128 0z" fill="#3dc991" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/><path d="M88 52V37h12l4 15" stroke="#111" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 69c18-3 36-3 54 0s36 3 54 0 36-3 50 0" stroke="#0284c7" stroke-opacity=".45" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
+}
+function bkPh(x, big){
+  return `<div class="bkph${big ? " big" : ""}">${x.foto ? `<img loading="lazy" src="${esc(x.foto)}" alt="">` : bkSvg(x.tipo)}
+    <span class="pin"><i>B</i>${esc(x.codice)}</span><span class="who${x.stato === "venduta" ? " sold" : ""}">${x.modo === "rii" ? "👀 " : ""}@${esc(x.autore || "")} · ${esc(agoShort(x.quando))}</span>
+    ${x.modo === "rii" ? `<span class="tg">🔒 Targa e ormeggio nascosti</span>` : ""}${x.posto ? `<span class="posto">⚓ POSTO BARCA</span>` : ""}</div>`;
+}
+function bkStato(x){
+  if (x.stato === "venduta") return `<span class="bkst sold">Venduta</span>`;
+  if (x.stato === "nascosta") return `<span class="bkst hid">Nascosta</span>`;
+  if (x.modo === "vendita") return `<span class="bkst ok">In vendita</span>`;
+  return x.verificata ? `<span class="bkst ok">✓ Reclamata</span>` : `<span class="bkst">Proprietario cercasi</span>`;
+}
+const bkSpecs = x => [x.lunghezza, x.motore, x.dettagli].filter(Boolean).join(" · ") || BK_TIPI[x.tipo] || "";
+function mpSeg(seg){
+  BK.seg = seg; document.querySelectorAll("#mpSeg [data-ms]").forEach(b => b.classList.toggle("on", b.dataset.ms === seg));
+  $("#mpUsato").classList.toggle("hidden", seg !== "usato"); $("#bkBox").classList.toggle("hidden", seg !== "barche");
+  $("#mpAdd").textContent = seg === "barche" ? "+ Segnala barca" : "+ Aggiungi articolo";
+  if (seg === "barche") bkLoad(); else loadMp();
+}
+async function bkLoad(){
+  const box = $("#bkBox"); if (!BK.list.length) box.innerHTML = `<p class="muted">Carico le barche…</p>`;
+  let r; try{ r = await rpc("bk_lista", { p_modo: BK.modo }); }catch(e){ r = null; }
+  if (!r || !Array.isArray(r.lista)){ box.innerHTML = `<p class="muted">Barketplace non raggiungibile: controlla la connessione.</p>`; return; }
+  BK.list = r.lista; BK.admin = !!r.admin; BK.reclami = r.reclami || 0; BK.n[BK.modo] = r.lista.filter(x => x.stato !== "nascosta").length;
+  const altro = BK.modo === "rii" ? "vendita" : "rii";
+  if (BK.n[altro] == null) rpc("bk_lista", { p_modo: altro }).then(z => { if (z && z.lista){ BK.n[altro] = z.lista.filter(x => x.stato !== "nascosta").length; bkPaint(); } }).catch(() => {});
+  bkPaint();
+}
+function bkPaint(){
+  const box = $("#bkBox"); if (!box) return;
+  const q = norm(BK.q), F = BK.list.filter(x => {
+    if (BK.f === "vendute"){ if (x.stato !== "venduta") return false; }
+    if (["open", "pilotina", "motore"].includes(BK.f) && x.tipo !== BK.f) return false;
+    if (BK.f === "posto" && !x.posto) return false;
+    return !q || norm([x.titolo, x.zona, x.dettagli, x.motore, x.codice].join(" ")).includes(q); });
+  const att = BK.list.filter(x => x.stato === "attiva"), top = Math.max(0, ...att.map(x => +x.top || 0)), rii = BK.modo === "rii";
+  const kf = document.activeElement && document.activeElement.id === "bkQ";
+  box.innerHTML = `<div class="bkseg"><button data-bm="rii" class="${rii ? "on" : ""}">👀 Nei rii${BK.n.rii != null ? ` <em>${BK.n.rii}</em>` : ""}</button><button data-bm="vendita" class="${rii ? "" : "on"}">⚓ In vendita${BK.n.vendita != null ? ` <em>${BK.n.vendita}</em>` : ""}</button></div>
+    <div class="bkhud"><div class="g"><div><small>${rii ? "Nei rii" : "In vendita"}</small><b>${att.length}</b></div><div><small>⚡ Offerta top</small><b style="color:#3dc991">${top ? bkEur(top) : "—"}</b></div><div><small>Offerte</small><b>${att.reduce((s, x) => s + (+x.n || 0), 0)}</b></div></div>
+      <p>${rii ? "Hai visto una barca ferma nei rii? Segnalala e fai un'offerta anonima: col bigliettino QR il proprietario la scopre." : "Barche e fuoribordo messi in vendita dai proprietari, a Venezia e in laguna."}</p></div>
+    ${BK.admin && BK.reclami ? `<button class="btn small" id="bkRec" style="margin:0 0 10px">Reclami da verificare · ${BK.reclami}</button>` : ""}
+    <div class="bkpills">${[["tutte", "Tutte"], ["open", "Open / Barchini"], ["pilotina", "Pilotine e tope"], ["motore", "Fuoribordo"], ["posto", "Posto barca"], ["vendute", "Vendute"]].map(([k, n]) => `<button data-bf="${k}" class="${BK.f === k ? "on" : ""}">${n}</button>`).join("")}</div>
+    <div class="field" style="margin:0 0 10px"><input id="bkQ" type="search" placeholder="Cerca barca, motore, rio…" value="${esc(BK.q)}"></div>
+    <div class="bkgrid">${F.length ? F.map(x => `<button class="bkc${x.stato === "venduta" ? " sold" : ""}" data-bk="${x.id}">${bkPh(x)}
+      <div class="bd"><div class="z"><span>📍 ${esc(x.zona || "Venezia")}</span>${bkStato(x)}</div><h4>${esc(x.titolo)}</h4><p class="sp">${esc(bkSpecs(x))}</p></div>
+      <div class="bkstrip"><div><small>${x.stato === "venduta" ? "Chiusa a" : x.modo === "vendita" && !x.top ? "Prezzo" : "Offerta top"}</small><b>${bkEur(x.stato === "venduta" ? x.finale : x.top || x.prezzo)}</b></div>
+        <span>${x.n} off.<em style="${x.stato === "venduta" ? "background:#333" : ""}">${x.stato === "venduta" ? "Vedi" : "Offri"}</em></span></div></button>`).join("")
+      : `<div class="card soonbox" style="text-align:center"><h3 style="margin:4px 0">Nessuna barca qui</h3><p class="muted">${rii ? "Segnala tu la prima barca ferma in un rio." : "Vendi la tua barca o il tuo motore: tocca «+ Segnala barca»."}</p></div>`}</div>`;
+  box.querySelectorAll("[data-bm]").forEach(b => b.onclick = () => { if (BK.modo === b.dataset.bm) return; BK.modo = b.dataset.bm; BK.list = []; BK.f = "tutte"; bkLoad(); });
+  box.querySelectorAll("[data-bf]").forEach(b => b.onclick = () => { BK.f = b.dataset.bf; bkPaint(); });
+  box.querySelectorAll("[data-bk]").forEach(b => b.onclick = () => bkOpen(+b.dataset.bk));
+  const qi = $("#bkQ"); qi.oninput = e => { BK.q = e.target.value; bkPaint(); }; if (kf){ qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); }
+  if ($("#bkRec")) $("#bkRec").onclick = bkReclami;
+}
+async function bkOpen(id, flash){
+  let x; try{ x = await rpc("bk_dettaglio", { p_id: id }); }catch(e){ x = null; }
+  if (!x || x.errore) return toast(x && x.errore === "non_trovata" ? "Questa barca non c'è più." : "Controlla la connessione.");
+  const sold = x.stato === "venduta", resp = x.admin || x.mia || (x.modo === "vendita" && x.mio_autore), base = +x.top || +x.prezzo || 0;
+  const canBid = x.stato === "attiva" && !(x.mia || (x.modo === "vendita" && x.mio_autore));
+  const link = location.origin + location.pathname + "#barca=" + x.id;
+  openSheet(`${bkPh(x, true)}
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><b style="font-size:12.5px;color:#1f9e6e">📍 ${esc(x.zona || "Venezia")}</b>${bkStato(x)}</div>
+    <h3 style="margin:4px 0 2px">${esc(x.titolo)}</h3><p class="muted" style="margin:0;font-size:13px">${esc(BK_TIPI[x.tipo] || "")}${x.dettagli ? " · " + esc(x.dettagli) : ""}</p>
+    <div class="bkspec"><div><small>Lunghezza</small><b>${esc(x.lunghezza || "—")}</b></div><div><small>Motore</small><b style="color:#facc15">${esc(x.motore || "—")}</b></div><div><small>Posto barca</small><b style="color:#3dc991">${x.posto ? "Incluso" : "No"}</b></div></div>
+    <div class="bkoff" id="bkOff"><div class="r"><small>${sold ? "Prezzo finale" : "Offerta top"}</small><em>${x.n} ${+x.n === 1 ? "offerta" : "offerte"}</em></div>
+      <div class="big">${bkEur(sold ? x.finale : x.top)}</div><div class="sub">${x.modo === "vendita" ? "Prezzo richiesto " + bkEur(x.prezzo) : "Offerte anonime e non vincolanti"}${x.mia_offerta ? " · la tua: " + bkEur(x.mia_offerta) : ""}</div></div>
+    ${canBid ? `<div class="bkbid"><div style="display:flex;justify-content:space-between"><b style="font-size:13px">Fai un'offerta anonima</b><small class="muted">Non vincolante</small></div>
+      <div class="q">${[100, 250, 500].map(n => `<button data-bq="${n}">+ € ${n}</button>`).join("")}</div>
+      <div class="bkin"><input id="bkIn" inputmode="numeric" value="${base ? Math.ceil((base + 100) / 50) * 50 : ""}" placeholder="€"><button id="bkGo">Offri</button></div></div>` : ""}
+    ${sold ? `<div class="card" style="text-align:center;padding:12px"><b>Questa barca è già stata venduta.</b></div>` : ""}
+    <h4 style="margin:12px 0 6px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#6f7a74">Ultime offerte</h4>
+    <div>${(x.offerte || []).length ? x.offerte.map((o, i) => `<div class="bkrow${i === 0 ? " top" : ""}"><span>${o.mia ? "<b>Tu</b>" : esc(o.chi)} <small>· ${esc(agoShort(o.quando))} fa</small></span><b>${bkEur(o.importo)}</b></div>`).join("") : `<p class="muted">Ancora nessuna offerta: fai tu la prima.</p>`}</div>
+    ${x.modo === "rii" && !x.verificata && !sold ? `<div style="border-top:1px solid #eceeed;margin-top:12px;padding-top:12px"><b style="font-size:13px">È la tua barca?</b>
+      <div class="row" style="gap:8px;margin-top:8px">${x.reclamo_mio ? `<button class="btn small ghost" disabled style="flex:1">Richiesta inviata</button>` : `<button class="btn small" id="bkClaim" style="flex:1">✓ Reclama barca</button>`}
+      <button class="btn small ghost" id="bkQr" style="flex:1">🏷️ Bigliettino QR</button></div></div>` : ""}
+    ${x.admin && x.reclamo ? `<div class="card" style="margin-top:10px;padding:12px"><b>Reclamo di @${esc(x.reclamo)}</b><p class="muted" style="margin:4px 0 8px">${esc(x.reclamo_nota || "")}</p>
+      <div class="row" style="gap:8px"><button class="btn small" data-ba="approva_reclamo" style="flex:1">Approva</button><button class="btn small ghost" data-ba="rifiuta_reclamo" style="flex:1">Rifiuta</button></div></div>` : ""}
+    ${resp || x.mio_autore ? `<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:12px">
+      ${resp && x.stato === "attiva" ? `<button class="btn small" data-ba="venduta" style="flex:1">Segna venduta</button><button class="btn small ghost" data-ba="nascondi" style="flex:1">Nascondi</button>` : ""}
+      ${resp && x.stato !== "attiva" ? `<button class="btn small ghost" data-ba="riattiva" style="flex:1">${sold ? "Rimetti attiva" : "Mostra di nuovo"}</button>` : ""}
+      ${x.admin || (x.mio_autore && !x.verificata) || (x.modo === "vendita" && x.mio_autore) ? `<button class="btn small ghost" data-ba="elimina" style="flex:1">🗑️ Elimina</button>` : ""}</div>` : ""}
+    <div class="row" style="gap:8px;margin-top:10px"><button class="btn ghost" id="bkShare" style="flex:1">Condividi</button><button class="btn ghost" onclick="closeSheet()" style="flex:1">Chiudi</button></div>`, "light");
+  if (flash) $("#bkOff").classList.add("flash");
+  document.querySelectorAll("[data-bq]").forEach(b => b.onclick = () => { $("#bkIn").value = base + +b.dataset.bq; });
+  if ($("#bkGo")) $("#bkGo").onclick = async () => {
+    if (!TOKEN) return toast("Per fare un'offerta serve l'account.");
+    const v = Math.round(+String($("#bkIn").value).replace(/[^\d]/g, "")); if (!v) return toast("Scrivi quanto offri.");
+    let r; try{ r = await rpc("bk_offri", { p_id: x.id, p_importo: v }); }catch(e){ r = null; }
+    if (!r || r.errore) return toast(!r ? "Controlla la connessione." : r.errore === "bassa" ? "Offri più di " + bkEur(r.top) + "." : r.errore === "importo" ? "Offerta minima 50 €." : r.errore === "troppe" ? "Troppe offerte in un'ora: riprova più tardi." : r.errore === "non_autorizzato" ? "Per fare un'offerta serve l'account." : "Offerta non registrata.");
+    haptic(); toast("Offerta registrata: " + bkEur(v)); bkOpen(x.id, true); bkLoad(); };
+  if ($("#bkClaim")) $("#bkClaim").onclick = () => bkClaim(x);
+  if ($("#bkQr")) $("#bkQr").onclick = () => bkFlyer(x, link);
+  $("#bkShare").onclick = async () => { const t = `${x.titolo} su clickVenice Barketplace`; try{ if (navigator.share) await navigator.share({ title: t, text: t, url: link }); else { await navigator.clipboard.writeText(link); toast("Link copiato ✓"); } }catch(e){} };
+  document.querySelectorAll("[data-ba]").forEach(b => b.onclick = async () => {
+    const a = b.dataset.ba; let val = null;
+    if (a === "elimina" && !confirm("Eliminare questa scheda?")) return;
+    if (a === "venduta"){ const p = prompt("A quanto è stata venduta? (euro, puoi lasciare vuoto)", x.top || x.prezzo || ""); if (p === null) return; val = +String(p).replace(/[^\d]/g, "") || null; }
+    let r; try{ r = await rpc("bk_azione", { p_id: x.id, p_azione: a, p_valore: val }); }catch(e){ r = null; }
+    if (!r || r.errore) return toast("Non riuscito, riprova."); haptic();
+    toast({ venduta: "Segnata come venduta", riattiva: "Di nuovo attiva", nascondi: "Nascosta", elimina: "Eliminata", approva_reclamo: "Reclamo approvato ✓", rifiuta_reclamo: "Reclamo rifiutato" }[a]);
+    if (a === "elimina") closeSheet(); else bkOpen(x.id); bkLoad(); });
+}
+function bkClaim(x){
+  if (!TOKEN) return toast("Per reclamare la barca serve l'account.");
+  openSheet(`<h3>Reclama ${esc(x.codice)}</h3><p class="muted" style="line-height:1.45">Scrivi un dettaglio che solo il proprietario conosce: la targa, il colore del telo, dove è ormeggiata. tropss controlla e ti assegna la scheda: poi vedi chi offre e puoi segnarla venduta o nasconderla.</p>
+    <div class="field"><textarea id="bkCl" rows="3" maxlength="300" placeholder="es. targa LV 12345, telo blu, palo davanti al civico 2100"></textarea></div>
+    <button class="btn" id="bkClGo">Invia richiesta</button><button class="btn ghost" id="bkClX" style="margin-top:8px">Annulla</button>`, "light");
+  $("#bkClX").onclick = () => bkOpen(x.id);
+  $("#bkClGo").onclick = async () => { let r; try{ r = await rpc("bk_reclama", { p_id: x.id, p_nota: $("#bkCl").value }); }catch(e){ r = null; }
+    if (!r || r.errore) return toast(r && r.errore === "nota" ? "Scrivi qualche dettaglio." : "Non inviata, riprova."); haptic(); toast("Richiesta inviata: tropss la controlla"); bkOpen(x.id); };
+}
+// bigliettino da lasciare a bordo: QR che apre la scheda
+function bkFlyer(x, link){
+  const qr = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data=" + encodeURIComponent(link);
+  const card = `<div class="bkqr"><div style="flex:1"><em>Avviso per il proprietario</em><h4>${x.top ? `Qualcuno offre <span style="color:#3dc991">${bkEur(x.top)}</span> per questa barca!` : "Qualcuno è interessato a questa barca!"}</h4>
+    <p>Inquadra il QR: vedi le offerte anonime, tratti o nascondi la scheda. clickVenice · Barketplace</p><p style="margin-top:6px;font-size:10px;color:#8a948f">SCHEDA #${esc(x.codice)} · TARGA OSCURATA</p></div><img src="${qr}" alt="QR"></div>`;
+  openSheet(`<h3>Bigliettino QR</h3><p class="muted" style="margin-top:-4px;line-height:1.45">Stampalo e lascialo a bordo in una bustina trasparente, oppure manda il link al proprietario se lo conosci.</p>${card}
+    <button class="btn" id="bkPrint" style="margin-top:12px">Stampa</button><button class="btn ghost" id="bkFlS" style="margin-top:8px">Condividi il link</button><button class="btn ghost" id="bkFlX" style="margin-top:8px">Indietro</button>`, "light");
+  $("#bkFlX").onclick = () => bkOpen(x.id);
+  $("#bkFlS").onclick = async () => { try{ if (navigator.share) await navigator.share({ title: "La tua barca su clickVenice", url: link }); else { await navigator.clipboard.writeText(link); toast("Link copiato ✓"); } }catch(e){} };
+  $("#bkPrint").onclick = () => { const w = window.open("", "_blank"); if (!w) return toast("Consenti le finestre per stampare.");
+    const css = ([...document.querySelectorAll("style")].map(s => s.textContent).join("").match(/\.bkqr[^}]*}/g) || []).join("");
+    w.document.write(`<!doctype html><meta charset="utf-8"><title>Bigliettino ${esc(x.codice)}</title><style>body{font-family:system-ui,sans-serif;margin:24px;-webkit-print-color-adjust:exact;print-color-adjust:exact}${css}.bkqr{max-width:520px;margin-bottom:24px}</style>${card}${card}<script>window.onload=()=>setTimeout(()=>print(),500)<\/script>`); w.document.close(); };
+}
+async function bkReclami(){
+  let r; try{ r = await rpc("bk_reclami", {}); }catch(e){ r = null; }
+  const L = (r && r.lista) || [];
+  openSheet(`<h3>Reclami da verificare</h3>${L.length ? L.map(x => `<button class="card shmine" data-rc="${x.id}" style="width:100%;text-align:left"><span><b>${esc(x.codice)} · ${esc(x.titolo)}</b><small>@${esc(x.reclamo || "")}: ${esc(x.reclamo_nota || "")}</small></span></button>`).join("") : `<p class="muted">Nessun reclamo in attesa.</p>`}
+    <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`, "light");
+  document.querySelectorAll("[data-rc]").forEach(b => b.onclick = () => bkOpen(+b.dataset.rc));
+}
+// segnala una barca nei rii o vendi la tua: foto, poi una domanda alla volta
+function bkNew(){
+  if (!TOKEN) return toast("Per segnalare o vendere serve l'account.");
+  const A = { foto: null };
+  openSheet(`<h3>Segnala o vendi</h3><p class="muted">Cosa vuoi fare?</p>
+    <button class="card shmine" id="bkNr" style="width:100%;text-align:left"><span><b>👀 Ho visto una barca nei rii</b><small>Sembra ferma da tempo o in vendita: la segnali e fai un'offerta</small></span></button>
+    <button class="card shmine" id="bkNv" style="width:100%;text-align:left;margin-top:8px"><span><b>⚓ Vendo la mia barca o il motore</b><small>Annuncio diretto: ricevi le offerte</small></span></button>
+    <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Annulla</button>`, "light");
+  const foto = modo => { A.modo = modo; openSheet(`<h3>${modo === "rii" ? "Barca nei rii" : "Vendo"} · foto</h3><p class="muted" style="line-height:1.45">${modo === "rii" ? "Fotografa la barca senza inquadrare la targa e senza persone." : "Una bella foto aiuta a vendere."}</p>
+      <label class="btn" style="display:block;text-align:center">Scatta o scegli una foto<input type="file" accept="image/*" id="bkF" hidden></label><button class="btn ghost" id="bkNoF" style="margin-top:10px">Senza foto</button>`, "light");
+    $("#bkF").onchange = async e => { const f = e.target.files[0]; if (!f) return; try{ A.foto = await shrinkPhoto(f); domande(); }catch(_){ toast("Foto non valida, provane un'altra."); } };
+    $("#bkNoF").onclick = domande; };
+  const domande = () => { closeSheet(); const rii = A.modo === "rii";
+    wizard({ title: rii ? "Barca nei rii" : "Vendo barca o motore", values: {}, steps: [
+      { k: "tipo", q: "Che cos'è?", type: "choice", options: Object.entries(BK_TIPI) },
+      { k: "titolo", q: "Modello e motore", hint: "Come la descriveresti in poche parole", type: "text", max: 80, ph: "es. Open 4,8 m · Yamaha 40/60 4T", check: t => t.trim().length < 3 ? "Scrivi qualche parola." : "" },
+      { k: "zona", q: rii ? "Dove l'hai vista?" : "Dove si trova?", hint: "Solo la zona: l'ormeggio esatto resta nascosto", type: "text", max: 80, chips: BK_ZONE, ph: "es. Cannaregio, rio della Sensa", check: t => t.trim().length < 2 ? "Scegli la zona." : "" },
+      { k: "lunghezza", q: "Lunghezza", type: "text", max: 20, optional: true, skipLabel: "Non lo so", chips: ["4 m", "4,5 m", "5 m", "5,5 m", "6 m", "7 m", "8 m"], when: v => v.tipo !== "motore" },
+      { k: "motore", q: "Motore", type: "text", max: 40, optional: true, skipLabel: "Non lo so", chips: ["Senza motore", "15 cv", "25 cv", "40/60 4T", "60 cv", "90 cv", "Entrobordo"] },
+      { k: "posto", q: "C'è il posto barca?", type: "choice", options: [["no", "No / non lo so"], ["si", "Sì, incluso"]], when: v => v.tipo !== "motore" },
+      { k: "dettagli", q: "Qualcosa da aggiungere?", type: "text", max: 300, optional: true, skipLabel: "No", ph: rii ? "es. ferma da mesi, telo rovinato" : "es. tagliandata, 140 ore, gambo lungo" },
+      { k: "prezzo", q: rii ? "Vuoi fare tu la prima offerta?" : "Prezzo richiesto in euro", hint: rii ? "Anonima e non vincolante, in euro" : "Solo il numero", type: "text", inputType: "number", max: 8,
+        optional: rii, skipLabel: "No, solo segnalo", check: t => !t ? (rii ? "" : "Scrivi il prezzo.") : (+String(t).replace(/[^\d]/g, "") >= 50 ? "" : "Almeno 50 €.") }
+    ], onDone: v => bkRiep(Object.assign({}, A, v)) }); };
+  $("#bkNr").onclick = () => foto("rii"); $("#bkNv").onclick = () => foto("vendita");
+}
+function bkRiep(v){
+  const row = (a, b) => `<div class="shrow"><span>${a}</span><b>${b}</b></div>`;
+  openSheet(`<h3>${v.modo === "rii" ? "La tua segnalazione" : "Il tuo annuncio"}</h3>${v.foto ? `<img src="${v.foto}" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-bottom:8px">` : ""}
+    <div class="shsum">${row("Tipo", esc(BK_TIPI[v.tipo]))}${row("Modello", esc(v.titolo))}${row("Zona", esc(v.zona || "—"))}${v.lunghezza ? row("Lunghezza", esc(v.lunghezza)) : ""}${v.motore ? row("Motore", esc(v.motore)) : ""}
+      ${v.posto === "si" ? row("Posto barca", "Incluso") : ""}${row(v.modo === "rii" ? "La tua offerta" : "Prezzo", v.prezzo ? bkEur(+String(v.prezzo).replace(/[^\d]/g, "")) : "—")}</div>
+    <div class="bkhud" style="margin-top:8px"><p>🛡️ Targa e ormeggio esatto non vengono mai mostrati.${v.modo === "rii" ? " Le offerte sono anonime e non vincolanti." : ""}</p></div>
+    <button class="btn" id="bkPub" style="margin-top:6px">Pubblica su Barketplace</button><button class="btn ghost" id="bkEd" style="margin-top:8px">Annulla</button>`, "light");
+  $("#bkEd").onclick = () => closeSheet();
+  $("#bkPub").onclick = async () => { const b = $("#bkPub"); b.disabled = true; b.textContent = "Pubblico…";
+    try{ const r = await fetchT(CONFIG.SUPABASE_URL + "/functions/v1/barca", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: TOKEN, modo: v.modo, tipo: v.tipo, titolo: v.titolo, zona: v.zona,
+        lunghezza: v.lunghezza || "", motore: v.motore || "", posto: v.posto === "si", dettagli: v.dettagli || "", prezzo: v.prezzo ? String(v.prezzo).replace(/[^\d]/g, "") : "", foto: v.foto }) }, 30000), j = await r.json();
+      if (!j.ok){ b.disabled = false; b.textContent = "Pubblica su Barketplace"; return toast(j.errore === "troppi" ? "Hai pubblicato tanto nell'ultima ora: riprova più tardi." : j.errore === "prezzo" ? "Controlla il prezzo." : "Non pubblicata, riprova."); }
+      haptic(); toast(v.modo === "rii" ? "Barca segnalata ✓" : "Annuncio pubblicato ✓"); BK.modo = v.modo; BK.list = []; BK.f = "tutte"; BK.n = {}; bkLoad(); bkOpen(j.id);
+    }catch(e){ b.disabled = false; b.textContent = "Pubblica su Barketplace"; toast("Non pubblicata: controlla la connessione."); } };
+}
+document.querySelectorAll("#mpSeg [data-ms]").forEach(b => b.onclick = () => mpSeg(b.dataset.ms));
+// link dal bigliettino QR: #barca=ID apre la scheda
+setTimeout(() => { const m = /barca=(\d+)/.exec(location.hash || ""); if (!m) return; history.replaceState(null, "", location.pathname + location.search);
+  try{ setMode("shop"); }catch(e){} BK.modo = "rii"; mpSeg("barche"); bkOpen(+m[1]); }, 1600);
 /* ---------- Incontra (solo maggiorenni) ---------- */
 function renderMeet(){
   const box = $("#meetBox");

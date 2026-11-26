@@ -7,3 +7,6 @@
 
 -- v3.76 tropss gestisce i professionisti: pro_admin_salva(p_token, p_data) modifica o inserisce un servizio assegnandolo
 -- a un profilo esistente (utente) o creandolo con PIN; pro_admin_utenti(p_token, p_q) cerca i profili
+
+-- v3.77 Barketplace (Marketplace → ⚓ Barketplace): tabelle bk_barche, bk_offerte; funzioni bk_lista, bk_dettaglio, bk_offri,
+-- bk_reclama, bk_azione, bk_reclami; edge function "barca" per pubblicare con foto. Link QR: clickvenice.com/#barca=ID
