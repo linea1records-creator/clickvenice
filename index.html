@@ -1526,6 +1526,8 @@
   body:has(#regPop:not(.hidden)) #gpsSonar{display:none}
   @keyframes gpsSon{0%{transform:scale(.15);opacity:.9}100%{transform:scale(1.6);opacity:0}}
   @keyframes gpsDot{to{transform:scale(.8)}}
+  .carW{min-height:120px} .carW iframe{width:100%!important;max-width:100%!important;border:0}
+  .sxBig{gap:8px!important} .sxBig button{min-height:58px!important}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2071,7 +2073,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.17</p>
+      <p class="sub">clickVenice · versione 4.18</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2726,6 +2728,7 @@ const SX_IC = {
   mic: '<rect x="9" y="3.5" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5M8.5 20.5h7"/>',
   plus: '<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/>',
   pro: '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19.5c.6-3.4 2.8-5.3 5.5-5.3s4.9 1.9 5.5 5.3"/><circle cx="17" cy="9" r="2.4"/><path d="M15.6 14.4c2.4-.2 4.3 1.4 4.9 4.6"/>',
+  car: '<path d="M4 16.5V12l2-5h12l2 5v4.5z"/><path d="M4 12h16M7.5 19.5v-3M16.5 19.5v-3"/><circle cx="7.5" cy="14.3" r=".8"/><circle cx="16.5" cy="14.3" r=".8"/>',
   conv: '<path d="M3.5 12.2V4.5h7.7l9.3 9.3-7.7 7.7z"/><circle cx="7.8" cy="8.8" r="1.5"/><path d="M10.5 15l4.5-4.5"/>' };
 const sxSvg = k => `<svg viewBox="0 0 24 24">${SX_IC[k]}</svg>`;
 function sxDa(cats, fall){   // prezzo di partenza vero (la tariffa più bassa dei professionisti attivi), altrimenti il testo di base
@@ -2763,6 +2766,7 @@ function paintSrv(){   // una sola schermata: sei tasti larghi e bassi
     { ic: "pro", c: "#2b7bba", t: "Trova professionisti a Venezia", d: "Artigiani, servizi ed altro", go: () => sxScegli("Professionisti a Venezia", Object.keys(SRV).filter(k => !MERCI.includes(k))) },
     { ic: "merci", c: "#d6551b", t: "Trasporto merci e traslochi", d: "In barca o a piedi", go: () => sxScegli("Trasporto merci e traslochi", MERCI) },
     { ic: "conv", c: "#b8913b", gold: true, t: "VeniceCard", d: "Sconti per membri e residenti", go: sxConv },
+    { ic: "car", c: "#13294b", t: "Noleggia una macchina", d: "Auto a noleggio da Venezia e Mestre", go: carRent },
     { ic: "barca", c: "#1d4e89", t: "Compravendita di barche", d: "Il primo portale su misura veneziano", go: () => setMode("shop") } ];
   $("#shipTypes").innerHTML = `<div class="sx sx2">
     <div class="sxHead"><img class="sxLogo" src="logo-word.png" alt="clickVenice.com"><p>Tutto quello che ti serve a Venezia, in un click.</p></div>
@@ -2780,6 +2784,16 @@ function vcCardHtml(c){
     <div class="vcMid"><div><small>HOLDER</small><b class="vcName">${esc(nome)}</b><small>NOME UTENTE</small></div>
       ${on ? `<img class="vcQr" src="${qr}" alt="QR">` : `<div class="vcQr vcLock">🔒</div>`}</div>
     <div class="vcBot"><span>VALIDITY • ${val}</span><span>STATUS • ${on ? "ACTIVE" : "NOT ACTIVE"}</span>${on ? `<span class="vcCod">${esc(c.codice)}</span>` : ""}</div></div>`;
+}
+// noleggio auto: widget Localrent (Travelpayouts) già impostato su Venezia; le offerte si aprono a schermo intero con la transizione
+const LOCALRENT_W = "https://tpembd.com/content?trs=606360&shmarker=811379&locale=en&country=13&city=106451&powered_by=true&campaign_id=87&promo_id=2466";
+function carRent(){
+  openSheet(`<h3>Noleggia una macchina</h3><p class="muted" style="margin-top:-4px;line-height:1.4">Scegli date e auto: confronti le offerte dei noleggi di Venezia e prenoti sul sito del noleggio.</p>
+    <div id="carW" class="carW"><p class="muted">Carico le offerte…</p></div>
+    <button class="btn ghost" style="margin-top:12px" onclick="closeSheet()">Chiudi</button>`, "light");
+  EXT_HOOK = "Noleggio auto";
+  const box = $("#carW"); tpMount(box, "localrent", LOCALRENT_W, "Noleggio auto");
+  setTimeout(() => { const b = $("#carW"); if (b && b.firstElementChild && b.firstElementChild.tagName === "P" && b.children.length > 1) b.firstElementChild.remove(); }, 2500);
 }
 async function sxConv(){
   const paint = anim => {
