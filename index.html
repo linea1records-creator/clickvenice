@@ -1572,6 +1572,9 @@
   .tripFull .tfL i{font-style:normal;width:20px;text-align:center} .tripFull small{display:block;margin-top:4px;color:#475569;font-weight:700}
   .gonMk.tour{position:relative;width:38px!important;height:38px!important;border-radius:50%;background:#fff;box-shadow:0 0 0 3px #c9a24a,0 2px 8px rgba(0,0,0,.35);display:grid;place-items:center}
   .gonMk.tour svg{width:28px;height:28px} .gonMk.tour em{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-style:normal;font-size:8.5px;font-weight:900;letter-spacing:.06em;background:#c9a24a;color:#1a1408;border-radius:6px;padding:1px 4px}
+  body.guest #pfScroll > *:not(.mchead):not(#pfGuest){display:none!important} body:not(.guest) #pfGuest{display:none}
+  #pfGuest{text-align:center;padding:30px 20px 10px} #pfGuest .pfgIc{font-size:46px} #pfGuest h3{margin:8px 0 6px;font-size:22px} #pfGuest p{color:#64748b;line-height:1.45;margin:0 0 16px}
+  body.guest .mchead .mcic{display:none!important}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2117,7 +2120,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.25</p>
+      <p class="sub">clickVenice · versione 4.26</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2523,6 +2526,7 @@ function showView(v){
   if (v === "info") renderInfo();
   if (v === "meet") renderMeet();
   if (v === "profile") renderProfile();
+  else { const rp = document.getElementById("regPop"); if (rp && !rp.classList.contains("hidden")) rp.classList.add("hidden"); }   // il pannello di accesso vive solo in myClick
   if (v === "shop") renderShop();
   if (v === "ship") renderShip();
   if (v === "boat") setTimeout(() => { renderBoat(); paintEngChips(); }, 0);
@@ -3896,8 +3900,19 @@ function cvForm(){
         haptic(); toast("Curriculum salvato ✓"); loadJobs(); }catch(e){ toast("Non salvato: controlla la connessione."); }
     } });
 }
+// myClick senza account: una scheda per accedere o registrarsi (facoltativo, il resto dell'app si usa lo stesso)
+function pfGuest(){
+  const sc = $("#pfScroll"); if (!sc) return; let g = $("#pfGuest");
+  if (!g){ g = document.createElement("div"); g.id = "pfGuest"; sc.insertBefore(g, sc.children[1] || null); }
+  const old = store.get("ln_old_name", "");
+  g.innerHTML = `<div class="pfgIc">👤</div><h3>Entra in myClick</h3><p>L'app si usa anche senza account. Con un account salvi le tue richieste, la VeniceCard, gli amici e il tuo omino.</p>
+    <button class="btn" id="pfgReg">${old ? "Scegli il PIN per @" + esc(old) : "Crea un account"}</button><button class="btn ghost" id="pfgLog" style="margin-top:8px">Ho già un account · Accedi</button>`;
+  $("#pfgReg").onclick = () => { haptic(); regOpen("reg"); if (old){ $("#rpName").value = old; rpNameOk = true; rpStep(2); $("#rpMsg").textContent = "Scegli un PIN per proteggere @" + old; } };
+  $("#pfgLog").onclick = () => { haptic(); regOpen("login"); };
+}
 function renderProfile(){
-  if (!PROFILE) return;
+  document.body.classList.toggle("guest", !PROFILE);
+  if (!PROFILE){ pfGuest(); return; }
   paintMe(); paintFriends(); loadFriends(); paintAvRow(); syncAvatar();
   if (!FEED.length){ FEED = store.get("ln_feed", []); if (FEED.length) paintFeed(); }
   setPfTab(pfTab);
@@ -12854,8 +12869,8 @@ new MutationObserver(ms => ms.forEach(m => { if (m.type === "characterData") deE
 if (PROFILE && PROFILE.age !== undefined){
   // profilo della prima versione (con l'età, senza password): si sceglie la password tenendo lo stesso clickname
   const old = PROFILE.clickname; PROFILE = null; try{ localStorage.removeItem("ln_profile"); localStorage.removeItem("ln_schei"); }catch(e){} try{ SCHEI.saldo = null; hudPaint(); }catch(e){}
-  openApp(); regOpen("reg"); $("#rpName").value = old; rpNameOk = true; rpStep(2); $("#rpMsg").textContent = "Scegli un PIN per proteggere @" + old;
-} else if (PROFILE){ openApp(); } else { openApp(); setTimeout(() => regOpen("reg"), 400); }   // chi arriva da un link vede subito Venezia, con la registrazione sopra
+  openApp(); store.set("ln_old_name", old);   // il PIN si sceglie da myClick, quando lo apre
+} else openApp();   // accesso facoltativo: niente pannello sulla mappa, si entra da myClick
 
 (function(){ const N = { auto: "Automatica", on: "Sempre", off: "Mai" }, nx = { auto: "on", on: "off", off: "auto" };
   const paint = () => { const v = $("#pfNightV"); if (v) v.textContent = N[store.get("ln_night", "auto")] || "Automatica"; };
