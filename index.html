@@ -1519,6 +1519,13 @@
   .btn.vcGo{margin-top:12px;background:linear-gradient(125deg,#a9822f,#e3c873 50%,#b18a36)!important;color:#3d2c0c!important;font-weight:900;letter-spacing:.03em;border:0}
   .shHow{background:#eef4fb;color:#13294b;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.45;margin:0 0 10px}
   .prq p{margin:6px 0;font-size:14px;line-height:1.4} .prq small{color:#64748b} .prq .btn{margin-top:8px}
+  #gpsSonar{position:fixed;left:50%;top:50%;width:0;height:0;z-index:6;pointer-events:none;transition:opacity .35s} #gpsSonar.out{opacity:0}
+  #gpsSonar i{position:absolute;left:-60px;top:-60px;width:120px;height:120px;border-radius:50%;border:3px solid #2b7bba;opacity:0;animation:gpsSon 2s cubic-bezier(.2,.6,.4,1) infinite}
+  #gpsSonar i:nth-child(2){animation-delay:1s}
+  #gpsSonar b{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:#2b7bba;box-shadow:0 0 0 3px #fff,0 1px 6px rgba(0,0,0,.3);animation:gpsDot 1s ease-in-out infinite alternate}
+  body:has(#regPop:not(.hidden)) #gpsSonar{display:none}
+  @keyframes gpsSon{0%{transform:scale(.15);opacity:.9}100%{transform:scale(1.6);opacity:0}}
+  @keyframes gpsDot{to{transform:scale(.8)}}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1608,8 +1615,7 @@
 </head>
 <body>
 
-<!-- ============ apertura: il logo finché l'app carica, poi transizione di 0,5 s ============ -->
-<div id="boot" aria-hidden="true"><img src="logo-mark.png" alt=""></div>
+
 
 <!-- ============ SPLASH: avviso obbligatorio ============ -->
 <div id="splash">
@@ -2065,7 +2071,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.16</p>
+      <p class="sub">clickVenice · versione 4.17</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2340,7 +2346,7 @@ function introThenOpen(){
   setTimeout(() => { c.remove(); $("#splash").classList.remove("leave"); openApp(); }, 1760);
 }
 function openApp(){
-  setTimeout(() => { try{ askCompass(); if (watchId === null) startGps(); setCam("alto"); }catch(e){} }, 700);   // appena aperta: Venezia dall'alto (la posizione si accende lo stesso)
+  try{ askCompass(); if (watchId === null) startGps(); }catch(e){}   // appena aperta: la visuale è già sulla tua posizione
   $("#splash").classList.add("hidden");
   $("#app").classList.remove("hidden");
   if (!window._mapReady) initMap();
@@ -4383,7 +4389,8 @@ function initMap(){
     return;
   }
   if (!window.maplibregl){ mapError("Controlla la connessione internet e ricarica la pagina."); return; }
-  map = new maplibregl.Map({ container: "map", style: STYLE_VECTOR, center: [12.3326, 45.4371], zoom: 14,
+  const LP0 = store.get("ln_lastpos", null);   // ultima posizione nota: la mappa nasce già lì
+  map = new maplibregl.Map({ container: "map", style: STYLE_VECTOR, center: LP0 ? [LP0.lng, LP0.lat] : [12.3326, 45.4371], zoom: LP0 ? 16.6 : 14,
     maxBounds: [[11.95, 45.12], [12.80, 45.68]], // solo Venezia e la sua laguna
     pitch: 0, maxPitch: 80, attributionControl: { compact: true }, dragRotate: true, touchPitch: true });
   let styled = false;
@@ -5315,7 +5322,7 @@ function askCompass(){
     if (window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function"){
       DeviceOrientationEvent.requestPermission().then(s => {
         if (s === "granted"){ compassOk = true; window.addEventListener("deviceorientation", onOrient, true); }
-        else toast("Bussola negata: la mappa girerà solo quando ti muovi. Per attivarla chiudi e riapri Safari e tocca di nuovo il tasto della visuale.");
+        /* bussola negata: nessun avviso, la mappa gira con la direzione di marcia */
       }).catch(() => {});
     } else if (!compassAsked){
       window.addEventListener("deviceorientationabsolute", onOrient, true);
@@ -5325,14 +5332,20 @@ function askCompass(){
   }catch(e){}
   if (!compassAsked){
     compassAsked = true;
-    setTimeout(() => { if (!compassAt) toast("Bussola non attiva: la mappa girerà con la direzione di marcia.", false, true); }, 4000);   // solo sulla mappa
+
   }
 }
+function gpsSonar(on){
+  let el = document.getElementById("gpsSonar");
+  if (!on){ if (el){ el.classList.add("out"); setTimeout(() => el.remove(), 400); } clearTimeout(gpsSonar.t); return; }
+  if (el) return; el = document.createElement("div"); el.id = "gpsSonar"; el.innerHTML = "<i></i><i></i><b></b>"; document.body.appendChild(el);
+  clearTimeout(gpsSonar.t); gpsSonar.t = setTimeout(() => gpsSonar(false), 25000);
+}
 function startGps(){
-  if (!navigator.geolocation){ toast("GPS non disponibile su questo telefono."); return; }
-  toast("Cerco il GPS…");
+  if (!navigator.geolocation) return;
+  if (!lastPos) gpsSonar(true);   // niente avvisi: mentre cerca la posizione, onde sonar blu al centro dello schermo
   watchId = navigator.geolocation.watchPosition(onPos, err => {
-    toast(err.code === 1 ? "Permesso posizione negato: attivalo nelle impostazioni di Safari." : "GPS non disponibile, riprova all'aperto.");
+    gpsSonar(false);
     if (watchId !== null) navigator.geolocation.clearWatch(watchId);
     watchId = null; setFollow(follow);
   }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 20000 });
@@ -5351,7 +5364,9 @@ function onPos(pos){
     if (c !== null && !isNaN(c)) courseHeading = c;
   } else courseHeading = null;
   if (!prevFix || dist(prevFix, p) > 4) prevFix = p;
-  lastPos = p;
+  const primo = !lastPos; lastPos = p;
+  if (primo){ gpsSonar(false); if (map && !GM && !PLAN && !view3d){ try{ map.easeTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 16.6), duration: 600 }); }catch(e){} } }
+  if (Date.now() - (onPos.ls || 0) > 30000){ onPos.ls = Date.now(); store.set("ln_lastpos", { lat: +p.lat.toFixed(5), lng: +p.lng.toFixed(5) }); }   // all'apertura la mappa parte già da qui
   const kmh = speedMs * 3.6;
   $("#spd").textContent = kmh < 0.5 ? "0" : kmh.toFixed(kmh < 10 ? 1 : 0);
   $("#kn").textContent = (speedMs * 1.94384).toFixed(1) + " nodi";
@@ -12511,11 +12526,7 @@ function playIntro(){
     .onfinish = () => box.remove();
   setTimeout(() => { if (box.isConnected) box.remove(); }, 3000);
 }
-// apertura: appena l'app (e la mappa, se c'è) ha finito di caricare, il logo esce con una transizione di 0,5 s
-{ const t0 = Date.now(), fine = () => { const b = $("#boot"); if (!b || b.classList.contains("out")) return; b.classList.add("out"); setTimeout(() => b.remove(), 520); };
-  const chk = () => { const pronta = (typeof map !== "undefined" && map && map.loaded && map.loaded()) || !$("#splash").classList.contains("hidden") || !window._mapReady;
-    if ((pronta && Date.now() - t0 > 400) || Date.now() - t0 > 3500) fine(); else setTimeout(chk, 100); };
-  if (document.readyState === "complete") chk(); else window.addEventListener("load", chk); }
+
 
 /* ---------- icone: tutte le emoji dell'app diventano icone a linea sottile, come quelle della barra in basso ---------- */
 const ICO = {
