@@ -2063,7 +2063,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.14</p>
+      <p class="sub">clickVenice · versione 4.15</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2860,15 +2860,17 @@ function mapPickEnd(){
 /* consegna veloce a piedi: partenza e arrivo con due tocchi sulla mappa di Naviga;
    al secondo tocco una linea tratteggiata ad arco (sale e poi scende) unisce ritiro e consegna */
 function pick2Map(onDone, mezzo){   // mezzo "taxi": partenza e arrivo, scrivibili o toccati sulla mappa
-  const TX = mezzo === "taxi";
+  const TX = mezzo === "taxi", UNO = mezzo === "uno";   // "uno": un solo punto (dove serve il servizio)
+  const LA = TX ? ["Partenza", "la partenza", "Scrivi la partenza (es. Cannaregio 4119)"] : UNO ? ["Dove", "il posto", "Scrivi l'indirizzo (es. Cannaregio 4119)"] : ["Ritiro", "il ritiro", "Scrivi dove ritiriamo (es. Cannaregio 4119)"];
+  const LB = TX ? ["Arrivo", "l'arrivo", "Scrivi l'arrivo (es. Aeroporto Marco Polo)"] : ["Consegna", "la consegna", "Scrivi dove consegniamo (es. Dorsoduro 3246)"];
   if (typeof map === "undefined" || !map || !window.maplibregl) return onDone({});   // mappa non pronta: domande scritte
   let o = document.getElementById("pk2"); if (o) o.remove();
   o = document.createElement("div"); o.id = "pk2";
-  o.innerHTML = `<div class="pk2Top"><button id="pk2X" aria-label="Annulla">✕</button><span id="pk2T">${TX ? "Tocca da dove parti" : "Tocca dove ritiriamo"}</span></div>
-    <div class="pk2Bot${TX ? " tx" : ""}"><div class="pk2Row"><i class="a">A</i><span id="pk2A">Ritiro: tocca la mappa</span>${TX ? `<button class="pk2Me" id="pk2Me">📍 Qui</button>` : ""}</div>
-      ${TX ? `<div class="pk2In hidden" id="pk2InA"><input id="pk2TA" placeholder="Scrivi la partenza (es. Cannaregio 4119)" maxlength="90"><button id="pk2GA">Cerca</button></div>` : ""}
-      <div class="pk2Row"><i class="b">B</i><span id="pk2B">Consegna</span></div>
-      ${TX ? `<div class="pk2In hidden" id="pk2InB"><input id="pk2TB" placeholder="Scrivi l'arrivo (es. Aeroporto Marco Polo)" maxlength="90"><button id="pk2GB">Cerca</button></div>` : ""}
+  o.innerHTML = `<div class="pk2Top"><button id="pk2X" aria-label="Annulla">✕</button><span id="pk2T">${TX ? "Tocca da dove parti" : UNO ? "Tocca dove ti serve" : "Tocca dove ritiriamo"}</span></div>
+    <div class="pk2Bot tx"><div class="pk2Row"><i class="a">${UNO ? "📍" : "A"}</i><span id="pk2A">${LA[0]}: tocca la mappa</span><button class="pk2Me" id="pk2Me">📍 Qui</button></div>
+      <div class="pk2In hidden" id="pk2InA"><input id="pk2TA" placeholder="${LA[2]}" maxlength="90"><button id="pk2GA">Cerca</button></div>
+      ${UNO ? "" : `<div class="pk2Row"><i class="b">B</i><span id="pk2B">${LB[0]}</span></div>
+      <div class="pk2In hidden" id="pk2InB"><input id="pk2TB" placeholder="${LB[2]}" maxlength="90"><button id="pk2GB">Cerca</button></div>`}
       <div class="pk2Btns"><button class="btn ghost" id="pk2R">Rifai</button><button class="btn" id="pk2Ok" disabled style="opacity:.4">${TX ? "Vedi i taxi" : "Avanti"}</button></div></div>`;
   document.body.appendChild(o);
   mapPickStart();
@@ -2889,11 +2891,10 @@ function pick2Map(onDone, mezzo){   // mezzo "taxi": partenza e arrivo, scrivibi
   const draw = () => { const s = map.getSource("pk2l"); if (!s) return; const L = arco();
     s.setData({ type: "FeatureCollection", features: L.length ? [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: L } }] : [] }); };
   const paint = () => { if (!$("#pk2T")) return;
-    $("#pk2T").textContent = TX ? (!A ? "Tocca o scrivi da dove parti" : !B ? "Ora tocca o scrivi dove vai" : (kwInfo(A, B) ? "Taxi in auto o in barca" : "Taxi acqueo") + " · tocca Vedi i taxi")
-      : !A ? "Tocca dove ritiriamo" : !B ? "Ora tocca dove consegniamo" : (mezzo === "barca" ? "Trasporto in barca" : mezzo ? "Consegna a piedi con il carrello" : { barca: "In barca: c'è un canale grande in mezzo", pacco: "A piedi, nello stesso sestiere", carrello: "A piedi con il carrello" }[pk2Mezzo(A, B)]) + " · tocca Avanti";
-    if (TX){ $("#pk2A").textContent = A ? "Partenza: " + A.name : "Partenza: tocca la mappa o scrivila"; $("#pk2B").textContent = B ? "Arrivo: " + B.name : "Arrivo: tocca la mappa o scrivilo"; }
-    else { $("#pk2A").textContent = A ? "Ritiro: " + A.name : "Ritiro: tocca la mappa"; $("#pk2B").textContent = B ? "Consegna: " + B.name : "Consegna"; }
-    const ok = $("#pk2Ok"); ok.disabled = !(A && B); ok.style.opacity = A && B ? "" : ".4"; draw(); };
+    $("#pk2T").textContent = UNO ? (!A ? "Tocca o scrivi dove ti serve" : "Tocca Avanti, o tocca la mappa per spostarlo") : TX ? (!A ? "Tocca o scrivi da dove parti" : !B ? "Ora tocca o scrivi dove vai" : (kwInfo(A, B) ? "Taxi in auto o in barca" : "Taxi acqueo") + " · tocca Vedi i taxi")
+      : !A ? "Tocca dove ritiriamo" : !B ? "Ora tocca dove consegniamo" : (mezzo === "barca" ? "Trasporto in barca" : mezzo === "carrello" ? "Trasloco con il carrello" : mezzo ? "Consegna a piedi con il carrello" : { barca: "In barca: c'è un canale grande in mezzo", pacco: "A piedi, nello stesso sestiere", carrello: "A piedi con il carrello" }[pk2Mezzo(A, B)]) + " · tocca Avanti";
+    $("#pk2A").textContent = A ? LA[0] + ": " + A.name : LA[0] + ": tocca la mappa o scrivi"; if ($("#pk2B")) $("#pk2B").textContent = B ? LB[0] + ": " + B.name : LB[0] + ": tocca la mappa o scrivi";
+    const pronto = A && (UNO || B), ok = $("#pk2Ok"); ok.disabled = !pronto; ok.style.opacity = pronto ? "" : ".4"; draw(); };
   const reset = () => { droneStop(); A = B = null; if (mA) mA.remove(); if (mB) mB.remove(); mA = mB = null; paint(); };
   addMode = "pick2"; map.on("move", draw);
   // l'omino con il carrello che va da A a B lungo la linea tratteggiata
@@ -2913,7 +2914,7 @@ function pick2Map(onDone, mezzo){   // mezzo "taxi": partenza e arrivo, scrivibi
     else { const first = !B; B = ll; if (mB) mB.setLngLat([B.lng, B.lat]); else mB = pin(B, "b");
       if (first && A){ try{ const b = new maplibregl.LngLatBounds([A.lng, A.lat], [A.lng, A.lat]).extend([B.lng, B.lat]); map.fitBounds(b, { padding: { top: 150, bottom: 260, left: 50, right: 50 }, maxZoom: 17.5, duration: 500 }); droneStart({ lat: (A.lat + B.lat) / 2, lng: (A.lng + B.lng) / 2 }); }catch(err){} } }
     paint(); if (A && B && !wRaf) wRaf = requestAnimationFrame(walk); };
-  if (TX){
+  {
     const cerca = async which => { const inp = $(which === "a" ? "#pk2TA" : "#pk2TB"), t = inp.value.trim(); if (!t) return;
       const bt = $(which === "a" ? "#pk2GA" : "#pk2GB"); bt.disabled = true; bt.textContent = "…"; let g = null;
       try{ const cv = await civicoSearch(t); if (cv.length) g = cv[0]; }catch(e){}
@@ -2923,14 +2924,14 @@ function pick2Map(onDone, mezzo){   // mezzo "taxi": partenza e arrivo, scrivibi
       bt.disabled = false; bt.textContent = "Cerca";
       if (!g || typeof g.lat !== "number") return toast("Non trovo questo posto: prova a toccarlo sulla mappa.");
       $(which === "a" ? "#pk2InA" : "#pk2InB").classList.add("hidden"); setPt(which, { lat: +g.lat, lng: +g.lng, name: t }); };
-    ["a", "b"].forEach(w => { const W = w.toUpperCase();
+    (UNO ? ["a"] : ["a", "b"]).forEach(w => { const W = w.toUpperCase();
       $("#pk2" + W).onclick = () => { const box = $("#pk2In" + W); box.classList.toggle("hidden"); if (!box.classList.contains("hidden")) setTimeout(() => $("#pk2T" + W).focus(), 50); };
       $("#pk2G" + W).onclick = () => cerca(w);
       $("#pk2T" + W).addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); cerca(w); } }); });
     $("#pk2Me").onclick = () => { if (!lastPos){ if (watchId === null){ try{ askCompass(); startGps(); }catch(e){} } return toast("Aspetto il GPS: riprova tra un attimo."); }
       setPt("a", { lat: lastPos.lat, lng: lastPos.lng, name: "La mia posizione" }); };
   }
-  window._pk2Click = e => { const ll = { lat: +e.lat.toFixed(6), lng: +e.lng.toFixed(6) }; ll.name = nome(ll); if (TX) return setPt(!A ? "a" : "b", ll); haptic();
+  window._pk2Click = e => { const ll = { lat: +e.lat.toFixed(6), lng: +e.lng.toFixed(6) }; ll.name = nome(ll); if (TX || UNO) return setPt(UNO || !A ? "a" : "b", ll); haptic();
     if (!A){ A = ll; mA = pin(A, "a"); }
     else if (!B){ B = ll; mB = pin(B, "b");
       try{ const b = new maplibregl.LngLatBounds([A.lng, A.lat], [A.lng, A.lat]).extend([B.lng, B.lat]); map.fitBounds(b, { padding: { top: 150, bottom: 230, left: 50, right: 50 }, maxZoom: 17.5, duration: 500 }); droneStart({ lat: (A.lat + B.lat) / 2, lng: (A.lng + B.lng) / 2 }); }catch(err){} }
@@ -2943,7 +2944,7 @@ function pick2Map(onDone, mezzo){   // mezzo "taxi": partenza e arrivo, scrivibi
   try{ loadCivici().then(() => { if (A) A.name = nome(A); if (B) B.name = nome(B); paint(); }); }catch(e){}
   $("#pk2X").onclick = () => fine(null);
   $("#pk2R").onclick = reset;
-  $("#pk2Ok").onclick = () => { if (A && B) fine({ ritiro: A, consegna: B }); };
+  $("#pk2Ok").onclick = () => { if (A && (UNO || B)) fine(UNO ? { ritiro: A } : { ritiro: A, consegna: B }); };
   if (TX && lastPos) setPt("a", { lat: lastPos.lat, lng: lastPos.lng, name: "La mia posizione" });   // la partenza è già dove sei; si cambia toccando la mappa o scrivendo
   paint();
 }
@@ -2951,7 +2952,8 @@ function shipStart(tipo, prev){
   haptic();
   // consegna veloce a piedi: ritiro e consegna con due tocchi sulla mappa, poi le altre domande
   // a piedi: omino con il carrello e le scatole; trasporto merci in barca: omino sulla barca da lavoro
-  if ((tipo === "piedi" || tipo === "barca") && !(prev && prev._mappa)){ return pick2Map(r => { if (r) shipStart(tipo, Object.assign({}, prev || {}, r, { _mappa: true })); }, tipo === "barca" ? "barca" : "pacco"); }
+  if (!(prev && prev._mappa) && typeof map !== "undefined" && map){ if (MODES[modeIdx].v !== "map") setMode("nautica");   // ritiro e consegna sempre toccati sulla mappa (o scritti lì sotto)
+    return setTimeout(() => pick2Map(r => { if (r) shipStart(tipo, Object.assign({}, prev || {}, r, { _mappa: true })); }, tipo === "barca" ? "barca" : tipo === "trasloco" ? "carrello" : "pacco"), 150); }
   const last = store.get("ln_ship_contatto", {});
   const oggi = new Date().toISOString().slice(0, 10);   // stesso formato dei giorni del wizard
   wizard({ title: SH_TIPI[tipo].n, values: Object.assign({ nome: last.nome || "", tel: last.tel || "" }, prev || {}, { tipo, ship: true, categoria: SH_TIPI[tipo].cat }),
@@ -2984,9 +2986,11 @@ function shipStart(tipo, prev){
 /* ---------- prenotazione: tutti gli altri servizi ---------- */
 function srvStart(cat, prev){
   haptic();
+  if (!SRV[cat].noLuogo && !(prev && prev._mappa) && typeof map !== "undefined" && map){ if (MODES[modeIdx].v !== "map") setMode("nautica");   // il posto si tocca sulla mappa
+    return setTimeout(() => pick2Map(r => { if (r) srvStart(cat, Object.assign({}, prev || {}, r, { _mappa: true })); }, "uno"), 150); }
   const S = SRV[cat], A = srvAtt()[cat] || {}, last = store.get("ln_ship_contatto", {}), oggi = new Date().toISOString().slice(0, 10);
   const steps = [];
-  if (!S.noLuogo) steps.push({ k: "ritiro", q: S.luogo || "Dove?", hint: "Indirizzo e sestiere, oppure una riva", type: "place", hereLabel: "Usa posizione GPS attuale", hereName: "Posizione GPS del cliente", freeText: true, ph: "es. Cannaregio 4119" });
+  if (!S.noLuogo) steps.push({ when: v => !v._mappa || !v.ritiro, k: "ritiro", q: S.luogo || "Dove?", hint: "Indirizzo e sestiere, oppure una riva", type: "place", hereLabel: "Usa posizione GPS attuale", hereName: "Posizione GPS del cliente", freeText: true, ph: "es. Cannaregio 4119" });
   (S.ask || []).forEach(a => steps.push(a.o ? { k: a.k, q: a.q, type: "choice", options: a.o.map(x => [x, x]), when: a.when }
     : { k: a.k, q: a.q, hint: a.opt ? "Tocca un titolo o scrivilo" : "Tocca quello che vale, oppure scrivi tu", type: "text", multi: !a.opt, max: 200, chips: a.chipsFn ? a.chipsFn() : a.chips, when: a.when,
         optional: !!a.opt, skipLabel: "Lo scelgo dopo", check: t => !a.opt && t.trim().length < 2 ? "Scrivi due parole." : "" }));
