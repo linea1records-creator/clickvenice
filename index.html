@@ -1515,6 +1515,8 @@
   .vcQr{width:24%;aspect-ratio:1;mix-blend-mode:multiply;border-radius:4px} .vcLock{display:grid;place-items:center;border:1.5px dashed rgba(92,67,24,.5);font-size:22px;mix-blend-mode:normal}
   .vcBot{display:flex;flex-direction:column;gap:2px;font-size:10px;letter-spacing:.12em} .vcCod{position:absolute!important;right:0;bottom:0;letter-spacing:.2em}
   .btn.vcGo{margin-top:12px;background:linear-gradient(125deg,#a9822f,#e3c873 50%,#b18a36)!important;color:#3d2c0c!important;font-weight:900;letter-spacing:.03em;border:0}
+  .shHow{background:#eef4fb;color:#13294b;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.45;margin:0 0 10px}
+  .prq p{margin:6px 0;font-size:14px;line-height:1.4} .prq small{color:#64748b} .prq .btn{margin-top:8px}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2061,7 +2063,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.13</p>
+      <p class="sub">clickVenice · versione 4.14</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2676,7 +2678,7 @@ const SH_TIPI = {
 const SH_VOL = { piccolo: "Piccolo, a mano o carrello", bancali: "1–2 bancali o un elettrodomestico", medio: "Carico medio, una stanza", completo: "Trasloco completo" };
 const SH_SERV = { trasporto: "Solo trasporto riva-riva / strada", facchinaggio: "Con facchinaggio, carico e scarico al piano" };
 const SH_FASCE = { urgente: "Urgente, entro 2 ore", mattina: "Mattina 08:00–12:00", pomeriggio: "Pomeriggio 14:00–18:00", flessibile: "Flessibile" };
-const SH_STATI = { nuova: "In attesa di conferma", confermata: "Confermata", fatta: "Completata", annullata: "Annullata" };
+const SH_STATI = { nuova: "Cerco un professionista", confermata: "Professionista trovato", fatta: "Completata", annullata: "Annullata" };
 const PRO_STATI = { pending: "In attesa di approvazione", approved: "Attivo", paused: "In pausa", rejected: "Non approvata" };
 const UNITA = { ora: "all'ora", servizio: "a servizio", giornata: "a giornata" };
 const ZONE = ["Venezia centro storico", "Lido", "Giudecca", "Murano", "Burano", "Mestre", "Marghera", "Tutta la laguna"];
@@ -2727,7 +2729,8 @@ function sxScegli(titolo, cats){   // quando una riga raccoglie più servizi
   const A = srvAtt();
   openSheet(`<h3>${titolo}</h3>${cats.map(c => `<button class="sxRow" data-sxc="${c}" style="border-radius:0"><i class="ic">${srvIco(c)}</i><span><b>${esc(SRV[c].s)}</b><small>${esc(SRV[c].d.replace(/ · (guarda|ascolta) .*$/, ""))}</small></span><em class="sxAct">${A[c] && A[c].tariffa != null ? "da " + shEur(+A[c].tariffa) + (A[c].unita === "ora" ? "/ora" : "") : "Richiedi"}</em></button>`).join("")}
     <button class="btn ghost" style="margin-top:12px" onclick="closeSheet()">Chiudi</button>`, "light");
-  document.querySelectorAll("[data-sxc]").forEach(b => b.onclick = () => srvPros(b.dataset.sxc));
+  // prima la richiesta con il preventivo, poi va a tutti i professionisti della categoria: il primo che accetta la prende
+  document.querySelectorAll("[data-sxc]").forEach(b => b.onclick = () => { const c = b.dataset.sxc, S = SRV[c]; closeSheet(); setTimeout(() => S.ship ? shipStart(S.ship) : srvStart(c), 120); });
 }
 function sxSuMisura(){
   const last = store.get("ln_ship_contatto", {}), oggi = new Date().toISOString().slice(0, 10);
@@ -2955,6 +2958,14 @@ function shipStart(tipo, prev){
     steps: [
       { k: "ritiro", q: "Dove ritiriamo?", hint: "Indirizzo e sestiere, oppure la riva di attracco", type: "place", hereLabel: "Usa posizione GPS attuale", hereName: "Posizione GPS del cliente", freeText: true, ph: "es. Cannaregio 4119 o Riva di Biasio", when: v => !v._mappa || !v.ritiro },
       { k: "consegna", q: "Dove consegniamo?", hint: "Indirizzo e sestiere, oppure la riva di attracco", type: "place", noHere: true, freeText: true, ph: "es. Dorsoduro 3246 o Zattere", when: v => !v._mappa || !v.consegna },
+      { k: "cosa", q: "Cosa ti serve?", type: "choice", when: v => v.tipo === "piedi",
+        options: [["pacco", "📦 Ritirare e consegnare un pacco o un oggetto"], ["spesa", "🛒 Fare la spesa o una commissione per me"]] },
+      { k: "descr", q: v => v.cosa === "spesa" ? "Cosa ti compriamo?" : v.tipo === "piedi" ? "Cosa ti consegniamo?" : "Cosa trasportiamo?", type: "text", max: 300,
+        hint: "Scrivilo bene: lo leggono i professionisti per accettare la richiesta",
+        multi: true, ph: "es. 2 casse d'acqua, pane e latte dal Coop di Rio Terà", chips: v => v.cosa === "spesa" ? ["Spesa al supermercato", "Farmacia", "Tabaccheria", "Ritiro alla posta"] : [],
+        check: t => t.trim().length < 4 ? "Scrivi in due parole cosa ti serve." : "" },
+      { k: "budget", q: "Quanto spendiamo al massimo?", hint: "Il rider anticipa la spesa e te la fa pagare alla consegna con lo scontrino", type: "choice", when: v => v.cosa === "spesa",
+        options: [["fino a 20 €", "Fino a 20 €"], ["20–50 €", "20–50 €"], ["50–100 €", "50–100 €"], ["oltre 100 €", "Più di 100 €"]] },
       { k: "volume", q: "Quanto è grande il carico?", type: "choice", options: Object.entries(SH_VOL), when: v => v.tipo !== "piedi" },
       { k: "servizio", q: "Che servizio ti serve?", type: "choice", options: Object.entries(SH_SERV), when: v => v.tipo !== "piedi" },
       { k: "note", q: "C'è qualcosa da sapere?", hint: "Tocca tutto quello che vale, oppure scrivi tu", type: "text", multi: true, optional: true, skipLabel: "No, niente", max: 300,
@@ -3008,23 +3019,25 @@ function shipPrice(v){
 }
 function srvDettagli(v){
   const d = {};
-  if (v.ship){ d.volume = SH_VOL[v.volume]; d.servizio = SH_SERV[v.servizio]; }
+  if (v.ship){ if (v.cosa) d.cosa = v.cosa === "spesa" ? "Spesa o commissione" : "Ritiro e consegna"; if (v.descr) d.descr = v.descr; if (v.budget) d.budget = v.budget;
+    if (v.tipo !== "piedi"){ d.volume = SH_VOL[v.volume]; d.servizio = SH_SERV[v.servizio]; } }
   else { (SRV[v.categoria].ask || []).forEach(a => { if (v[a.k]) d[a.k] = v[a.k]; }); if (v.ore) d.ore = v.ore; }
   return d;
 }
-const DET_N = { volume: "Carico", servizio: "Tipo", lavoro: "Lavoro", persone: "Persone", lunghezza: "Barca", ore: "Ore", brani: "Brani", beat: "Beat" };
+const DET_N = { cosa: "Richiesta", descr: "Cosa", budget: "Spesa massima", volume: "Carico", servizio: "Tipo", lavoro: "Lavoro", persone: "Persone", lunghezza: "Barca", ore: "Ore", brani: "Brani", beat: "Beat" };
 
 function shipSummary(v){
   const pr = shipPrice(v), P = CONFIG.SPEDISCI, det = srvDettagli(v);
   const row = (a, b) => `<div class="shrow"><span>${a}</span><b>${b}</b></div>`;
-  openSheet(`<h3>Riepilogo</h3>
-    <div class="shsum">${row("Servizio", esc(srvNome(v)))}${v.proNome ? row("Professionista", esc(v.proNome)) : ""}${v.ritiro ? row(v.ship ? "Ritiro" : "Dove", esc(v.ritiro.name)) : ""}${v.consegna ? row("Consegna", esc(v.consegna.name)) : ""}
+  openSheet(`<h3>Preventivo</h3>
+    <div class="shsum">${row("Servizio", esc(srvNome(v)))}${v.ritiro ? row(v.ship ? "Ritiro" : "Dove", esc(v.ritiro.name)) : ""}${v.consegna ? row("Consegna", esc(v.consegna.name)) : ""}
       ${Object.entries(det).map(([k, x]) => row(DET_N[k] || k, esc(x))).join("")}
       ${v.note ? row("Note", esc(v.note)) : ""}${row("Quando", esc(shDay(v.giorno)) + "<br>" + esc(SH_FASCE[v.fascia]))}${row("Contatto", esc(v.nome) + "<br>" + esc(v.tel))}</div>
     <div class="shsum">${pr.righe.length > 1 ? pr.righe.map(([a, b]) => row(esc(a), shEur(b))).join("") : ""}
       <div class="shrow"><span>${pr.righe.length === 1 ? esc(pr.righe[0][0]) + " · al professionista" : "Al professionista"}<br><small>Lo paghi direttamente a lui</small></span><b>${pr.concordare ? "da concordare" : shEur(pr.saldo)}</b></div>
       <div class="shrow"><span>Costo del servizio (${CONFIG.SPEDISCI.COMMISSIONE_PCT}%)<br><small>Si paga in anticipo per confermare</small></span><b>${shEur(pr.anticipo)}</b></div>
       <div class="shrow tot"><span>Totale stimato</span><b>${pr.concordare ? "da concordare" : shEur(pr.totale)}</b></div></div>
+    <p class="shHow">📣 Inviando la richiesta la giriamo a tutti i professionisti di questo servizio: il primo che accetta la prende. Ti diciamo chi è appena c'è il match.</p>
     <p class="muted" style="font-size:13px;line-height:1.45;margin:0 0 10px">${esc(P.CONDIZIONI)}</p>
     <label class="check"><input type="checkbox" id="shAg"><span>Accetto le condizioni di cancellazione e rimborso del costo del servizio</span></label>
     <button class="btn" id="shGo" disabled style="opacity:.45;margin-top:12px">Invia richiesta</button>
@@ -3036,7 +3049,7 @@ function shipSummary(v){
 
 async function shipSend(v, pr){
   const go = $("#shGo"); go.disabled = true; go.textContent = "Invio…";
-  const dati = { categoria: v.categoria, pro: v.pro || null, ritiro: v.ritiro || {}, consegna: v.consegna || null, dettagli: srvDettagli(v), note: v.note || "", giorno: v.giorno, fascia: v.fascia,
+  const dati = { categoria: v.categoria, pro: null, ritiro: v.ritiro || {}, consegna: v.consegna || null, dettagli: srvDettagli(v), note: v.note || "", giorno: v.giorno, fascia: v.fascia,
     nome: String(v.nome).trim(), tel: String(v.tel).trim(), totale: pr.totale, anticipo: pr.anticipo };
   const wa = CONFIG.SPEDISCI.WHATSAPP || CONFIG.ORDER_WHATSAPP;
   let codice = null, online = false;
@@ -3047,7 +3060,7 @@ async function shipSend(v, pr){
   }catch(e){}
   if (!online && !wa){ go.disabled = false; go.textContent = "Invia richiesta"; return toast("Non riesco a inviarla: controlla la connessione ed entra con il tuo account."); }
   if (!codice){ const d = new Date(); codice = "CV-" + String(d.getDate()).padStart(2, "0") + String(d.getMonth() + 1).padStart(2, "0") + "-" + Math.random().toString(36).slice(2, 6).toUpperCase(); }
-  const rec = Object.assign({ codice, stato: "nuova", creata: new Date().toISOString(), online, tipo: v.tipo }, dati, { pro: v.proNome || null });
+  const rec = Object.assign({ codice, stato: "nuova", creata: new Date().toISOString(), online, tipo: v.tipo }, dati, { pro: null });
   shipMineCache = [rec, ...shipMineCache.filter(x => x.codice !== codice)].slice(0, 30); store.set("ln_ship", shipMineCache);
   haptic(); shipDone(rec);
 }
@@ -3066,8 +3079,11 @@ function shipDone(r, dalla_lista){
   const wa = CONFIG.SPEDISCI.WHATSAPP || CONFIG.ORDER_WHATSAPP, devo = !r.online;   // non salvata online: va mandata per forza su WhatsApp
   openSheet(`<div class="shok"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>
     <h3>${dalla_lista ? esc(SH_STATI[r.stato] || r.stato) : devo ? "Quasi fatto" : "Richiesta inviata"}</h3><p class="muted" style="margin:0">${esc(srvNome(r))} · codice prenotazione</p><div class="shcode">${esc(r.codice)}</div>
-    <p class="muted" style="line-height:1.45">${devo && !dalla_lista ? "Tocca il tasto qui sotto per mandarci la richiesta su WhatsApp." : `Ti contattiamo al ${esc(r.tel)} per confermare il prezzo e il costo del servizio di ${shEur(r.anticipo)}.`}</p></div>
-    ${wa ? `<button class="btn" id="shWa">${devo ? "Invia su WhatsApp" : "Manda il riepilogo anche su WhatsApp"}</button>` : ""}
+    <p class="muted" style="line-height:1.45">${devo && !dalla_lista ? "Tocca il tasto qui sotto per mandarci la richiesta su WhatsApp."
+      : r.pro && (r.stato === "confermata" || r.stato === "fatta") ? `Ha accettato <b>${esc(r.pro)}</b>: ti contatta al ${esc(r.tel)} per i dettagli.`
+      : r.stato === "nuova" ? "La richiesta è arrivata a tutti i professionisti del servizio. Appena uno accetta ti diciamo chi è, qui in Le tue richieste." : ""}</p></div>
+    ${r.pro_tel && r.stato === "confermata" ? `<a class="btn" style="display:block;text-align:center;text-decoration:none" href="https://wa.me/${shWaNum(r.pro_tel)}" target="_blank" rel="noopener">Scrivi a ${esc(r.pro)} su WhatsApp</a>` : ""}
+    ${wa && devo ? `<button class="btn" id="shWa">Invia su WhatsApp</button>` : ""}
     <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`);
   if ($("#shWa")) $("#shWa").onclick = () => { window.location.href = `https://wa.me/${wa}?text=${encodeURIComponent(shipText(r))}`; };
   renderShipMine();
@@ -3086,7 +3102,7 @@ async function loadShipMine(){
 function renderShipMine(){
   const box = $("#shipMine"); if (!box) return; const L = shipMineCache;
   box.innerHTML = L.length ? L.map(r => `<button class="card shmine" data-shc="${esc(r.codice)}"><span><b>${esc(srvNome(r))}</b>
-      <small>${esc(r.codice)} · ${esc(shDay(r.giorno, { day: "numeric", month: "short" }))} · ${esc(SH_FASCE[r.fascia] || "")}</small></span><em class="st-${esc(r.stato)}">${esc(SH_STATI[r.stato] || r.stato)}</em></button>`).join("")
+      <small>${esc(r.codice)} · ${esc(shDay(r.giorno, { day: "numeric", month: "short" }))} · ${esc(SH_FASCE[r.fascia] || "")}${r.pro && r.stato !== "nuova" ? " · " + esc(r.pro) : ""}</small></span><em class="st-${esc(r.stato)}">${esc(SH_STATI[r.stato] || r.stato)}</em></button>`).join("")
     : `<p class="muted">Nessuna richiesta per ora.</p>`;
   box.querySelectorAll("[data-shc]").forEach(b => b.onclick = () => { const r = L.find(x => x.codice === b.dataset.shc); if (r) shipDone(r, true); });
 }
@@ -3114,8 +3130,9 @@ async function paintPro(box){
   box.innerHTML = `<div class="card"><h3 style="margin:0 0 6px">Lavora con noi</h3>
       <p class="muted" style="line-height:1.45;margin:0 0 12px">Offri i tuoi servizi su clickVenice: videomaker, traslochi, pulizie, skipper e altro. Quando la candidatura è approvata il servizio compare in Servizi e ti giriamo le richieste su WhatsApp. Il lavoro lo fai in autonomia e lo incassi tu, con fattura o ricevuta al cliente.</p>
       <button class="btn" id="proNew">Candidati</button></div>
-    <div id="proMine"></div><div id="proAdm"></div>`;
+    <div id="proReq"></div><div id="proMine"></div><div id="proAdm"></div>`;
   $("#proNew").onclick = () => proStart();
+  proReqLoad();
   try{
     const r = await rpc("pro_mie", {}); const L = (r && r.lista) || [];
     if ($("#proMine") && L.length) $("#proMine").innerHTML = `<h4 style="margin:18px 0 8px">Le tue candidature</h4>` + L.map(x => `<button class="card shmine" data-pro="${x.id}">${srvIco(x.categoria)}<span><b>${esc(proNome(x))}</b>
@@ -3127,6 +3144,33 @@ async function paintPro(box){
     document.querySelectorAll("#proMine [data-pro]").forEach(b => b.onclick = () => { const x = L.find(y => y.id === +b.dataset.pro); if (x) proStart(proToVals(x)); });
   }catch(e){}
   if (isTropss()) loadProAdmin();
+}
+// richieste aperte per i professionisti: il primo che accetta prende il lavoro e vede il contatto del cliente
+async function proReqLoad(){
+  const box = $("#proReq"); if (!box) return;
+  let r = null; try{ r = await rpc("pren_aperte", {}); }catch(e){}
+  if (!r || r.errore || !$("#proReq")) return;
+  const A = r.lista || [], M = r.miei || [];
+  const luogo = x => [x.ritiro && x.ritiro.name, x.consegna && x.consegna.name].filter(Boolean).map(esc).join(" → ");
+  const det = x => Object.entries(x.dettagli || {}).map(([k, v]) => `${esc(DET_N[k] || k)}: ${esc(v)}`).join(" · ");
+  box.innerHTML = (A.length ? `<h4 style="margin:18px 0 8px">🔔 Richieste da accettare · ${A.length}</h4>` + A.map(x => `<div class="card prq">
+      <div class="shrow" style="border:0;padding:0"><b style="text-align:left">${esc(srvNome(x))}</b><em>${+x.totale ? shEur(x.totale - x.anticipo) : "da concordare"}</em></div>
+      <small>${esc(shDay(x.giorno, { weekday: "short", day: "numeric", month: "short" }))} · ${esc(SH_FASCE[x.fascia] || "")}</small>
+      ${luogo(x) ? `<p>📍 ${luogo(x)}</p>` : ""}${det(x) ? `<p>${det(x)}</p>` : ""}${x.note ? `<p>📝 ${esc(x.note)}</p>` : ""}
+      <button class="btn" data-acc="${x.id}">Accetta la richiesta</button></div>`).join("")
+    : `<p class="muted" style="margin:16px 0 0">Nessuna richiesta da accettare adesso.</p>`)
+    + (M.length ? `<h4 style="margin:18px 0 8px">I tuoi lavori</h4>` + M.map(x => `<div class="card prq">
+      <div class="shrow" style="border:0;padding:0"><b style="text-align:left">${esc(srvNome(x))} · ${esc(x.codice)}</b><em class="st-${esc(x.stato)}">${esc(x.stato === "fatta" ? "Fatto" : "Da fare")}</em></div>
+      <small>${esc(shDay(x.giorno, { weekday: "short", day: "numeric", month: "short" }))} · ${esc(SH_FASCE[x.fascia] || "")}</small>
+      ${luogo(x) ? `<p>📍 ${luogo(x)}</p>` : ""}${det(x) ? `<p>${det(x)}</p>` : ""}${x.note ? `<p>📝 ${esc(x.note)}</p>` : ""}<p>👤 ${esc(x.nome)} · ${esc(x.tel)}</p>
+      <div class="row" style="gap:6px;flex-wrap:wrap"><a class="btn small ghost" href="https://wa.me/${shWaNum(x.tel)}" target="_blank" rel="noopener">WhatsApp</a><a class="btn small ghost" href="tel:${esc(String(x.tel).replace(/[^\d+]/g, ""))}">Chiama</a>
+      ${x.stato === "confermata" ? `<button class="btn small" data-fat="${x.id}">Fatto</button>` : ""}</div></div>`).join("") : "");
+  box.querySelectorAll("[data-acc]").forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = "Un attimo…";
+    let j = null; try{ j = await rpc("pren_accetta", { p_id: +b.dataset.acc }); }catch(e){}
+    if (j && j.ok){ haptic(); toast("È tua ✓ · contatta il cliente"); }
+    else toast(j && j.errore === "gia_presa" ? "Peccato: l'ha già presa un altro professionista." : "Non riuscito: controlla la connessione.");
+    proReqLoad(); });
+  box.querySelectorAll("[data-fat]").forEach(b => b.onclick = async () => { let j = null; try{ j = await rpc("pren_fatta", { p_id: +b.dataset.fat }); }catch(e){} if (j && j.ok){ haptic(); proReqLoad(); } else toast("Non riuscito, riprova."); });
 }
 const proToVals = x => ({ macro: x.categoria === "altro" ? "altro" : (SRV[x.categoria] || {}).m, categoria: x.categoria, custom: x.custom, nome: x.nome, zona: x.zona,
   tariffa: x.tariffa != null ? String(x.tariffa) : "", unita: x.unita, bio: x.bio, wa: x.wa });
