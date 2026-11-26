@@ -1538,6 +1538,7 @@
   .boGo em{font-style:normal;margin:8px 9px 9px;background:#1d4e89;color:#fff;font-weight:800;font-size:13px;border-radius:10px;padding:7px;text-align:center}
   .boAdm{display:flex;border-top:1px solid #eef0f2} .boAdm button{flex:1;border:0;background:#f8fafc;padding:7px;font-size:12px;font-weight:700;color:#475569}
   .boPh{display:grid;place-items:center;height:150px;border-radius:14px;border:1.5px dashed #cbd5e1;background:#f8fafc center/cover no-repeat;color:#64748b;font-weight:700;margin-bottom:10px;cursor:pointer}
+  .boLive{font-style:normal;font-size:10px;font-weight:800;color:#15803d;background:#dcfce7;border-radius:6px;padding:1px 5px;vertical-align:1px}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2083,7 +2084,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.19</p>
+      <p class="sub">clickVenice · versione 4.20</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -4116,7 +4117,7 @@ async function bkOptional(){
     openSheet(`<h3>Rendi la tua barca full optional</h3><p class="muted" style="margin-top:-4px;line-height:1.4">Accessori, elettronica e comfort scelti per chi va in laguna. Tocca un prodotto per comprarlo.</p>
       ${adm ? `<button class="btn" id="boAdd" style="margin-bottom:10px">＋ Aggiungi un prodotto</button>` : ""}
       <div class="boGrid">${BKOPT.length ? BKOPT.map(x => `<div class="boC"><button class="boGo" data-bo="${x.id}">${x.foto ? `<img loading="lazy" src="${esc(x.foto)}" alt="">` : `<i class="boNo">⚓</i>`}
-          <b>${esc(x.titolo)}</b>${x.prezzo ? `<small>${esc(x.prezzo)}</small>` : ""}<em>Acquista ›</em></button>
+          <b>${esc(x.titolo)}</b>${x.prezzo ? `<small>${esc(x.prezzo)}${x.auto ? ' <i class="boLive">live</i>' : ""}</small>` : ""}<em>Acquista ›</em></button>
           ${adm ? `<div class="boAdm"><button data-boe="${x.id}">Modifica</button><button data-bod="${x.id}">Togli</button></div>` : ""}</div>`).join("")
         : `<p class="muted" style="grid-column:1/-1;text-align:center">${adm ? "Nessun prodotto: aggiungi il primo." : "I prodotti arrivano a breve."}</p>`}</div>
       <p class="muted" style="font-size:11.5px;margin:10px 0 0">Link di affiliazione: comprando da qui sostieni clickVenice, senza costi in più per te.</p>
@@ -4129,22 +4130,40 @@ async function bkOptional(){
   };
   const load = async () => { try{ const j = await rpc("bk_opt_lista", {}); if (Array.isArray(j)){ BKOPT = j; store.set("ln_bkopt", j); } }catch(e){} if ($(".boGrid")) paint(); };
   paint(); load();
+  // prezzi live: chiede al server di riaggiornare quelli vecchi di più di 6 ore, poi ricarica la lista
+  if (Date.now() - (bkOptional.ag || 0) > 600000){ bkOptional.ag = Date.now();
+    fetchT(CONFIG.SUPABASE_URL + "/functions/v1/prodotto", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ aggiorna: true }) }, 60000)
+      .then(r => r.json()).then(j => { if (j && j.aggiornati) load(); }).catch(() => {}); }
 }
 function bkOptForm(x){
   let foto = x.foto || "";
   openSheet(`<h3>${x.id ? "Modifica prodotto" : "Nuovo prodotto"}</h3>
     <label class="boPh" id="boPh" style="${foto ? `background-image:url('${esc(foto)}')` : ""}">${foto ? "" : "📷 Foto del prodotto"}<input type="file" accept="image/*" id="boF" hidden></label>
     <div class="field"><label>Titolo</label><input id="boT" maxlength="120" value="${esc(x.titolo || "")}" placeholder="es. Ecoscandaglio Garmin Striker 4"></div>
-    <div class="field"><label>Link referral per l'acquisto</label><input id="boL" inputmode="url" value="${esc(x.link || "")}" placeholder="https://amzn.to/…"></div>
+    <div class="field"><label>Link referral per l'acquisto</label><input id="boL" inputmode="url" value="${esc(x.link || "")}" placeholder="Incolla il link: titolo, foto, prezzo e categoria si compilano da soli"></div>
+    <button class="btn small ghost" id="boAuto" style="margin:-2px 0 10px">⚡ Prendi i dati dal link</button>
+    <label class="check" style="margin:0 0 10px"><input type="checkbox" id="boLive" ${x.id ? (x.auto ? "checked" : "") : "checked"}><span>Prezzo live: si aggiorna da solo dal sito</span></label>
     <div class="row" style="gap:8px"><div class="field" style="flex:1"><label>Prezzo (facoltativo)</label><input id="boP" maxlength="40" value="${esc(x.prezzo || "")}" placeholder="es. 129 €"></div>
       <div class="field" style="flex:1"><label>Categoria (facoltativa)</label><input id="boK" maxlength="40" value="${esc(x.categoria || "")}" placeholder="es. Elettronica"></div></div>
     <button class="btn" id="boS">Salva</button><button class="btn ghost" style="margin-top:8px" id="boX">Annulla</button>`, "light");
   $("#boF").onchange = async e => { const f = e.target.files[0]; if (!f) return; try{ foto = await shrinkPhoto(f); const ph = $("#boPh"); ph.style.backgroundImage = `url('${foto}')`; ph.firstChild.nodeType === 3 && (ph.firstChild.textContent = ""); }catch(er){ toast("Questa foto non si apre."); } };
   $("#boX").onclick = () => bkOptional();
+  // dal link: titolo, foto, prezzo e categoria letti dalla pagina del prodotto
+  const auto = async () => { const l = $("#boL").value.trim(); if (!/^https?:\/\//i.test(l)) return toast("Incolla prima il link completo (https://…).");
+    const b = $("#boAuto"); b.disabled = true; b.textContent = "Leggo la pagina…"; let o = null;
+    try{ o = await fetchT(CONFIG.SUPABASE_URL + "/functions/v1/prodotto", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ p_token: TOKEN, url: l }) }, 25000).then(r => r.json()); }catch(e){}
+    b.disabled = false; b.textContent = "⚡ Prendi i dati dal link";
+    const buono = o && !o.errore && !o.bloccato && o.titolo && !/just a moment|error page|impossibile trovare|robot check|access denied/i.test(o.titolo);
+    if (!buono) return toast("Questo sito non si lascia leggere in automatico: compila tu titolo, foto e prezzo.");
+    $("#boT").value = o.titolo; if (o.prezzo) $("#boP").value = o.prezzo; if (o.categoria) $("#boK").value = o.categoria;
+    if (o.foto){ foto = o.foto; const ph = $("#boPh"); ph.style.backgroundImage = `url('${foto}')`; if (ph.firstChild && ph.firstChild.nodeType === 3) ph.firstChild.textContent = ""; }
+    haptic(); toast("Dati presi dal link ✓" + (o.prezzo ? "" : " (prezzo non trovato)")); };
+  $("#boAuto").onclick = auto;
+  $("#boL").addEventListener("paste", () => setTimeout(() => { if (!$("#boT").value.trim()) auto(); }, 80));
   $("#boS").onclick = async () => { const t = $("#boT").value.trim(), l = $("#boL").value.trim();
     if (t.length < 2) return toast("Scrivi il titolo."); if (!/^https?:\/\//i.test(l)) return toast("Incolla il link completo (https://…).");
     const b = $("#boS"); b.disabled = true; b.textContent = "Salvo…";
-    const j = await rpc("bk_opt_salva", { p_data: { id: x.id || null, titolo: t, link: l, foto, prezzo: $("#boP").value.trim(), categoria: $("#boK").value.trim() } }).catch(() => null);
+    const j = await rpc("bk_opt_salva", { p_data: { id: x.id || null, titolo: t, link: l, foto, prezzo: $("#boP").value.trim(), categoria: $("#boK").value.trim(), auto: $("#boLive").checked } }).catch(() => null);
     if (!j || !j.ok){ b.disabled = false; b.textContent = "Salva"; return toast(j && j.errore === "foto" ? "Foto troppo grande." : "Non salvato, riprova."); }
     haptic(); toast("Salvato ✓"); bkOptional(); };
 }
