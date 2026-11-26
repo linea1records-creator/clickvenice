@@ -1377,6 +1377,23 @@
   #tabs button[data-pm="my"].pop svg path:not(.s){animation:tabSpark .6s cubic-bezier(.2,.8,.3,1)}
   @keyframes tabSpark{0%{transform:scale(.7);opacity:.4}45%{transform:scale(1.35);opacity:1}100%{transform:scale(1);opacity:1}}
   @media (prefers-reduced-motion:reduce){#tabPill{transition:none}#tabs *{animation:none!important}}
+  /* ---------- Servizi: palette Laguna & Terracotta ---------- */
+  #shipScroll{background:#f4f1ea;color:#13294b}
+  #shipScroll .svTitle h2{color:#13294b!important;-webkit-text-fill-color:#13294b;background:none!important}
+  .svSub{margin:-4px 0 12px;line-height:1.45;color:#13294b;opacity:.78;font-size:14.5px}
+  .svPills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -18px 6px;padding:2px 18px} .svPills::-webkit-scrollbar{display:none}
+  .svPills button{flex:0 0 auto;height:34px;padding:0 14px;border-radius:999px;border:1px solid #e6e0d6;background:#fff;color:#13294b;font-weight:700;font-size:13px;transition:background-color .2s,color .2s}
+  .svPills button.on{background:#13294b;border-color:#13294b;color:#f4f1ea}
+  #shipScroll .srvH{margin:14px 0 7px;color:#13294b;opacity:.7;font-size:12px;letter-spacing:.06em}
+  .spcard.sv{gap:12px;padding:10px 12px;margin:0 0 8px;border:1px solid #e6e0d6;border-radius:16px;background:#fff;color:#13294b;align-items:center}
+  .spcard.sv .svIc{flex:0 0 44px;width:44px;height:44px;border-radius:12px;background:rgba(217,107,67,.12);display:flex;align-items:center;justify-content:center}
+  .spcard.sv .svIc svg{width:24px;height:24px;flex:none;stroke:#d96b43!important;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .spcard.sv span{flex:1;min-width:0} .spcard.sv b{display:block;font-size:15.5px;line-height:1.25;color:#13294b}
+  .spcard.sv small{display:block;font-size:12.5px;line-height:1.35;color:#13294b;opacity:.72;margin-top:1px}
+  .spcard.sv .svLink{font-style:normal;color:#d96b43;font-weight:700;opacity:1}
+  .spcard.sv .svPrice{flex:0 0 auto;font-style:normal;font-size:12px;font-weight:800;color:#13294b;background:#f4f1ea;border-radius:99px;padding:5px 9px;white-space:nowrap}
+  #shipScroll .srvSoon{background:#fff;border-color:#e6e0d6} #shipScroll .srvSoon summary{color:#13294b} #shipScroll .srvOff em{color:#d96b43}
+  .svH2{margin:22px 0 8px;color:#13294b}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1799,11 +1816,12 @@
   <!-- SERVIZI (prima: Spedisci) -->
   <section class="view hidden" id="v-ship">
     <div class="scroll lightv" id="shipScroll">
-      <div class="mchead igh"><h2>Servizi</h2></div>
-      <p class="muted" style="margin:-4px 0 14px;line-height:1.45">Professionisti di Venezia per trasporti, casa, media e barca. Scegli il servizio: ti facciamo qualche domanda, una alla volta.</p>
+      <div class="mchead igh svTitle"><h2>Servizi su misura</h2></div>
+      <p class="svSub">Professionisti verificati in laguna per media, barca e casa. Scegli cosa ti serve e ricevi un preventivo in 2 minuti.</p>
+      <div class="svPills" id="svPills"><button data-svf="" class="on">Tutti</button><button data-svf="media">Media &amp; Musica</button><button data-svf="trasporti">Trasporti &amp; Logistica</button><button data-svf="nautica">Barca</button></div>
       <div id="shipTypes"></div>
       <div id="shipAdmin"></div>
-      <h4 style="margin:22px 0 8px">Le tue richieste</h4>
+      <h4 class="svH2">Le tue richieste</h4>
       <div id="shipMine"><p class="muted">Nessuna richiesta per ora.</p></div>
     </div>
   </section>
@@ -1923,7 +1941,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.98</p>
+      <p class="sub">clickVenice · versione 3.99</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2561,16 +2579,28 @@ async function renderShip(){
   if (isTropss()) loadShipAdmin(); else $("#shipAdmin").innerHTML = "";
   await loadSrvAtt(); paintSrv();
 }
+// titoli e sottotitoli della pagina Servizi (più diretti); il micro-link apre i lavori del professionista
+const SRV_TXT = {
+  videomaker: ["Video & Foto Pro", "Riprese per eventi, brand e matrimoni", "Guarda portfolio"],
+  studio: ["Studio di Registrazione", "Presa diretta, voce, mix e master", "Ascolta demo"],
+  mixmaster: ["Mix & Master Online", "Suono pronto per Spotify e club", "Ascolta demo"],
+  grafico: ["Brand & Social", "Loghi, identità visiva e gestione social"],
+  sitiweb: ["Siti Web & App", "Siti veloci, prenotazioni e presenza su Google"] };
+let SV_F = "";
 function paintSrv(){
-  const A = srvAtt(), on = Object.keys(SRV).filter(k => A[k]), off = Object.keys(SRV).filter(k => !A[k]);
-  const card = k => { const S = SRV[k], a = A[k]; return `<button class="spcard" data-srv="${k}">${srvIco(k)}<span><b>${S.s}</b><small>${S.d}${a && a.tariffa ? ` · da ${shEur(a.tariffa)}${a.unita === "ora" ? "/ora" : ""}` : ""}</small></span><i>›</i></button>`; };
+  const A = srvAtt(), on = Object.keys(SRV).filter(k => A[k] && (!SV_F || SRV[k].m === SV_F)), off = Object.keys(SRV).filter(k => !A[k] && (!SV_F || SRV[k].m === SV_F));
+  const card = k => { const S = SRV[k], a = A[k], T = SRV_TXT[k] || [S.s, S.d.replace(/ · (guarda|ascolta) .*$/, "")];
+    const prezzo = a && a.tariffa ? `da ${shEur(a.tariffa)}${a.unita === "ora" ? "/ora" : ""}` : "su preventivo";
+    return `<button class="spcard sv" data-srv="${k}"><i class="svIc">${srvIco(k)}</i><span><b>${esc(T[0])}</b><small>${esc(T[1])}${T[2] ? ` <em class="svLink" data-svl="${k}">• ${T[2]}</em>` : ""}</small></span><em class="svPrice">${prezzo}</em></button>`; };
   let h = SRV_MACRO.map(M => { const L = on.filter(k => SRV[k].m === M.k); return L.length ? `<h4 class="srvH">${M.n}</h4>` + L.map(card).join("") : ""; }).join("");
-  if (!on.length) h = `<div class="card soonbox" style="text-align:center"><h3 style="margin:4px 0">Servizi in arrivo</h3><p class="muted" style="line-height:1.45">Stiamo cercando i primi professionisti di Venezia. Fai un lavoro qui sotto? Candidati e sblocca tu il servizio.</p></div>`;
+  if (!on.length && SV_F) h = `<div class="card soonbox" style="text-align:center"><h3 style="margin:4px 0">Ancora nessun professionista qui</h3><p class="muted" style="line-height:1.45">Fai questo lavoro a Venezia? Candidati e sblocca tu il servizio.</p></div>`;
+  else if (!on.length) h = `<div class="card soonbox" style="text-align:center"><h3 style="margin:4px 0">Servizi in arrivo</h3><p class="muted" style="line-height:1.45">Stiamo cercando i primi professionisti di Venezia. Fai un lavoro qui sotto? Candidati e sblocca tu il servizio.</p></div>`;
   if (off.length) h += `<details class="srvSoon"${on.length ? "" : " open"}><summary>Prossimamente · ${off.length} servizi</summary><p class="muted" style="margin:6px 0 8px;font-size:13px">Si attivano appena c'è almeno un professionista. Candidati per sbloccarli.</p>` +
     off.map(k => `<button class="srvOff" data-soon="${k}">${srvIco(k)}<span>${SRV[k].s}</span><em>Candidati</em></button>`).join("") + `</details>`;
   $("#shipTypes").innerHTML = h;
   document.querySelectorAll("#shipTypes [data-srv]").forEach(b => b.onclick = () => srvPros(b.dataset.srv));   // sempre prima la scelta del professionista
   document.querySelectorAll("#shipTypes [data-soon]").forEach(b => b.onclick = () => goLavora(b.dataset.soon));
+  document.querySelectorAll("#svPills [data-svf]").forEach(b => { b.classList.toggle("on", b.dataset.svf === SV_F); b.onclick = () => { if (SV_F === b.dataset.svf) return; SV_F = b.dataset.svf; haptic(); paintSrv(); }; });
 }
 function goLavora(cat){
   haptic(); setMode("my"); setPfTab("work"); wkTab = "pro";
