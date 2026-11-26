@@ -1176,7 +1176,7 @@
   .txo b.pz{font-size:15px;white-space:nowrap} .txo em{font-style:normal;font-weight:800;font-size:11px;background:#111;color:#f2b738;border-radius:99px;padding:3px 7px;margin-left:6px}
   #rbGo:disabled{opacity:.45}
   /* ===== tema chiaro (v3.70): pagine bianche con scritte nere, tasti neri con scritta bianca ===== */
-  .btn:not(.ghost):not(.taxiY):not(.pcGo):not(.pcPin):not(.danger){background:#111;color:#fff}
+  .btn:not(.ghost):not(.taxiY):not(.pcGo):not(.pcPin):not(.danger):not(.vcGo){background:#111;color:#fff}
   .btn.ghost{background:#f1f2f4;color:#111;border:1px solid #e3e5e8}
   #spPanel .btn, #mkPanel .btn, body.food .btn:not(.ghost){background:#111!important;color:#fff!important}
   body.food #v-order .seg button.on, #meetModes button.on, #meetFilters button.on, .mkcats button.on, .avsx button.on, #spPanel .gseg button.on, #cbEdit.on{background:#111!important;color:#fff!important;border-color:#111!important}
@@ -1469,7 +1469,7 @@
   .sxBig button{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:9px 12px;border:1px solid #e5e7eb;border-left:5px solid var(--sc);border-radius:16px;background:#fff;text-align:left;color:#0f172a;box-shadow:0 1px 3px rgba(15,23,42,.06)}
   .sxBig button:active{transform:scale(.98);background:#f8fafc}
   .sxBig .ic{flex:0 0 40px;width:40px;height:40px;border-radius:12px;background:var(--sc);display:flex;align-items:center;justify-content:center}
-  .sxBig .ic svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .sxBig .ic svg{width:23px;height:23px;fill:none;stroke:var(--sf,#fff);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .sxBig span{flex:1;min-width:0} .sxBig b{display:block;font-size:15.5px;line-height:1.2;font-weight:800}
   .sxBig small{display:block;font-size:12.5px;color:#64748b;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .sxBig em{font-style:normal;font-size:24px;color:var(--sc);font-weight:700}
@@ -1496,6 +1496,25 @@
   #rbTaxi button small{font-weight:600;font-size:12px;color:#64748b} #rbTaxi button.on{border-color:#1d4e89;background:#eef4fb;color:#1d4e89}
   #rbTaxi button.solo{pointer-events:none}
   .svc .tpw{display:none!important} .svc .svcSito{display:block!important}
+  /* VeniceCard: carta oro spazzolato con scritte incise */
+  .sxBig button.gold{border-left-color:#b8913b} .sxBig button.gold .ic{background:linear-gradient(135deg,#a77f2c,#e6cc80 45%,#b38a35 75%,#d8b866)}
+  .vcWrap{perspective:900px;margin:4px 0 2px} .vcWrap.pop .vcCard{animation:vcPop .9s cubic-bezier(.2,.9,.3,1.15)}
+  @keyframes vcPop{0%{transform:rotateY(-80deg) scale(.85);opacity:.3}60%{transform:rotateY(8deg) scale(1.02);opacity:1}100%{transform:none}}
+  .vcCard{position:relative;overflow:hidden;aspect-ratio:1.586;width:100%;border-radius:16px;padding:5% 6%;box-sizing:border-box;color:#5c4318;display:flex;flex-direction:column;justify-content:space-between;
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 1px,rgba(0,0,0,.03) 1px 3px),linear-gradient(125deg,#a9822f 0%,#d6b562 22%,#f3e2a4 48%,#d2b05c 70%,#b18a36 100%);
+    box-shadow:0 14px 30px rgba(60,40,5,.35),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(0,0,0,.2);font-family:"Helvetica Neue",Arial,sans-serif}
+  .vcCard:not(.on){filter:saturate(.55) brightness(.97)}
+  .vcCard *{position:relative} .vcCard b,.vcCard small,.vcCard span{text-shadow:0 1px 0 rgba(255,255,255,.45),0 -1px 0 rgba(70,48,10,.35)}
+  .vcSheen{position:absolute!important;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 45%,transparent 60%);transform:translateX(-100%);animation:vcSheen 5s ease-in-out 1s infinite;pointer-events:none}
+  @keyframes vcSheen{0%,70%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+  .vcTop{display:flex;align-items:center;gap:8px} .vcLogo{height:34px;width:auto;filter:sepia(1) saturate(.9) brightness(.55) contrast(1.1);opacity:.85}
+  .vcTit b{display:block;font-weight:400;letter-spacing:.06em;font-size:clamp(16px,5.4vw,22px);line-height:1} .vcTit small{display:block;font-size:9.5px;letter-spacing:.14em;margin-top:2px}
+  .vcVp{margin-left:auto;font-size:9.5px;letter-spacing:.16em;align-self:flex-start}
+  .vcMid{display:flex;align-items:center;justify-content:space-between;gap:10px} .vcMid small{display:block;font-size:9px;letter-spacing:.16em}
+  .vcName{display:block;font-weight:300;font-size:clamp(26px,9vw,38px);line-height:1.1;margin:2px 0;max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vcQr{width:24%;aspect-ratio:1;mix-blend-mode:multiply;border-radius:4px} .vcLock{display:grid;place-items:center;border:1.5px dashed rgba(92,67,24,.5);font-size:22px;mix-blend-mode:normal}
+  .vcBot{display:flex;flex-direction:column;gap:2px;font-size:10px;letter-spacing:.12em} .vcCod{position:absolute!important;right:0;bottom:0;letter-spacing:.2em}
+  .btn.vcGo{margin-top:12px;background:linear-gradient(125deg,#a9822f,#e3c873 50%,#b18a36)!important;color:#3d2c0c!important;font-weight:900;letter-spacing:.03em;border:0}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2042,7 +2061,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.12</p>
+      <p class="sub">clickVenice · versione 4.13</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2728,29 +2747,58 @@ function sxSuMisura(){
 function paintSrv(){   // una sola schermata: sei tasti larghi e bassi
   const MERCI = ["barca", "facchino", "fattorino"];
   const ALL = [
-    { ic: "taxi", c: "#1d4e89", t: "Chiama un taxi", d: "Taxi acqueo e in terraferma", go: () => { setMode("nautica"); setTimeout(taxiFab, 250); } },
+    { ic: "taxi", c: "#f2b738", fg: "#111", t: "Chiama un taxi", d: "Taxi acqueo e in terraferma", go: () => { setMode("nautica"); setTimeout(taxiFab, 250); } },
     { ic: "food", c: "#ac3d21", t: "Consegne a domicilio", d: "Delivery express", go: () => setMode("market") },
     { ic: "pro", c: "#2b7bba", t: "Trova professionisti a Venezia", d: "Artigiani, servizi ed altro", go: () => sxScegli("Professionisti a Venezia", Object.keys(SRV).filter(k => !MERCI.includes(k))) },
-    { ic: "merci", c: "#13294b", t: "Trasporto merci e traslochi", d: "In barca o a piedi", go: () => sxScegli("Trasporto merci e traslochi", MERCI) },
-    { ic: "conv", c: "#d6551b", t: "VeniceCard", d: "Sconti per membri e residenti", go: sxConv },
+    { ic: "merci", c: "#d6551b", t: "Trasporto merci e traslochi", d: "In barca o a piedi", go: () => sxScegli("Trasporto merci e traslochi", MERCI) },
+    { ic: "conv", c: "#b8913b", gold: true, t: "VeniceCard", d: "Sconti per membri e residenti", go: sxConv },
     { ic: "barca", c: "#1d4e89", t: "Compravendita di barche", d: "Il primo portale su misura veneziano", go: () => setMode("shop") } ];
   $("#shipTypes").innerHTML = `<div class="sx sx2">
     <div class="sxHead"><img class="sxLogo" src="logo-word.png" alt="clickVenice.com"><p>Tutto quello che ti serve a Venezia, in un click.</p></div>
-    <div class="sxBig">${ALL.map((x, i) => `<button data-sxi="${i}" style="--sc:${x.c}"><i class="ic">${sxSvg(x.ic)}</i><span><b>${x.t}</b><small>${x.d}</small></span><em>›</em></button>`).join("")}</div></div>`;
+    <div class="sxBig">${ALL.map((x, i) => `<button data-sxi="${i}" class="${x.gold ? "gold" : ""}" style="--sc:${x.c};--sf:${x.fg || "#fff"}"><i class="ic">${sxSvg(x.ic)}</i><span><b>${x.t}</b><small>${x.d}</small></span><em>›</em></button>`).join("")}</div></div>`;
   document.querySelectorAll("#shipTypes [data-sxi]").forEach(b => b.onclick = () => { haptic(); ALL[+b.dataset.sxi].go(); });
 }
-async function sxConv(){   // attività convenzionate: chi fa lo sconto ai residenti
-  const paint = () => {
-    const L = PARTNERS.slice().sort((a, b) => (+b.sconto_pct || 0) - (+a.sconto_pct || 0));
-    openSheet(`<h3>VeniceCard</h3><p class="muted" style="margin-top:-4px;line-height:1.4">Sconti per chi vive a Venezia: mostra l'app alla cassa o ordina da qui.</p>
-      ${L.length ? L.map(p => `<button class="sxRow" data-cv="${p.id}" style="border-radius:0"><i class="ic">${sxSvg(p.category === "food" ? "food" : "conv")}</i><span><b>${esc(p.name)}</b><small>${esc(p.address || "Venezia")}</small></span>${+p.sconto_pct ? `<em class="sxAct" style="background:#d6551b;color:#fff;border-radius:99px;padding:3px 9px;font-style:normal;font-weight:800">-${+p.sconto_pct}%</em>` : ""}</button>`).join("")
+// VeniceCard: la carta oro personale (codice e QR), poi le attività convenzionate
+let VCARD = null;
+function vcCardHtml(c){
+  const on = c && c.attiva, nome = (c && c.nome) || (typeof PROFILE !== "undefined" && PROFILE && PROFILE.clickname) || "Il tuo nome";
+  const y = new Date().getFullYear(), val = on ? `${c.dal}/${c.al}` : `${y}/${y + 1}`;
+  const qr = on ? `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&color=4a3510&bgcolor=ffffff&data=${encodeURIComponent("https://clickvenice.com/#vc=" + c.codice)}` : "";
+  return `<div class="vcCard${on ? " on" : ""}"><i class="vcSheen"></i>
+    <div class="vcTop"><img class="vcLogo" src="logo-tab.png" alt=""><div class="vcTit"><b>VENICE CARD</b><small>by clickVenice</small></div><span class="vcVp">VIRTUAL PASS</span></div>
+    <div class="vcMid"><div><small>HOLDER</small><b class="vcName">${esc(nome)}</b><small>NOME UTENTE</small></div>
+      ${on ? `<img class="vcQr" src="${qr}" alt="QR">` : `<div class="vcQr vcLock">🔒</div>`}</div>
+    <div class="vcBot"><span>VALIDITY • ${val}</span><span>STATUS • ${on ? "ACTIVE" : "NOT ACTIVE"}</span>${on ? `<span class="vcCod">${esc(c.codice)}</span>` : ""}</div></div>`;
+}
+async function sxConv(){
+  const paint = anim => {
+    const L = PARTNERS.slice().sort((a, b) => (+b.sconto_pct || 0) - (+a.sconto_pct || 0)), on = VCARD && VCARD.attiva;
+    openSheet(`<h3>VeniceCard</h3><div class="vcWrap${anim ? " pop" : ""}">${vcCardHtml(VCARD)}</div>
+      ${on ? `<p class="muted" style="line-height:1.4;margin:10px 0 4px">Mostra la carta alla cassa: il negozio inquadra il QR e ti applica lo sconto.</p>`
+        : `<button class="btn vcGo" id="vcAttiva">Attiva carta</button><p class="muted" style="line-height:1.4;margin:8px 0 4px;text-align:center">Gratis per membri e residenti · sconti nelle attività convenzionate</p>`}
+      <h4 style="margin:14px 0 4px">Attività convenzionate</h4>
+      ${L.length ? L.map(p => `<button class="sxRow" data-cv="${p.id}" style="border-radius:0"><i class="ic">${sxSvg(p.category === "food" ? "food" : "conv")}</i><span><b>${esc(p.name)}</b><small>${esc(p.address || "Venezia")}</small></span>${+p.sconto_pct ? `<em class="sxAct" style="background:#b8913b;color:#fff;border-radius:99px;padding:3px 9px;font-style:normal;font-weight:800">-${+p.sconto_pct}%</em>` : ""}</button>`).join("")
         : `<p style="line-height:1.45">Le prime attività convenzionate arrivano a breve.</p>`}
       <button class="btn ghost" style="margin-top:12px" onclick="closeSheet()">Chiudi</button>`, "light");
     document.querySelectorAll("[data-cv]").forEach(b => b.onclick = () => { const p = PARTNERS.find(z => z.id === +b.dataset.cv); if (p) openPartner(p); });
+    if ($("#vcAttiva")) $("#vcAttiva").onclick = async () => { const b = $("#vcAttiva"); b.disabled = true; b.textContent = "Attivo la carta…";
+      let j = null; try{ j = await rpc("vc_attiva", {}); }catch(e){}
+      if (!j || j.errore){ b.disabled = false; b.textContent = "Attiva carta"; return toast(j && j.errore === "non_autorizzato" ? "Per la VeniceCard serve l'account: crealo da myClick." : "Non attivata: controlla la connessione."); }
+      VCARD = j; store.set("ln_vc", j); haptic(); paint(true); toast("VeniceCard attiva ✓"); };
   };
-  if (!PARTNERS.length){ try{ await loadPartners(); }catch(e){} }
-  paint();
+  VCARD = VCARD || store.get("ln_vc", null); paint(false);
+  try{ const j = await rpc("vc_card", {}); if (j && !j.errore){ const was = JSON.stringify(VCARD); VCARD = j; store.set("ln_vc", j); if (JSON.stringify(j) !== was && $(".vcWrap")) paint(false); } }catch(e){}
+  if (!PARTNERS.length){ try{ await loadPartners(); if ($(".vcWrap")) paint(false); }catch(e){} }
 }
+// QR della VeniceCard inquadrato dal negozio: clickvenice.com/#vc=CODICE mostra se la carta è valida
+async function vcVerifica(cod){
+  let j = null; try{ j = await rpc("vc_verifica", { p_codice: cod }); }catch(e){}
+  const ok = j && j.ok && j.attiva;
+  openSheet(`<div style="text-align:center"><div style="font-size:54px">${ok ? "✅" : "❌"}</div><h3 style="margin:6px 0">${ok ? "VeniceCard valida" : j && j.ok ? "VeniceCard scaduta" : "Carta non trovata"}</h3>
+    ${j && j.ok ? `<p style="font-size:18px;margin:4px 0"><b>${esc(j.nome)}</b></p><p class="muted">Codice ${esc(String(cod).toUpperCase())}${j.al ? " · valida fino al " + j.al : ""}</p>` : ""}
+    <button class="btn" style="margin-top:12px" onclick="closeSheet()">Ok</button></div>`, "light");
+}
+setTimeout(() => { const m = location.hash.match(/vc=([A-Z0-9]+)/i); if (m) vcVerifica(m[1]); }, 1500);
 // titoli e sottotitoli della pagina Servizi (più diretti); il micro-link apre i lavori del professionista
 const SRV_TXT = {
   videomaker: ["Video & Foto Pro", "Riprese per eventi, brand e matrimoni", "Guarda portfolio"],
