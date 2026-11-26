@@ -1820,7 +1820,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.79</p>
+      <p class="sub">clickVenice · versione 3.80</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2501,7 +2501,7 @@ function pick2Map(onDone){
     const md = pk2Mezzo(A, B);
     if (walker && walker._md !== md){ walker.remove(); walker = null; }
     if (!walker){ const el = document.createElement("div"); el.className = "pk2Walk " + md; el.innerHTML = `<div>${OMINI[md]}</div>`; walker = new maplibregl.Marker({ element: el, anchor: "bottom" }).setLngLat([A.lng, A.lat]).addTo(map); walker._md = md; wT0 = now; }
-    const DUR = 5200, PAUSA = 900, k = ((now - wT0) % (DUR + PAUSA)) / DUR, t = Math.min(1, k), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const DUR = 10400, PAUSA = 1200, k = ((now - wT0) % (DUR + PAUSA)) / DUR, t = Math.min(1, k), e = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
     const pa = map.project([A.lng, A.lat]), pb = map.project([B.lng, B.lat]), d = Math.hypot(pb.x - pa.x, pb.y - pa.y);
     const c = { x: (pa.x + pb.x) / 2, y: Math.min(pa.y, pb.y) - Math.max(40, d * 0.45) };
     const x = (1 - e) * (1 - e) * pa.x + 2 * (1 - e) * e * c.x + e * e * pb.x, y = (1 - e) * (1 - e) * pa.y + 2 * (1 - e) * e * c.y + e * e * pb.y;
@@ -9117,9 +9117,11 @@ function pk2MezzoCalc(A, B){
   if (a.i !== b.i) return "barca";
   return a.s && a.s === b.s ? "pacco" : "carrello";
 }
-const OMINO_SVG = `<svg viewBox="0 0 44 36"><g fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="3.2" fill="#111"/><path d="M9 9l1 10M10 19l-4 9M10 19l4 9M9.5 12l7 4"/>
-  <path d="M16 15h3l2 12h16l3-10H20"/></g><path d="M21 17h18l-2.6 8.5H22.6z" fill="#3dc991" stroke="#111" stroke-width="1.6" stroke-linejoin="round"/><circle cx="24" cy="31" r="2.6" fill="#111"/><circle cx="35" cy="31" r="2.6" fill="#111"/></svg>`;
-const OMINO_PACCO = OMINO_SVG.replace('<circle cx="24" cy="31"', '<rect x="25" y="9.5" width="10" height="8.5" rx="1" fill="#c8915a" stroke="#111" stroke-width="1.4"/><path d="M25 12.5h10M30 9.5v3" stroke="#7a5230" stroke-width="1.1"/><circle cx="24" cy="31"');
+const OMINO_SVG = `<svg viewBox="0 0 46 38"><g fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5" r="3.2" fill="#111"/><path d="M8 9l1 10M9 19l-4 9M9 19l4 9M8.5 12l7.5 3"/></g>
+  <path d="M16 13.5l2.4 11.6h19" fill="none" stroke="#f07c12" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 13l2.4-.6" stroke="#111" stroke-width="2.6" stroke-linecap="round"/>
+  <rect x="18.5" y="23.8" width="20.5" height="2.8" rx="1" fill="#f07c12" stroke="#111" stroke-width="1"/><path d="M28 26.6v5.4M37 26.6v5.6M35.5 32.2h3" stroke="#f07c12" stroke-width="2" stroke-linecap="round"/>
+  <g transform="translate(28 32.4)"><path d="M0 0L-3.4 2M0 0l3.4 2M0 0v-3.4" stroke="#b85a06" stroke-width="1.8" stroke-linecap="round"/><circle cx="0" cy="-3.4" r="1.9" fill="#111"/><circle cx="-3.4" cy="2" r="1.9" fill="#111"/><circle cx="3.4" cy="2" r="1.9" fill="#111"/><circle r="1.1" fill="#f07c12"/></g></svg>`;
+const OMINO_PACCO = OMINO_SVG.replace('<rect x="18.5" y="23.8"', '<rect x="24" y="13.2" width="11" height="10.6" rx="1" fill="#c8915a" stroke="#111" stroke-width="1.4"/><path d="M24 16.7h11M29.5 13.2v3.5" stroke="#7a5230" stroke-width="1.1"/><rect x="18.5" y="23.8"');
 const OMINO_BARCA = `<svg viewBox="0 0 46 38"><path d="M2 35c4-2 7-2 11 0s7 2 11 0 7-2 11 0 7 2 9 0" fill="none" stroke="#0284c7" stroke-opacity=".6" stroke-width="1.8" stroke-linecap="round"/>
   <path d="M3 25h40l-4 7.5H8.5z" fill="#fff" stroke="#111" stroke-width="1.8" stroke-linejoin="round"/><path d="M5 28.5h36" stroke="#3dc991" stroke-width="2"/>
   <rect x="18" y="17" width="8" height="8" rx="1" fill="#c8915a" stroke="#111" stroke-width="1.3"/><rect x="27" y="19" width="7" height="6" rx="1" fill="#d9a46b" stroke="#111" stroke-width="1.3"/><rect x="21" y="12.5" width="6" height="4.5" rx="1" fill="#e0b27a" stroke="#111" stroke-width="1.2"/>
