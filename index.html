@@ -1280,6 +1280,48 @@
   .bkqr{background:#0b2545;color:#fff;border:2px dashed #f2b738;border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center}
   .bkqr img{width:96px;height:96px;background:#fff;padding:6px;border-radius:12px;flex:0 0 auto} .bkqr em{font-style:normal;background:#f2b738;color:#0b2545;font-size:10px;font-weight:900;padding:2px 7px;border-radius:5px;text-transform:uppercase}
   .bkqr h4{margin:6px 0 4px;font-size:15px;line-height:1.3;color:#fff} .bkqr p{margin:0;font-size:12px;color:#c9cfcc;line-height:1.35}
+  /* ---------- Menu delivery dei ristoranti convenzionati (stile locandina Ristorazione San Marco: oro e bordeaux) ---------- */
+  #dmenu{position:fixed;inset:0;z-index:4200;background:#4f060b;color:#fff;display:flex;flex-direction:column;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;animation:dmIn .3s ease}
+  @keyframes dmIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  #dmenu .dmScroll{flex:1;overflow-y:auto;background-color:#4f060b;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='60'%3E%3Cpath d='M0 30c20-14 40-14 60 0s40 14 60 0 30-10 40-6' fill='none' stroke='%23ffffff' stroke-opacity='.05' stroke-width='2'/%3E%3C/svg%3E");padding-bottom:150px}
+  .dmHead{position:relative;background:#f5b800;color:#4f060b;padding:calc(12px + var(--safe-t)) 16px 46px}
+  .dmHead::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:44px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 44' preserveAspectRatio='none'%3E%3Cpath d='M0 0h400v14c-60 32-120-22-200 4S60 50 0 26z' fill='%23f5b800'/%3E%3Cpath d='M0 44V26c60 24 120-18 200-4s140 22 200-8v30z' fill='%234f060b'/%3E%3C/svg%3E") center/100% 100% no-repeat}
+  .dmTop{display:flex;align-items:center;gap:10px}
+  .dmLogo{background:#fff;border-radius:14px;padding:7px 11px;box-shadow:0 2px 8px rgba(79,6,11,.25);line-height:1;text-align:center}
+  .dmLogo img{display:block;height:40px;width:auto} .dmLogo b{display:block;font:900 17px/1 Georgia,"Times New Roman",serif;letter-spacing:.04em;color:#4f060b} .dmLogo small{display:block;font-size:7.5px;font-weight:800;letter-spacing:.12em;color:#9a6b00;margin-top:3px}
+  .dmX{margin-left:auto;width:38px!important;height:38px;border-radius:50%;border:0;background:#4f060b;color:#f5b800;font-size:20px;font-weight:900;padding:0!important}
+  .dmAdm{display:flex;gap:6px;margin-left:auto} .dmAdm button{width:auto!important;border:0;border-radius:99px;background:#4f060b;color:#f5b800;font-weight:800;font-size:12px;padding:7px 10px}
+  .dmHead h1{margin:14px 0 0;font:900 46px/.92 Impact,"Arial Narrow Bold","Oswald",sans-serif;letter-spacing:.01em;text-transform:uppercase;color:#4f060b}
+  .dmSub{margin:6px 0 10px;font:italic 700 20px/1.1 Georgia,"Times New Roman",serif;color:#7a1018}
+  .dmPill{display:inline-flex;align-items:center;gap:6px;background:#4f060b;color:#fff;border-radius:99px;padding:7px 12px;font-size:12.5px;font-weight:700;max-width:100%} .dmPill b{color:#f5b800}
+  .dmBurst{position:absolute;right:14px;top:calc(58px + var(--safe-t));width:96px;height:96px;display:flex;align-items:center;justify-content:center;text-align:center;color:#f5b800;font:900 22px/.95 Impact,"Arial Narrow Bold",sans-serif;transform:rotate(-10deg)}
+  .dmBurst svg{position:absolute;inset:0;width:100%;height:100%} .dmBurst span{position:relative} .dmBurst small{display:block;font-size:13px;letter-spacing:.08em}
+  .dmTabs{position:sticky;top:0;z-index:3;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 14px;background:rgba(79,6,11,.96);backdrop-filter:blur(6px)} .dmTabs::-webkit-scrollbar{display:none}
+  .dmTabs button{flex:0 0 auto;width:auto!important;border:1.5px solid #f5b800;background:none;color:#f5b800;border-radius:99px;padding:7px 13px;font-weight:800;font-size:13px}
+  .dmTabs button.on{background:#f5b800;color:#4f060b}
+  .dmBody{display:flex;gap:10px;padding:4px 12px 0 14px;align-items:flex-start}
+  .dmList{flex:1;min-width:0}
+  .dmCaps{position:sticky;top:62px;flex:0 0 86px;background:#f5b800;border:3px solid #7a1018;border-radius:60px;padding:10px 7px;display:flex;flex-direction:column;gap:10px;align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.35);margin-top:8px}
+  .dmCaps div{width:68px;height:68px;border-radius:50%;overflow:hidden;border:3px solid #4f060b;background:#fff} .dmCaps svg,.dmCaps img{width:100%;height:100%;display:block;object-fit:cover}
+  .dmCaps small{font-size:9px;font-weight:900;color:#4f060b;text-transform:uppercase;letter-spacing:.04em;text-align:center;line-height:1.1;margin-top:-6px}
+  .dmSec{margin:14px 0 6px;font:900 19px/1 Impact,"Arial Narrow Bold",sans-serif;letter-spacing:.03em;text-transform:uppercase;color:#f5b800;display:flex;align-items:center;gap:8px}
+  .dmSec::after{content:"";flex:1;height:2px;background:linear-gradient(90deg,#f5b800,transparent)}
+  .dmIt{display:flex;gap:8px;padding:10px 0;border-bottom:1px dashed rgba(245,184,0,.28)}
+  .dmIt .t{flex:1;min-width:0} .dmIt b{display:block;font-size:15px;line-height:1.2;color:#fff} .dmIt p{margin:3px 0 5px;font-size:12px;line-height:1.35;color:#f0d7c8}
+  .dmPr{display:flex;align-items:baseline;gap:7px} .dmPr s{color:#c99a8e;font-size:12.5px} .dmPr strong{color:#f5b800;font-size:17px;font-weight:900}
+  .dmQ{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 0 auto} .dmQ button{width:32px!important;height:32px;border-radius:50%;border:0;background:#f5b800;color:#4f060b;font-size:19px;font-weight:900;padding:0!important;line-height:1}
+  .dmQ button.m{background:rgba(245,184,0,.18);color:#f5b800} .dmQ span{font-weight:900;font-size:15px;min-width:20px;text-align:center}
+  .dmFoot{margin:22px 14px 0;padding:14px;border:2px solid #f5b800;border-radius:16px;text-align:center;font-size:13px;line-height:1.5;color:#f0d7c8} .dmFoot b{color:#f5b800;font-size:16px} .dmFoot a{color:#f5b800;font-weight:800;text-decoration:none}
+  .dmBar{position:absolute;left:0;right:0;bottom:0;background:#f5b800;color:#4f060b;padding:10px 14px calc(12px + var(--safe-b, 0px));border-radius:20px 20px 0 0;box-shadow:0 -6px 20px rgba(0,0,0,.35)}
+  .dmBar .r{display:flex;align-items:center;gap:10px} .dmBar .tot{flex:1} .dmBar .tot small{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+  .dmBar .tot s{font-size:13px;color:#7a1018;margin-right:6px} .dmBar .tot b{font-size:23px;font-weight:900}
+  .dmBar label{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;margin-bottom:8px} .dmBar input{width:18px;height:18px;accent-color:#4f060b}
+  .dmBar .go{width:auto!important;border:0;border-radius:99px;background:#4f060b;color:#f5b800;font-weight:900;font-size:15px;padding:12px 18px}
+  .dmBar .go:disabled{opacity:.45}
+  .dmModal{position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.55);display:flex;align-items:flex-end}
+  .dmModal>div{width:100%;max-height:88%;overflow-y:auto;background:#fff;color:#111;border-radius:22px 22px 0 0;padding:16px 16px calc(16px + var(--safe-b, 0px))}
+  .dmModal h3{margin:0 0 4px;color:#4f060b;font:900 24px/1 Impact,"Arial Narrow Bold",sans-serif;text-transform:uppercase}
+  .dmModal .go{width:100%;border:0;border-radius:14px;background:#4f060b;color:#f5b800;font-weight:900;font-size:16px;padding:14px;margin-top:6px}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1826,7 +1868,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.93</p>
+      <p class="sub">clickVenice · versione 3.94</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -8447,7 +8489,7 @@ const MK_CATS = { food: ["🍝", "Food", "#d95f26"], shop: ["🛍️", "Shopping
 let PARTNERS = store.get("ln_partners", []), mkCat = "", partnersAt = 0;
 async function loadPartners(){
   if (Date.now() - partnersAt < 5 * 60000) { drawPartners(); return; }
-  try{ const r = await api("partners?select=id,name,category,descr,address,phone,lat,lng,order_rest&limit=1000"); if (Array.isArray(r)){ PARTNERS = r; store.set("ln_partners", r); partnersAt = Date.now(); } }catch(e){}
+  try{ const r = await api("partners?select=id,name,category,descr,address,phone,lat,lng,order_rest,sconto_pct&limit=1000"); if (Array.isArray(r)){ PARTNERS = r; store.set("ln_partners", r); partnersAt = Date.now(); } }catch(e){}
   drawPartners(); renderMk();
 }
 function addPartnersLayer(){
@@ -8479,12 +8521,104 @@ function openPartner(p){
   const c = MK_CATS[p.category] || ["", ""];
   openSheet(`<h3>${c[0]} ${esc(p.name)}</h3><p class="muted" style="margin-top:-4px">${esc(c[1])}${p.address ? " · " + esc(p.address) : ""}</p>
     ${p.descr ? `<p style="line-height:1.45">${esc(p.descr)}</p>` : ""}
-    ${p.order_rest ? `<button class="btn" id="pOrder">🛒 Ordina i piatti del giorno</button>` : ""}
+    ${p.order_rest ? `<button class="btn" id="pOrder">🛒 Apri il menu delivery${+p.sconto_pct ? " · -" + p.sconto_pct + "%" : ""}</button>` : ""}
     <button class="btn ghost" id="pGo" style="margin-top:10px">⚓ Portami qui in barca</button>
     ${p.phone ? `<a class="btn ghost" style="margin-top:10px;display:block;text-align:center;text-decoration:none" href="tel:${esc(p.phone.replace(/[^+\d]/g, ""))}">📞 Chiama</a>` : ""}
     <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`);
-  if ($("#pOrder")) $("#pOrder").onclick = () => restOrder(p);
+  if ($("#pOrder")) $("#pOrder").onclick = () => deliveryMenu(p);
   $("#pGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: p.name, lat: p.lat, lng: p.lng }); };
+}
+/* ---------- Menu delivery interattivo (pagina a tutto schermo, stile locandina) ---------- */
+const DM_CAT = { primi: "Primi della tradizione", secondi: "Secondi & contorni caldi", pizze: "Pizze al forno", "": "Piatti del giorno" };
+const DM_TAB = [["tutto", "Tutto"], ["primi", "Primi"], ["secondi", "Secondi & Contorni"], ["pizze", "Pizze"]];
+const DM_FOTO = {   // illustrazioni dei piatti principali nella capsula a destra
+  lasagne: `<svg viewBox="0 0 80 80"><rect width="80" height="80" fill="#fbe3b0"/><rect x="12" y="22" width="56" height="40" rx="5" fill="#c8551f"/><path d="M14 30h52M14 38h52M14 46h52M14 54h52" stroke="#f3d27a" stroke-width="4"/><path d="M14 34h52M14 42h52M14 50h52" stroke="#9c2b14" stroke-width="3"/><path d="M12 26c8-6 16 2 24-3s16 3 32-1v6H12z" fill="#e9a93a"/><circle cx="28" cy="25" r="2" fill="#7a3b12"/><circle cx="50" cy="24" r="2" fill="#7a3b12"/></svg>`,
+  pure: `<svg viewBox="0 0 80 80"><rect width="80" height="80" fill="#d8ecd2"/><ellipse cx="40" cy="44" rx="32" ry="26" fill="#fff" stroke="#ccc"/><path d="M22 46c4-10 14-12 20-6 4-8 14-6 16 2" fill="#fbe7a6" stroke="#e8c868" stroke-width="2"/><ellipse cx="38" cy="48" rx="15" ry="9" fill="#fbe7a6"/><circle cx="52" cy="38" r="7" fill="#8a3a1a"/><circle cx="47" cy="47" r="6.5" fill="#9c4520"/><circle cx="58" cy="46" r="6" fill="#7a2f12"/><path d="M45 34l4-3M56 33l3 2" stroke="#3a8a2a" stroke-width="2"/></svg>`,
+  pizza: `<svg viewBox="0 0 80 80"><rect width="80" height="80" fill="#f3d2b0"/><circle cx="40" cy="40" r="31" fill="#d9963f"/><circle cx="40" cy="40" r="26" fill="#d8361f"/><g fill="#fff6dc"><circle cx="31" cy="31" r="5"/><circle cx="50" cy="34" r="5.5"/><circle cx="38" cy="49" r="6"/><circle cx="54" cy="51" r="4"/><circle cx="26" cy="47" r="4"/></g><g fill="#2f8a2a"><path d="M33 39l4-2-1 4z"/><path d="M46 44l5-1-2 4z"/><path d="M42 27l4 1-3 3z"/></g></svg>` };
+const DM_BURST = `<svg viewBox="0 0 100 100"><path d="M50 2l8 14 15-7 1 16 16 1-7 15 14 9-14 8 7 15-16 1-1 16-15-7-8 14-8-14-15 7-1-16-16-1 7-15-14-8 14-9-7-15 16-1 1-16 15 7z" fill="#2a0306" stroke="#f5b800" stroke-width="3" stroke-linejoin="round"/></svg>`;
+let DM = null;
+const dmEur = v => "€ " + (Math.round(v * 100) / 100).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+async function deliveryMenu(p){
+  DM = { p, lista: [], sconto: +p.sconto_pct || 0, admin: false, cart: {}, tab: "tutto", posate: true };
+  let el = $("#dmenu"); if (el) el.remove(); el = document.createElement("div"); el.id = "dmenu"; document.body.appendChild(el);
+  el.innerHTML = `<div class="dmScroll"><div class="dmHead"><p style="margin:60px 0;font-weight:800">Carico il menu…</p></div></div>`;
+  closeSheet(); history.pushState({ dm: 1 }, "");
+  let r; try{ r = await rpc("menu_oggi", { p_rest: p.order_rest }); }catch(e){ r = null; }
+  if (!$("#dmenu")) return;
+  if (!r){ el.innerHTML = `<div class="dmScroll"><div class="dmHead"><div class="dmTop"><button class="dmX" id="dmX">✕</button></div><p style="font-weight:800">Menu non disponibile: controlla la connessione.</p></div></div>`; $("#dmX").onclick = dmClose; return; }
+  DM.lista = (r.lista || []).filter(x => x.disponibile); DM.admin = !!r.admin; if (r.sconto != null) DM.sconto = +r.sconto || 0;
+  dmPaint();
+}
+const dmPrezzo = x => Math.round(+x.prezzo * (100 - DM.sconto)) / 100;
+function dmClose(){ const el = $("#dmenu"); if (el) el.remove(); DM = null; }
+window.addEventListener("popstate", () => { if ($("#dmenu")) dmClose(); });
+function dmPaint(){
+  const el = $("#dmenu"); if (!el || !DM) return; const p = DM.p, sc = el.querySelector(".dmScroll"), top = sc ? sc.scrollTop : 0;
+  const L = DM.lista.filter(x => DM.tab === "tutto" || x.cat === DM.tab), gruppi = ["primi", "secondi", "pizze", ""].filter(c => L.some(x => (x.cat || "") === c));
+  const item = x => `<div class="dmIt"><div class="t"><b>${esc(x.nome)}</b>${x.descr ? `<p>${esc(x.descr)}</p>` : ""}<div class="dmPr">${DM.sconto ? `<s>${dmEur(+x.prezzo)}</s>` : ""}<strong>${dmEur(dmPrezzo(x))}</strong></div></div>
+    <div class="dmQ"><button data-dq="${x.id}" data-d="1" aria-label="Aggiungi">+</button><span>${DM.cart[x.id] || 0}</span><button class="m" data-dq="${x.id}" data-d="-1" aria-label="Togli">−</button></div></div>`;
+  el.innerHTML = `<div class="dmScroll">
+    <div class="dmHead"><div class="dmTop"><div class="dmLogo">${p.order_rest === "sanmarco" ? `<img src="sanmarco-logo.png" alt="San Marco" onerror="this.outerHTML='<b>SAN MARCO</b><small>HIGH QUALITY FOOD &amp; BEVERAGE</small>'">` : `<b>${esc(p.name)}</b>`}</div>
+        ${DM.admin ? `<div class="dmAdm"><button id="dmEd">✏️ Piatti</button><button id="dmOr">📋 Ordini</button></div>` : ""}<button class="dmX" id="dmX" aria-label="Chiudi" style="${DM.admin ? "margin-left:6px" : ""}">✕</button></div>
+      <h1>Delivery<br>Menu</h1><p class="dmSub">Caldi &amp; Appena Sfornati</p>
+      <div class="dmPill"><span data-noico>🍴</span> Posate Ecologiche Incluse – <b>IN OMAGGIO</b></div>
+      ${DM.sconto ? `<div class="dmBurst">${DM_BURST}<span>-${DM.sconto}%<small>SCONTO</small></span></div>` : ""}</div>
+    <div class="dmTabs">${DM_TAB.map(([k, n]) => `<button data-dt="${k}" class="${DM.tab === k ? "on" : ""}">${n}</button>`).join("")}</div>
+    <div class="dmBody"><div class="dmList">${gruppi.length ? gruppi.map(c => `<div class="dmSec">${DM_CAT[c]}</div>` + L.filter(x => (x.cat || "") === c).map(item).join("")).join("") : `<p style="margin:20px 0;color:#f0d7c8">Nessun piatto disponibile in questo momento.</p>`}</div>
+      <aside class="dmCaps"><div>${DM_FOTO.lasagne}</div><small>Lasagne</small><div>${DM_FOTO.pure}</div><small>Secondi con purè</small><div>${DM_FOTO.pizza}</div><small>Pizza</small></aside></div>
+    <div class="dmFoot"><b>${esc(p.name)}</b><br>${esc(p.address || "")}<br>Telefono / WhatsApp: <a href="tel:${esc(String(p.phone || "0415208890").replace(/\s/g, ""))}">${esc(p.phone || "041 520 8890")}</a><br>Consegna: <b style="font-size:13px">Venezia centro storico &amp; isole</b></div>
+  </div>
+  <div class="dmBar" id="dmBar"></div>`;
+  el.querySelector(".dmScroll").scrollTop = top;
+  $("#dmX").onclick = () => history.back();
+  if ($("#dmEd")) $("#dmEd").onclick = () => { dmClose(); restAdmin(p); };
+  if ($("#dmOr")) $("#dmOr").onclick = () => { dmClose(); restOrdini(p); };
+  el.querySelectorAll("[data-dt]").forEach(b => b.onclick = () => { DM.tab = b.dataset.dt; haptic(); dmPaint(); });
+  el.querySelectorAll("[data-dq]").forEach(b => b.onclick = () => { const id = +b.dataset.dq; DM.cart[id] = Math.max(0, Math.min(30, (DM.cart[id] || 0) + +b.dataset.d)); if (!DM.cart[id]) delete DM.cart[id]; haptic(); b.parentNode.querySelector("span").textContent = DM.cart[id] || 0; dmBar(); });
+  dmBar();
+}
+function dmTot(){ let l = 0, s = 0, n = 0; DM.lista.forEach(x => { const q = DM.cart[x.id] || 0; l += q * +x.prezzo; s += q * dmPrezzo(x); n += q; }); return { l, s, n }; }
+function dmBar(){
+  const b = $("#dmBar"); if (!b) return; const t = dmTot();
+  b.innerHTML = `<label><input type="checkbox" id="dmPos" ${DM.posate ? "checked" : ""}> Posate ecologiche in omaggio · € 0,00</label>
+    <div class="r"><div class="tot"><small>${t.n ? t.n + (t.n === 1 ? " piatto" : " piatti") : "Il tuo ordine"}</small>${DM.sconto && t.n ? `<s>${dmEur(t.l)}</s>` : ""}<b>${dmEur(t.s)}</b></div><button class="go" id="dmGo" ${t.n ? "" : "disabled"}>Ordina ›</button></div>`;
+  $("#dmPos").onchange = e => { DM.posate = e.target.checked; };
+  $("#dmGo").onclick = dmModal;
+}
+function dmFasce(){
+  const out = [], d = new Date(), m0 = Math.ceil((d.getHours() * 60 + d.getMinutes() + 40) / 30) * 30;
+  for (let m = Math.max(m0, 11 * 60 + 30); m <= 22 * 60 && out.length < 12; m += 30){ const f = x => String(Math.floor(x / 60)).padStart(2, "0") + ":" + String(x % 60).padStart(2, "0"); out.push(f(m) + "–" + f(m + 30)); }
+  return out.length ? out : ["Domani 11:30–12:00", "Domani 12:00–12:30", "Domani 12:30–13:00", "Domani 19:00–19:30", "Domani 19:30–20:00"];
+}
+function dmModal(){
+  const el = $("#dmenu"); if (!el) return; const t = dmTot(), last = store.get("ln_ship_contatto", {}), fasce = dmFasce();
+  const righe = DM.lista.filter(x => DM.cart[x.id]).map(x => `<div class="shrow"><span>${DM.cart[x.id]}× ${esc(x.nome)}</span><b>${dmEur(DM.cart[x.id] * dmPrezzo(x))}</b></div>`).join("");
+  const m = document.createElement("div"); m.className = "dmModal";
+  m.innerHTML = `<div><h3>Il tuo ordine</h3><p class="muted" style="margin:0 0 10px">${esc(DM.p.name)}</p>
+    <div class="shsum">${righe}${DM.posate ? `<div class="shrow"><span>Posate ecologiche</span><b>in omaggio · € 0,00</b></div>` : ""}
+      ${DM.sconto ? `<div class="shrow"><span>Prezzo di listino</span><b><s>${dmEur(t.l)}</s></b></div><div class="shrow"><span>Sconto ${DM.sconto}%</span><b>− ${dmEur(t.l - t.s)}</b></div>` : ""}
+      <div class="shrow tot"><span>Totale</span><b>${dmEur(t.s)}</b></div></div>
+    <div class="field"><label>Indirizzo di consegna a Venezia</label><input id="dmAd" placeholder="es. Cannaregio 4119 o Murano, Fondamenta dei Vetrai 12" value="${esc(last.addr || "")}"></div>
+    <div class="field"><label>Fascia oraria</label><select id="dmFa">${fasce.map(f => `<option>${f}</option>`).join("")}</select></div>
+    <div class="row" style="gap:8px"><div class="field" style="flex:1"><label>Nome</label><input id="dmNo" value="${esc(last.nome || "")}"></div><div class="field" style="flex:1"><label>Telefono</label><input id="dmTe" type="tel" value="${esc(last.tel || "")}"></div></div>
+    <div class="field"><label>Note per il ristorante</label><input id="dmNt" maxlength="200" placeholder="allergie, citofono, piano…"></div>
+    <p class="muted" style="font-size:12.5px;margin:2px 0 6px">Paghi alla consegna. Il ristorante ti chiama se serve.</p>
+    <button class="go" id="dmInv">Invia ordine · ${dmEur(t.s)}</button><button class="btn ghost" id="dmAnn" style="margin-top:8px">Torna al menu</button></div>`;
+  el.appendChild(m);
+  m.onclick = e => { if (e.target === m) m.remove(); };
+  $("#dmAnn").onclick = () => m.remove();
+  $("#dmInv").onclick = async () => {
+    const v = id => $("#" + id).value.trim(), addr = v("dmAd"), nome = v("dmNo"), tel = v("dmTe");
+    if (addr.length < 4) return toast("Scrivi l'indirizzo di consegna."); if (!nome || tel.replace(/\D/g, "").length < 6) return toast("Scrivi nome e telefono.");
+    const b = $("#dmInv"); b.disabled = true; b.textContent = "Invio…";
+    const items = DM.lista.filter(x => DM.cart[x.id]).map(x => ({ id: x.id, nome: x.nome, qta: DM.cart[x.id], prezzo: dmPrezzo(x), listino: +x.prezzo }));
+    const note = ["Fascia " + v("dmFa"), DM.posate ? "Posate ecologiche: sì (omaggio)" : "Posate: no", DM.sconto ? "Sconto " + DM.sconto + "% applicato" : "", v("dmNt")].filter(Boolean).join(" · ");
+    try{ await api("orders", { method: "POST", body: { restaurant: DM.p.name, mode: "foot", items, total_eur: Math.round(t.s * 100) / 100, customer_name: nome.slice(0, 80), customer_phone: tel.slice(0, 30), address: addr.slice(0, 200), note: note.slice(0, 300) } }); }
+    catch(e){ b.disabled = false; b.textContent = "Invia ordine · " + dmEur(t.s); return toast("Ordine non inviato: controlla la connessione."); }
+    store.set("ln_ship_contatto", Object.assign({}, last, { nome, tel, addr })); haptic();
+    m.firstElementChild.innerHTML = `<h3>Ordine inviato ✓</h3><p style="line-height:1.45">${esc(DM.p.name)} ha ricevuto il tuo ordine da <b>${dmEur(t.s)}</b>, consegna ${esc(v("dmFa"))} a ${esc(addr)}.</p>
+      <p class="muted">Paghi alla consegna. Per qualsiasi cosa: <a href="tel:${esc(String(DM.p.phone || "0415208890").replace(/\s/g, ""))}">${esc(DM.p.phone || "041 520 8890")}</a></p><button class="go" id="dmOk">Perfetto</button>`;
+    $("#dmOk").onclick = () => history.back(); };
 }
 /* ---------- Ristoranti convenzionati: piatti del giorno, ordini e strumenti dell'admin ---------- */
 let RO = null;   // { p, lista, admin, cart, mode }
@@ -8547,21 +8681,24 @@ async function restAdmin(p){
     <div class="card"><b id="maTit">Aggiungi un piatto</b><input type="hidden" id="maId">
       <div class="field" style="margin-top:8px"><label>Nome</label><input id="maNome" maxlength="80" placeholder="es. Risotto di pesce"></div>
       <div class="field"><label>Descrizione (facoltativa)</label><input id="maDescr" maxlength="200" placeholder="es. con vongole e calamari"></div>
-      <div class="field"><label>Prezzo €</label><input id="maPrezzo" inputmode="decimal" placeholder="es. 9,50"></div>
+      <div class="field"><label>Prezzo di listino €</label><input id="maPrezzo" inputmode="decimal" placeholder="es. 9,50"></div>
+      <div class="field"><label>Sezione del menu</label><select id="maCat"><option value="">Piatti del giorno</option><option value="primi">Primi</option><option value="secondi">Secondi &amp; Contorni</option><option value="pizze">Pizze</option></select></div>
+      <label class="check" style="margin:4px 0 10px"><input type="checkbox" id="maFisso"><span>Sempre nel menu (non solo oggi)</span></label>
       <button class="btn" id="maSave">Aggiungi</button></div>
     <button class="btn ghost" id="maCopy">📋 Copia i piatti dell'ultimo giorno</button>
     <button class="btn ghost" id="maBack" style="margin-top:10px">‹ Torna al menu</button>`, "light");
+  try{ const P = $("#sheetIn"); P.querySelectorAll("[data-ma=edit]").forEach(b => { const m = L.find(z => z.id === +b.dataset.id); if (m && m.fisso) b.closest(".item").querySelector("b").insertAdjacentHTML("afterend", ` <small class="muted">· fisso${m.cat ? " · " + (DM_CAT[m.cat] || m.cat) : ""}</small>`); }); }catch(e){}
   const go = async (az, d) => { let x; try{ x = await rpc("menu_admin", { p_rest: p.order_rest, p_azione: az, p_dati: d }); }catch(e){ x = null; }
     if (x && x.ok) return restAdmin(p);
     toast(!x ? "Controlla la connessione." : x.errore === "prezzo" ? "Prezzo non valido." : x.errore === "dati" ? "Scrivi il nome del piatto." : x.errore === "niente" ? "Non ci sono giorni precedenti da copiare." : x.errore === "troppi" ? "Troppi piatti per oggi." : "Non salvato."); };
   document.querySelectorAll("[data-ma]").forEach(b => b.onclick = () => { const id = +b.dataset.id, m = L.find(z => z.id === id);
     if (b.dataset.ma === "stato") go("stato", { id, disponibile: b.dataset.v === "1" });
     else if (b.dataset.ma === "del"){ if (confirm("Togliere " + m.nome + "?")) go("del", { id }); }
-    else { $("#maId").value = id; $("#maNome").value = m.nome; $("#maDescr").value = m.descr || ""; $("#maPrezzo").value = String(m.prezzo).replace(".", ","); $("#maTit").textContent = "Modifica il piatto"; $("#maSave").textContent = "Salva"; $("#maNome").focus(); } });
-  $("#maSave").onclick = () => { const id = $("#maId").value, d = { nome: $("#maNome").value.trim(), descr: $("#maDescr").value.trim(), prezzo: $("#maPrezzo").value.trim() || "0" };
+    else { $("#maId").value = id; $("#maNome").value = m.nome; $("#maDescr").value = m.descr || ""; $("#maPrezzo").value = String(m.prezzo).replace(".", ","); $("#maCat").value = m.cat || ""; $("#maFisso").checked = !!m.fisso; $("#maTit").textContent = "Modifica il piatto"; $("#maSave").textContent = "Salva"; $("#maNome").focus(); } });
+  $("#maSave").onclick = () => { const id = $("#maId").value, d = { nome: $("#maNome").value.trim(), descr: $("#maDescr").value.trim(), prezzo: $("#maPrezzo").value.trim() || "0", cat: $("#maCat").value, fisso: $("#maFisso").checked };
     if (id) d.id = +id; go(id ? "upd" : "add", d); };
   $("#maCopy").onclick = () => go("copia", {});
-  $("#maBack").onclick = () => restOrder(p);
+  $("#maBack").onclick = () => { closeSheet(); deliveryMenu(p); };
 }
 // ordini ricevuti oggi, con lo stato che vede il ristorante
 async function restOrdini(p){
@@ -8580,7 +8717,7 @@ async function restOrdini(p){
     <button class="btn ghost" id="osBack">‹ Torna al menu</button>`, "light");
   document.querySelectorAll("[data-os]").forEach(s => s.onchange = async () => { let x; try{ x = await rpc("ordine_stato", { p_rest: p.order_rest, p_id: +s.dataset.os, p_stato: s.value }); }catch(e){}
     toast(x && x.ok ? "Stato aggiornato ✓" : "Non aggiornato."); });
-  $("#osBack").onclick = () => restOrder(p);
+  $("#osBack").onclick = () => { closeSheet(); deliveryMenu(p); };
 }
 document.querySelectorAll("#mkCats [data-c]").forEach(b => b.onclick = () => {
   mkCat = b.dataset.c; document.querySelectorAll("#mkCats [data-c]").forEach(x => x.classList.toggle("on", x === b)); drawPartners(); renderMk();
@@ -8658,7 +8795,7 @@ async function openDlv(i){
   if ($("#dlvDel")) $("#dlvDel").onclick = () => extraDel(x.extra);
   siteLoad(key, $("#dlvSite"));
   if (food){
-    $("#dlvOrd").onclick = () => { if (partner && partner.order_rest) restOrder(partner);
+    $("#dlvOrd").onclick = () => { if (partner && partner.order_rest) deliveryMenu(partner);
       else toast("Questo locale non fa ancora consegne con clickVenice."); };
     $("#dlvBook").onclick = () => bookPlace(x, key);
   }

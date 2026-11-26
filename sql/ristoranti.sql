@@ -13,3 +13,6 @@
 
 -- v3.93 catalogo Barketplace: bk_barche + categoria (barca|motore|elica|accessorio), sottocat, marca, modello, specs jsonb;
 -- catalogo in catalogo-barche.json (barche per cantiere e modello, motori, eliche, accessori, valori dei filtri)
+
+-- v3.94 menu delivery: partners.sconto_pct (San Marco 15%), menu_items.cat (primi|secondi|pizze|'' = del giorno) e fisso (sempre nel menu);
+-- menu fisso di Ristorazione San Marco inserito; grant select su partners e insert su orders per anon (prima la mappa non mostrava i convenzionati)
