@@ -1528,6 +1528,16 @@
   @keyframes gpsDot{to{transform:scale(.8)}}
   .carW{min-height:120px} .carW iframe{width:100%!important;max-width:100%!important;border:0}
   .sxBig{gap:8px!important} .sxBig button{min-height:58px!important}
+  .bkOpt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1.5px solid #f2d27a;border-radius:16px;background:linear-gradient(135deg,#fff8e6,#fff);color:#0b2545;padding:11px 14px;margin:0 0 10px}
+  .bkOpt i{font-style:normal;font-size:24px} .bkOpt span{flex:1} .bkOpt b{display:block;font-size:15.5px;font-weight:800} .bkOpt small{display:block;font-size:12.5px;color:#64748b;margin-top:1px} .bkOpt em{font-style:normal;font-size:22px;color:#b8913b}
+  .boGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .boC{border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+  .boGo{display:flex;flex-direction:column;align-items:stretch;text-align:left;border:0;background:none;padding:0;color:#0f172a;flex:1}
+  .boGo img,.boNo{width:100%;aspect-ratio:1;object-fit:cover;background:#f1f5f9;display:grid;place-items:center;font-size:30px;font-style:normal}
+  .boGo b{font-size:13.5px;line-height:1.25;padding:8px 9px 0} .boGo small{padding:2px 9px 0;color:#0b2545;font-weight:800;font-size:13px}
+  .boGo em{font-style:normal;margin:8px 9px 9px;background:#1d4e89;color:#fff;font-weight:800;font-size:13px;border-radius:10px;padding:7px;text-align:center}
+  .boAdm{display:flex;border-top:1px solid #eef0f2} .boAdm button{flex:1;border:0;background:#f8fafc;padding:7px;font-size:12px;font-weight:700;color:#475569}
+  .boPh{display:grid;place-items:center;height:150px;border-radius:14px;border:1.5px dashed #cbd5e1;background:#f8fafc center/cover no-repeat;color:#64748b;font-weight:700;margin-bottom:10px;cursor:pointer}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2073,7 +2083,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.18</p>
+      <p class="sub">clickVenice · versione 4.19</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -4082,6 +4092,7 @@ function bkPaint(){
   const kf = document.activeElement && document.activeElement.id === "bkQ";
   box.innerHTML = `<div class="bkseg"><button data-bm="vendita" class="${rii ? "" : "on"}">⚓ In vendita${BK.n.vendita != null ? ` <em>${BK.n.vendita}</em>` : ""}</button><button data-bm="rii" class="${rii ? "on" : ""}">👀 Nei rii${BK.n.rii != null ? ` <em>${BK.n.rii}</em>` : ""}</button></div>
     <button class="bkSell" id="bkSell"><b>+ Vendi o segnala</b><small>${rii ? "Hai visto una barca ferma nei rii? Segnalala e fai un'offerta anonima" : "Barca, motore, elica o accessorio: pubblica in un minuto"}</small></button>
+    <button class="bkOpt" id="bkOpt"><i>✨</i><span><b>Rendi la tua barca full optional</b><small>Accessori, elettronica e comfort scelti per la laguna</small></span><em>›</em></button>
     ${BK.admin && BK.reclami ? `<button class="btn small" id="bkRec" style="margin:0 0 10px">Reclami da verificare · ${BK.reclami}</button>` : ""}
     <div class="bkpills">${(rii ? [["tutte", "Tutte"], ["posto", "Posto barca"], ["vendute", "Vendute"]] : [["tutte", "Tutto"], ["barca", "Barche"], ["motore", "Motori"], ["elica", "Eliche"], ["accessorio", "Accessori"], ["posto", "Posto barca"], ["vendute", "Vendute"]]).map(([k, n]) => `<button data-bf="${k}" class="${BK.f === k ? "on" : ""}">${n}</button>`).join("")}<button data-bf="__f" class="${Object.keys(BK.flt || {}).length ? "on" : ""}">⚙︎ Filtri${Object.keys(BK.flt || {}).length ? " · " + Object.keys(BK.flt).length : ""}</button></div>
     <div class="field" style="margin:0 0 10px"><input id="bkQ" type="search" placeholder="Cerca barca, motore, rio…" value="${esc(BK.q)}"></div>
@@ -4096,6 +4107,46 @@ function bkPaint(){
   const qi = $("#bkQ"); qi.oninput = e => { BK.q = e.target.value; bkPaint(); }; if (kf){ qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); }
   if ($("#bkRec")) $("#bkRec").onclick = bkReclami;
   $("#bkSell").onclick = () => bkNew();
+  $("#bkOpt").onclick = () => bkOptional();
+}
+/* ---------- Full optional: prodotti consigliati per la barca (link referral), la lista la cura tropss ---------- */
+let BKOPT = store.get("ln_bkopt", []);
+async function bkOptional(){
+  const paint = () => { const adm = isTropss();
+    openSheet(`<h3>Rendi la tua barca full optional</h3><p class="muted" style="margin-top:-4px;line-height:1.4">Accessori, elettronica e comfort scelti per chi va in laguna. Tocca un prodotto per comprarlo.</p>
+      ${adm ? `<button class="btn" id="boAdd" style="margin-bottom:10px">＋ Aggiungi un prodotto</button>` : ""}
+      <div class="boGrid">${BKOPT.length ? BKOPT.map(x => `<div class="boC"><button class="boGo" data-bo="${x.id}">${x.foto ? `<img loading="lazy" src="${esc(x.foto)}" alt="">` : `<i class="boNo">⚓</i>`}
+          <b>${esc(x.titolo)}</b>${x.prezzo ? `<small>${esc(x.prezzo)}</small>` : ""}<em>Acquista ›</em></button>
+          ${adm ? `<div class="boAdm"><button data-boe="${x.id}">Modifica</button><button data-bod="${x.id}">Togli</button></div>` : ""}</div>`).join("")
+        : `<p class="muted" style="grid-column:1/-1;text-align:center">${adm ? "Nessun prodotto: aggiungi il primo." : "I prodotti arrivano a breve."}</p>`}</div>
+      <p class="muted" style="font-size:11.5px;margin:10px 0 0">Link di affiliazione: comprando da qui sostieni clickVenice, senza costi in più per te.</p>
+      <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`, "light");
+    document.querySelectorAll("[data-bo]").forEach(b => b.onclick = () => { const x = BKOPT.find(y => y.id === +b.dataset.bo); if (x) extOpen(x.link, x.titolo); });
+    if ($("#boAdd")) $("#boAdd").onclick = () => bkOptForm({});
+    document.querySelectorAll("[data-boe]").forEach(b => b.onclick = () => bkOptForm(BKOPT.find(y => y.id === +b.dataset.boe) || {}));
+    document.querySelectorAll("[data-bod]").forEach(b => b.onclick = async () => { const j = await rpc("bk_opt_elimina", { p_id: +b.dataset.bod }).catch(() => null);
+      if (!j || !j.ok) return toast("Non tolto, riprova."); haptic(); load(); });
+  };
+  const load = async () => { try{ const j = await rpc("bk_opt_lista", {}); if (Array.isArray(j)){ BKOPT = j; store.set("ln_bkopt", j); } }catch(e){} if ($(".boGrid")) paint(); };
+  paint(); load();
+}
+function bkOptForm(x){
+  let foto = x.foto || "";
+  openSheet(`<h3>${x.id ? "Modifica prodotto" : "Nuovo prodotto"}</h3>
+    <label class="boPh" id="boPh" style="${foto ? `background-image:url('${esc(foto)}')` : ""}">${foto ? "" : "📷 Foto del prodotto"}<input type="file" accept="image/*" id="boF" hidden></label>
+    <div class="field"><label>Titolo</label><input id="boT" maxlength="120" value="${esc(x.titolo || "")}" placeholder="es. Ecoscandaglio Garmin Striker 4"></div>
+    <div class="field"><label>Link referral per l'acquisto</label><input id="boL" inputmode="url" value="${esc(x.link || "")}" placeholder="https://amzn.to/…"></div>
+    <div class="row" style="gap:8px"><div class="field" style="flex:1"><label>Prezzo (facoltativo)</label><input id="boP" maxlength="40" value="${esc(x.prezzo || "")}" placeholder="es. 129 €"></div>
+      <div class="field" style="flex:1"><label>Categoria (facoltativa)</label><input id="boK" maxlength="40" value="${esc(x.categoria || "")}" placeholder="es. Elettronica"></div></div>
+    <button class="btn" id="boS">Salva</button><button class="btn ghost" style="margin-top:8px" id="boX">Annulla</button>`, "light");
+  $("#boF").onchange = async e => { const f = e.target.files[0]; if (!f) return; try{ foto = await shrinkPhoto(f); const ph = $("#boPh"); ph.style.backgroundImage = `url('${foto}')`; ph.firstChild.nodeType === 3 && (ph.firstChild.textContent = ""); }catch(er){ toast("Questa foto non si apre."); } };
+  $("#boX").onclick = () => bkOptional();
+  $("#boS").onclick = async () => { const t = $("#boT").value.trim(), l = $("#boL").value.trim();
+    if (t.length < 2) return toast("Scrivi il titolo."); if (!/^https?:\/\//i.test(l)) return toast("Incolla il link completo (https://…).");
+    const b = $("#boS"); b.disabled = true; b.textContent = "Salvo…";
+    const j = await rpc("bk_opt_salva", { p_data: { id: x.id || null, titolo: t, link: l, foto, prezzo: $("#boP").value.trim(), categoria: $("#boK").value.trim() } }).catch(() => null);
+    if (!j || !j.ok){ b.disabled = false; b.textContent = "Salva"; return toast(j && j.errore === "foto" ? "Foto troppo grande." : "Non salvato, riprova."); }
+    haptic(); toast("Salvato ✓"); bkOptional(); };
 }
 async function bkOpen(id, flash){
   let x; try{ x = await rpc("bk_dettaglio", { p_id: id }); }catch(e){ x = null; }
