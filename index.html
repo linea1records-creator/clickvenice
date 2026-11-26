@@ -1478,8 +1478,8 @@
   #tabs .srvIc img{position:absolute;left:50%;top:50%;width:31px;height:31px;margin:-16px 0 0 -15.5px;-webkit-user-drag:none;user-select:none;pointer-events:none;filter:grayscale(1) opacity(.55);transition:filter .25s}
   #tabs .srvRip{position:absolute;left:11.5px;top:14.3px;width:11px;height:11px;margin:-5.5px 0 0 -5.5px;border-radius:50%;border:1.6px solid #2b9cc9;opacity:0;pointer-events:none}
   #tabs button[data-pm="ship"].on .srvIc img{filter:none}
-  #tabs button[data-pm="ship"].on .srvHand{animation:srvTap 2.2s cubic-bezier(.45,0,.55,1) infinite}
-  #tabs button[data-pm="ship"].on .srvRip{animation:srvRip 2.2s ease-out infinite}
+  #tabs button[data-pm="ship"].on .srvHand{animation:srvTap 3.6s cubic-bezier(.45,0,.55,1) infinite}
+  #tabs button[data-pm="ship"].on .srvRip{animation:srvRip 3.6s ease-out infinite}
   @keyframes srvTap{0%,100%{transform:translate(2.2px,2.2px)}38%{transform:translate(0,0)}46%{transform:translate(-.3px,-.3px) scale(.96)}56%{transform:translate(0,0)}}
   @keyframes srvRip{0%,40%{transform:scale(.3);opacity:0}46%{transform:scale(.5);opacity:1}90%,100%{transform:scale(1.7);opacity:0}}
   #tabs button[data-pm="ship"].pop .srvIc{animation:tabHop .55s cubic-bezier(.34,1.56,.64,1)}
@@ -1547,7 +1547,7 @@
 </style>
 <style id="modeColors">
   /* colore di ogni modalità: tasto premuto, banner e tasti principali del suo pannello */
-  :root{ --c-market:#ac3d21; --f-navy:#d6551b; --f-ink:#501b17; --f-teal:#e69141; --f-gold:#f2b12c; --f-amber:#db8724; --f-steam:#f9b577; --f-deep:#ac3d21; --f-red:#ac3d21; --c-meet:#f2b738; --c-shop:#1d4e89; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#d96b43; --laguna:#13294b; --promo:#d96b43 }
+  :root{ --c-market:#ac3d21; --f-navy:#d6551b; --f-ink:#501b17; --f-teal:#e69141; --f-gold:#f2b12c; --f-amber:#db8724; --f-steam:#f9b577; --f-deep:#ac3d21; --f-red:#ac3d21; --c-meet:#f2b738; --c-shop:#1d4e89; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#1d4e89; --laguna:#13294b; --promo:#d96b43 }
   #tabs [data-pm="market"].on{color:var(--c-market)!important}
   #tabs [data-pm="shop"].on{color:var(--c-shop)!important}
   #tabs [data-pm="sport"].on{color:var(--c-sport)!important}
@@ -2027,7 +2027,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.09</p>
+      <p class="sub">clickVenice · versione 4.10</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2713,12 +2713,12 @@ function sxSuMisura(){
 function paintSrv(){   // una sola schermata: sei tasti larghi e bassi
   const MERCI = ["barca", "facchino", "fattorino"];
   const ALL = [
-    { ic: "taxi", c: "#1d4e89", t: "Chiama un taxi", d: "Taxi acqueo in laguna, aeroporto e stazione", go: () => { setMode("nautica"); setTimeout(taxiFab, 250); } },
-    { ic: "food", c: "#ac3d21", t: "Consegne a domicilio", d: "Cibo dei ristoranti convenzionati a casa tua", go: () => setMode("market") },
-    { ic: "pro", c: "#2b7bba", t: "Trova professionisti a Venezia", d: "Video, foto, siti web, musica e altro", go: () => sxScegli("Professionisti a Venezia", Object.keys(SRV).filter(k => !MERCI.includes(k))) },
-    { ic: "merci", c: "#13294b", t: "Trasporto merci e traslochi", d: "In barca o a piedi, con facchinaggio", go: () => sxScegli("Trasporto merci e traslochi", MERCI) },
-    { ic: "conv", c: "#d6551b", t: "Attività convenzionate e sconto residenti", d: "Negozi e locali con lo sconto per chi vive qui", go: sxConv },
-    { ic: "barca", c: "#1d4e89", t: "Compravendita di barche", d: "Barche, motori e accessori su Barketplace", go: () => setMode("shop") } ];
+    { ic: "taxi", c: "#1d4e89", t: "Chiama un taxi", d: "Taxi acqueo e in terraferma", go: () => { setMode("nautica"); setTimeout(taxiFab, 250); } },
+    { ic: "food", c: "#ac3d21", t: "Consegne a domicilio", d: "Delivery express", go: () => setMode("market") },
+    { ic: "pro", c: "#2b7bba", t: "Trova professionisti a Venezia", d: "Artigiani, servizi ed altro", go: () => sxScegli("Professionisti a Venezia", Object.keys(SRV).filter(k => !MERCI.includes(k))) },
+    { ic: "merci", c: "#13294b", t: "Trasporto merci e traslochi", d: "In barca o a piedi", go: () => sxScegli("Trasporto merci e traslochi", MERCI) },
+    { ic: "conv", c: "#d6551b", t: "VeniceCard", d: "Sconti per membri e residenti", go: sxConv },
+    { ic: "barca", c: "#1d4e89", t: "Compravendita di barche", d: "Il primo portale su misura veneziano", go: () => setMode("shop") } ];
   $("#shipTypes").innerHTML = `<div class="sx sx2">
     <div class="sxHead"><img class="sxLogo" src="logo-word.png" alt="clickVenice.com"><p>Tutto quello che ti serve a Venezia, in un click.</p></div>
     <div class="sxBig">${ALL.map((x, i) => `<button data-sxi="${i}" style="--sc:${x.c}"><i class="ic">${sxSvg(x.ic)}</i><span><b>${x.t}</b><small>${x.d}</small></span><em>›</em></button>`).join("")}</div></div>`;
@@ -2727,7 +2727,7 @@ function paintSrv(){   // una sola schermata: sei tasti larghi e bassi
 async function sxConv(){   // attività convenzionate: chi fa lo sconto ai residenti
   const paint = () => {
     const L = PARTNERS.slice().sort((a, b) => (+b.sconto_pct || 0) - (+a.sconto_pct || 0));
-    openSheet(`<h3>Attività convenzionate</h3><p class="muted" style="margin-top:-4px;line-height:1.4">Sconti per chi vive a Venezia: mostra l'app alla cassa o ordina da qui.</p>
+    openSheet(`<h3>VeniceCard</h3><p class="muted" style="margin-top:-4px;line-height:1.4">Sconti per chi vive a Venezia: mostra l'app alla cassa o ordina da qui.</p>
       ${L.length ? L.map(p => `<button class="sxRow" data-cv="${p.id}" style="border-radius:0"><i class="ic">${sxSvg(p.category === "food" ? "food" : "conv")}</i><span><b>${esc(p.name)}</b><small>${esc(p.address || "Venezia")}</small></span>${+p.sconto_pct ? `<em class="sxAct" style="background:#d6551b;color:#fff;border-radius:99px;padding:3px 9px;font-style:normal;font-weight:800">-${+p.sconto_pct}%</em>` : ""}</button>`).join("")
         : `<p style="line-height:1.45">Le prime attività convenzionate arrivano a breve.</p>`}
       <button class="btn ghost" style="margin-top:12px" onclick="closeSheet()">Chiudi</button>`, "light");
