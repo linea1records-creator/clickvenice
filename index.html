@@ -1570,6 +1570,8 @@
   .tripFull{background:#eef4fb;border:1px solid #cfe1f3;border-radius:14px;padding:10px 12px;margin:0 0 10px;color:#13294b}
   .tripFull>b{display:block;font-size:15px;margin-bottom:6px} .tripFull .tfL{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.35;padding:3px 0}
   .tripFull .tfL i{font-style:normal;width:20px;text-align:center} .tripFull small{display:block;margin-top:4px;color:#475569;font-weight:700}
+  .gonMk.tour{position:relative;width:38px!important;height:38px!important;border-radius:50%;background:#fff;box-shadow:0 0 0 3px #c9a24a,0 2px 8px rgba(0,0,0,.35);display:grid;place-items:center}
+  .gonMk.tour svg{width:28px;height:28px} .gonMk.tour em{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);font-style:normal;font-size:8.5px;font-weight:900;letter-spacing:.06em;background:#c9a24a;color:#1a1408;border-radius:6px;padding:1px 4px}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2115,7 +2117,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.24</p>
+      <p class="sub">clickVenice · versione 4.25</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -11440,10 +11442,23 @@ function gondDraw(){
   TRAGHETTI.filter(t => !isHidden("gondole", "n=" + t.n)).forEach(t => [t.a, t.b].forEach(p => mk(p[0], p[1], GON_SVG, "tr", () => HIDEMODE ? hideAsk("gondole", "n=" + t.n, "Traghetto " + t.n) : gondTraghetto(t, p))));
   STAZI.concat((EXTRA || []).filter(x => x.t === "stazio_gondole").map(x => [x.n, x.lat, x.lng, x.id])).filter(s => !isHidden("gondole", "n=" + s[0]))
     .forEach(s => mk(s[1], s[2], GON_SVG, "st", () => HIDEMODE ? hideAsk("gondole", "n=" + s[0], "Gondole " + s[0]) : gondStazio(s)));
+  mk(GON_TOUR.lat, GON_TOUR.lng, GON_SVG + "<em>TOUR</em>", "tour", gondTour);   // tour in gondola prenotabile online
   gondVis();
 }
 function gondVis(){ document.body.classList.toggle("hide-gondole", LY.gondole === false); try{ if (map.getLayer("traghetti")) map.setLayoutProperty("traghetti", "visibility", LY.gondole === false || appMode !== "nautica" ? "none" : "visible"); }catch(e){} }
 setTimeout(gondDraw, 4500);
+// tour in gondola prenotabile online (widget Travelpayouts), punto d'incontro Venice Tours, Calle San Gallo 1093/b
+const GON_TOUR = { lat: 45.43432, lng: 12.33708, n: "Venice Tours · Calle San Gallo 1093/b" };
+const GON_TOUR_W = "https://tpembd.com/content?currency=EUR&trs=606360&shmarker=811379&product=974328&language=it&layout=compact&orientation=vertical&powered_by=true&campaign_id=89&promo_id=3984";
+function gondTour(){
+  openSheet(`<h3>🚣 Tour in gondola</h3><p class="muted" style="margin-top:-4px;line-height:1.4">Prenota online il giro in gondola con Venice Tours: scegli data e orario, paghi sul sito.<br>📍 Ritrovo: ${esc(GON_TOUR.n)}, vicino a Piazza San Marco</p>
+    <div id="gonW" class="carW"><p class="muted">Carico le disponibilità…</p></div>
+    <button class="btn ghost" id="gonTGo" style="margin-top:10px">Portami al punto d'incontro</button>
+    <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`, "light");
+  EXT_HOOK = "Tour in gondola"; tpMount($("#gonW"), "gondtour", GON_TOUR_W, "Tour in gondola");
+  setTimeout(() => { const b = $("#gonW"); if (b && b.firstElementChild && b.firstElementChild.tagName === "P" && b.children.length > 1) b.firstElementChild.remove(); }, 2500);
+  $("#gonTGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: "Tour in gondola · Calle San Gallo", lat: GON_TOUR.lat, lng: GON_TOUR.lng }); };
+}
 function gondTraghetto(t, p){
   const other = p === t.a ? t.b : t.a;
   openSheet(`<h3>⛴ Traghetto ${esc(t.n)}</h3><p class="muted" style="margin-top:-4px">Gondola che attraversa il Canal Grande da una sponda all'altra, in piedi come i veneziani</p>
@@ -11457,9 +11472,11 @@ function gondStazio(s){
   openSheet(`<h3>🚣 Gondole · ${esc(s[0])}</h3><p class="muted" style="margin-top:-4px">Servizio pubblico di gondola: giro turistico</p>
     <div class="gonInfo"><div class="${night ? "" : "on"}"><b>Di giorno</b> 90 € · 30 minuti · 9–19</div><div class="${night ? "on" : ""}"><b>Di notte</b> 110 € · 35 minuti · 19–4</div><div><b>Massimo</b> 5 persone per gondola</div></div>
     <p class="trnote">Tariffe del Comune di Venezia. La durata può variare di qualche minuto per traffico, marea e meteo.</p>
-    <button class="btn" id="gonGo">Portami qui</button>${s[3] && isTropss() ? `<button class="btn small ghost" id="gonDel" style="margin-top:8px">🗑️ Togli questo stazio (solo Trops)</button>` : ""}
+    <button class="btn" id="gonBook" style="background:#c9a24a!important;color:#1a1408!important">🎟 Prenota un tour in gondola online</button>
+    <button class="btn ghost" id="gonGo" style="margin-top:8px">Portami qui</button>${s[3] && isTropss() ? `<button class="btn small ghost" id="gonDel" style="margin-top:8px">🗑️ Togli questo stazio (solo Trops)</button>` : ""}
     <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`);
   $("#gonGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: "Gondole " + s[0], lat: s[1], lng: s[2] }); };
+  $("#gonBook").onclick = gondTour;
   if ($("#gonDel")) $("#gonDel").onclick = () => extraDel(s[3]).then(gondDraw);
 }
 
