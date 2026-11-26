@@ -1362,9 +1362,11 @@
   #tabs button.mid svg{transition:transform .5s cubic-bezier(.34,1.56,.64,1)!important}
   #tabs button.mid .ring{height:62px!important;margin-top:-32px!important}
   #tabs button.mid .logoTab{height:58px;width:auto;display:block;transform-origin:50% 92%;transition:transform .5s cubic-bezier(.34,1.56,.64,1);-webkit-user-drag:none;user-select:none;pointer-events:none}
+  #tabs button.mid:not(.on) .logoTab{filter:grayscale(1) opacity(.6)}   /* spento come gli altri tasti */
+  #tabs button.mid .logoTab{transition:filter .25s,transform .5s cubic-bezier(.34,1.56,.64,1)}
   #tabs button.mid.on .logoTab{animation:navSway 7s ease-in-out infinite}
   @keyframes navSway{0%,100%{transform:rotate(0)}25%{transform:rotate(12deg)}75%{transform:rotate(-12deg)}}   /* oscilla piano a destra e a sinistra, simmetrica */
-  #tabs button.mid .ring::before,#tabs button.mid .ring::after{content:"";position:absolute;inset:4px;border-radius:50%;border:2px solid #d96b43;opacity:0;pointer-events:none}
+  #tabs button.mid .ring::before,#tabs button.mid .ring::after{content:"";position:absolute;inset:4px;border-radius:50%;border:2px solid #3da6c4;opacity:0;pointer-events:none}
   #tabs button.mid.on .ring::before{animation:sonar 2.4s cubic-bezier(.2,.6,.4,1) infinite} #tabs button.mid.on .ring::after{animation:sonar 2.4s cubic-bezier(.2,.6,.4,1) 1.2s infinite}
   @keyframes sonar{0%{transform:scale(.75);opacity:.5}100%{transform:scale(1.75);opacity:0}}
   /* micro-animazioni delle icone */
@@ -1997,7 +1999,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.05</p>
+      <p class="sub">clickVenice · versione 4.06</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
