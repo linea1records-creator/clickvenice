@@ -2124,7 +2124,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.27</p>
+      <p class="sub">clickVenice · versione 4.28</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -11479,10 +11479,20 @@ function gondTour(){
   $("#gonTGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: "Tour in gondola · Calle San Gallo", lat: GON_TOUR.lat, lng: GON_TOUR.lng }); };
 }
 /* ---------- Esperienze su Naviga: tour e laboratori prenotabili online (widget Travelpayouts) ---------- */
+const TQ_W = id => `https://tpembd.com/content?currency=EUR&trs=606360&shmarker=811379&product=${id}&language=it&layout=compact&orientation=vertical&powered_by=true&campaign_id=89&promo_id=3984`;   // widget Tiqets (Travelpayouts)
 const ESP = [
-  { n: "Laboratorio di maschere veneziane", sub: "Venice: Mask-Making Tour · crea la tua maschera con un artigiano", luogo: "Palazzo delle Prigioni, vicino a Palazzo Ducale", ic: "🎭", lat: 45.43392, lng: 12.34098,
-    w: "https://tpembd.com/content?currency=EUR&trs=606360&shmarker=811379&product=1051825&language=it&layout=compact&orientation=vertical&powered_by=true&campaign_id=89&promo_id=3984" },
-  { n: "Tour in gondola", sub: "Giro in gondola con Venice Tours", luogo: "Calle San Gallo 1093/b, vicino a Piazza San Marco", ic: "🚣", lat: 45.43432, lng: 12.33708, w: null, gond: true } ];
+  { n: "Laboratorio di maschere veneziane", sub: "Crea la tua maschera con un artigiano", luogo: "Palazzo delle Prigioni, vicino a Palazzo Ducale", ic: "🎭", lat: 45.43392, lng: 12.34098, w: TQ_W(1051825) },
+  { n: "Campanile di San Marco", sub: "Biglietto d'ingresso: Venezia dall'alto, a 98 metri", luogo: "Piazza San Marco", ic: "🔔", lat: 45.43412, lng: 12.33898, w: TQ_W(1118413) },
+  { n: "Palazzo Ducale e Basilica di San Marco", sub: "Tour guidato dei due simboli di Venezia", luogo: "Piazzetta San Marco", ic: "🏛", lat: 45.43358, lng: 12.34032, w: TQ_W(1111434) },
+  { n: "Palazzo delle Prigioni", sub: "Biglietto d'ingresso alle prigioni e al Ponte dei Sospiri", luogo: "Riva degli Schiavoni, accanto a Palazzo Ducale", ic: "⛓", lat: 45.43412, lng: 12.34128, w: TQ_W(991932) },
+  { n: "Concerto lirico del Collegium Ducale", sub: "Arie d'opera in Piazza San Marco", luogo: "Palazzo delle Prigioni", ic: "🎶", lat: 45.43372, lng: 12.34128, w: TQ_W(1058172) },
+  { n: "Le Quattro Stagioni di Vivaldi", sub: "Concerto de I Musici Veneziani in costume d'epoca", luogo: "Scuola Grande di San Teodoro, Rialto", ic: "🎻", lat: 45.43795, lng: 12.33650, w: TQ_W(975202) },
+  { n: "Giro in gondola con commento dal vivo", sub: "Gondola condivisa con guida che racconta la città", luogo: "Bacino Orseolo, dietro Piazza San Marco", ic: "🚣", lat: 45.43492, lng: 12.33792, w: TQ_W(975168) },
+  { n: "Giro in gondola sul Canal Grande", sub: "In gondola lungo il Canal Grande", luogo: "Santa Maria del Giglio", ic: "🛶", lat: 45.43190, lng: 12.33290, w: TQ_W(1111557) },
+  { n: "Murano: soffiatura del vetro + tour", sub: "Dimostrazione di un maestro vetraio e visita della fornace", luogo: "Murano", ic: "🔥", lat: 45.45600, lng: 12.35250, w: TQ_W(1048734) },
+  { n: "Murano e Burano in barca", sub: "Tour in barca con dimostrazione di soffiatura del vetro", luogo: "Burano (partenza da Venezia)", ic: "🏝", lat: 45.48550, lng: 12.41680, w: TQ_W(1111491) },
+  { n: "Murano, Burano e Torcello", sub: "Le tre isole in un giorno con dimostrazione del vetro", luogo: "Torcello (partenza da Venezia)", ic: "⛪", lat: 45.49770, lng: 12.41850, w: TQ_W(1111494) },
+  { n: "Tour in gondola", sub: "Giro classico in gondola con Venice Tours", luogo: "Calle San Gallo 1093/b, vicino a Piazza San Marco", ic: "🚣", lat: 45.43432, lng: 12.33708, w: null, gond: true } ];
 let ESP_MK = [];
 function espDraw(){
   if (!map || !window.maplibregl) return setTimeout(espDraw, 3000);
@@ -11493,7 +11503,7 @@ function espDraw(){
 setTimeout(espDraw, 4600);
 function espOpen(x){
   if (x.gond) return gondTour();
-  openSheet(`<h3>${x.ic} ${esc(x.n)}</h3><p class="muted" style="margin-top:-4px;line-height:1.4">${esc(x.sub)}<br>📍 ${esc(x.luogo)}</p>
+  openSheet(`<h3>${x.ic} ${esc(x.n)}</h3><p class="muted" style="margin-top:-4px;line-height:1.4">${esc(x.sub)}<br>📍 ${esc(x.luogo)}<br><small>Il punto d'incontro esatto lo trovi nella conferma della prenotazione.</small></p>
     <div id="espW" class="carW"><p class="muted">Carico le disponibilità…</p></div>
     <button class="btn ghost" id="espGo" style="margin-top:10px">Portami qui</button>
     <button class="btn ghost" id="espAll" style="margin-top:8px">Altre esperienze</button>
