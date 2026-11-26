@@ -1822,7 +1822,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.84</p>
+      <p class="sub">clickVenice · versione 3.85</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2516,7 +2516,7 @@ function pick2Map(onDone){
   window._pk2Click = e => { const ll = { lat: +e.lat.toFixed(6), lng: +e.lng.toFixed(6) }; ll.name = nome(ll); haptic();
     if (!A){ A = ll; mA = pin(A, "a"); }
     else if (!B){ B = ll; mB = pin(B, "b");
-      try{ const b = new maplibregl.LngLatBounds([A.lng, A.lat], [A.lng, A.lat]).extend([B.lng, B.lat]); map.fitBounds(b, { padding: { top: 150, bottom: 230, left: 50, right: 50 }, maxZoom: 17.5, duration: 500 }); droneStart(); }catch(err){} }
+      try{ const b = new maplibregl.LngLatBounds([A.lng, A.lat], [A.lng, A.lat]).extend([B.lng, B.lat]); map.fitBounds(b, { padding: { top: 150, bottom: 230, left: 50, right: 50 }, maxZoom: 17.5, duration: 500 }); droneStart({ lat: (A.lat + B.lat) / 2, lng: (A.lng + B.lng) / 2 }); }catch(err){} }
     else { B = ll; mB.setLngLat([B.lng, B.lat]); }   // terzo tocco: sposta la consegna
     paint(); if (A && B && !wRaf) wRaf = requestAnimationFrame(walk); };
   const fine = r => { addMode = null; window._pk2Click = null; map.off("move", draw); if (mA) mA.remove(); if (mB) mB.remove();
@@ -9159,21 +9159,23 @@ const OMINO_BARCA = `<svg viewBox="0 0 46 38"><path d="M2 35c4-2 7-2 11 0s7 2 11
 const OMINI = { carrello: OMINO_SVG, pacco: OMINO_PACCO, barca: OMINO_BARCA };
 const DRONE = { on: false, id: 0, dir: 1, tm: null, t0: 0, ours: false };
 function droneStop(){ if (!DRONE.on) return; DRONE.on = false; DRONE.id++; clearTimeout(DRONE.tm); if (DRONE.ours){ DRONE.ours = false; try{ map.stop(); }catch(e){} } }
-function droneStart(){
+function droneStart(centro){
   if (!map || follow) return; clearTimeout(DRONE.tm); DRONE.ours = false; DRONE.on = true; const id = ++DRONE.id;
-  let base = null, dir = Math.random() < .5 ? 1 : -1, first = true;
-  // da destra a sinistra e ritorno, senza fermarsi; intanto la camera si inclina un po' per dare profondità
+  let base = null, z0 = null, dir = Math.random() < .5 ? 1 : -1, first = true;
+  // gira attorno al centro del tragitto (a metà tra A e B), oscillando da destra a sinistra con una leggera inclinazione:
+  // il centro non si sposta, così A e B restano sempre dentro lo schermo
   const step = () => {
     if (!DRONE.on || DRONE.id !== id) return;
     if (follow) return droneStop();
     if (document.hidden || !map.getContainer().offsetParent){ DRONE.tm = setTimeout(step, 1500); return; }
-    const W = map.getContainer().clientWidth, c = map.project(base), ox = dir * W * .24;
     DRONE.ours = true;
-    map.easeTo({ center: map.unproject([c.x + ox, c.y]), pitch: dir > 0 ? 18 : 6, bearing: dir * 3, duration: first ? 7000 : 14000, easing: t => .5 - .5 * Math.cos(Math.PI * t) });
+    map.easeTo({ center: base, zoom: z0, bearing: dir * 22, pitch: dir > 0 ? 14 : 4, duration: first ? 6000 : 12000, easing: t => .5 - .5 * Math.cos(Math.PI * t) });
     first = false; dir = -dir;
     map.once("moveend", () => { DRONE.ours = false; if (!DRONE.on || DRONE.id !== id) return; DRONE.tm = setTimeout(step, 0); }); };
-  // parte quando la mappa ha finito di inquadrare il tragitto
-  let started = false; const go = () => { if (started || DRONE.id !== id) return; started = true; base = map.getCenter(); DRONE.tm = setTimeout(step, 500); };
+  // parte quando la mappa ha finito di inquadrare il tragitto; si allontana appena, per avere margine mentre gira
+  let started = false; const go = () => { if (started || DRONE.id !== id) return; started = true;
+    base = map.getCenter(); z0 = map.getZoom() - 0.35;   // centro dell'inquadratura di A e B: resta fermo mentre gira
+    DRONE.tm = setTimeout(step, 400); };
   map.once("moveend", go); setTimeout(go, 1600);
 }
 setTimeout(() => { if (!map) return; const c = map.getContainer(); ["touchstart", "mousedown", "wheel"].forEach(ev => c.addEventListener(ev, () => droneStop(), { passive: true })); }, 2500);
