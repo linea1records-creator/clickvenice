@@ -1822,7 +1822,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.87</p>
+      <p class="sub">clickVenice · versione 3.88</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -9185,11 +9185,11 @@ setTimeout(() => { if (!map) return; const c = map.getContainer(); ["touchstart"
 /* meteo vero sulla mappa: pioggia, neve o un velo di nebbia leggero (si vede sempre la mappa) */
 const WX = { tipo: null, int: 0, raf: 0, drops: [], cv: null };
 function wxTipo(){
-  const f = /[?&#]meteo=(pioggia|neve|nebbia|sereno)/.exec(location.search + location.hash); if (f) return [f[1], 2.5];   // ?meteo=pioggia per provare
-  if (!METEO) return [null, 0]; const c = METEO.c, mm = METEO.p || 0;
-  if (c === 45 || c === 48) return ["nebbia", 1];
-  if ((c >= 71 && c <= 77) || c === 85 || c === 86) return ["neve", Math.max(1, mm * 2)];
-  if ((c >= 51 && c <= 67) || (c >= 80 && c <= 82) || c >= 95) return ["pioggia", Math.max(c <= 57 ? .5 : 1, mm)];
+  const f = /[?&#]meteo=(pioggia|neve|nebbia|sereno)/.exec(location.search + location.hash);   // ?meteo=pioggia&mm=6 per provare
+  if (f){ const m = /[?&#]mm=([\d.]+)/.exec(location.search + location.hash); return [f[1], m ? +m[1] : 3]; }
+  if (!METEO) return [null, 0];
+  if (pioveOra()) return [METEO.neve ? "neve" : "pioggia", METEO.mmh];              // solo se sta scendendo adesso, e quanta
+  if ((METEO.c === 45 || METEO.c === 48) || (METEO.vis != null && METEO.vis < 1000)) return ["nebbia", 1];
   return [null, 0];
 }
 function wxApply(){
@@ -9197,7 +9197,8 @@ function wxApply(){
   let fx = $("#wxFx"); if (!fx){ fx = document.createElement("div"); fx.id = "wxFx"; fx.innerHTML = `<canvas></canvas><div class="fog"></div><div class="fog fog2"></div>`; host.appendChild(fx); WX.cv = fx.querySelector("canvas"); }
   const [tipo, int] = wxTipo(); WX.tipo = tipo === "sereno" ? null : tipo; WX.int = int;
   fx.className = WX.tipo === "nebbia" ? "nebbia" : "";
-  const n = WX.tipo === "pioggia" ? Math.round(Math.min(320, 70 + int * 60)) : WX.tipo === "neve" ? Math.round(Math.min(160, 50 + int * 30)) : 0;
+  // più millimetri all'ora = più gocce, più lunghe e più veloci: pioviggine 0,2 mm/h poche gocce, acquazzone 10 mm/h fitto
+  const n = WX.tipo === "pioggia" ? Math.round(Math.min(460, 22 + int * 48)) : WX.tipo === "neve" ? Math.round(Math.min(220, 40 + int * 40)) : 0;
   WX.drops = Array.from({ length: n }, () => ({ x: Math.random(), y: Math.random(), v: .6 + Math.random() * .6, l: .5 + Math.random() * .7 }));
   if (n && !WX.raf) WX.raf = requestAnimationFrame(wxFrame);
   if (!n){ cancelAnimationFrame(WX.raf); WX.raf = 0; const g = WX.cv.getContext("2d"); g.clearRect(0, 0, WX.cv.width, WX.cv.height); }
@@ -9212,9 +9213,10 @@ function wxFrame(now){
   const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
   const vento = Math.min(.35, ((METEO && METEO.w) || 8) / 80);
   if (WX.tipo === "pioggia"){
-    g.strokeStyle = "rgba(60,90,125,.45)"; g.lineWidth = 1.2; g.lineCap = "round"; g.beginPath();
-    for (const d of WX.drops){ d.y += d.v * dt * 1.25; d.x += vento * d.v * dt * 1.25 * H / W; if (d.y > 1.05){ d.y = -.05; d.x = Math.random() * 1.2 - .1; } if (d.x > 1.05) d.x -= 1.1;
-      const x = d.x * W, y = d.y * H, L = 14 * d.l; g.moveTo(x, y); g.lineTo(x - vento * L, y - L); }
+    const k = Math.min(12, WX.int), vel = 1 + k * .07, lung = 9 + k * 1.6;
+    g.strokeStyle = `rgba(60,90,125,${(.28 + k * .025).toFixed(2)})`; g.lineWidth = k > 4 ? 1.4 : 1.1; g.lineCap = "round"; g.beginPath();
+    for (const d of WX.drops){ d.y += d.v * dt * 1.25 * vel; d.x += vento * d.v * dt * 1.25 * vel * H / W; if (d.y > 1.05){ d.y = -.05; d.x = Math.random() * 1.2 - .1; } if (d.x > 1.05) d.x -= 1.1;
+      const x = d.x * W, y = d.y * H, L = lung * d.l; g.moveTo(x, y); g.lineTo(x - vento * L, y - L); }
     g.stroke();
   } else if (WX.tipo === "neve"){
     g.fillStyle = "rgba(255,255,255,.9)"; g.strokeStyle = "rgba(120,140,160,.35)"; g.lineWidth = .6;
@@ -9224,20 +9226,32 @@ function wxFrame(now){
   WX.raf = requestAnimationFrame(wxFrame);
 }
 setTimeout(async () => { await loadMeteo(); wxApply(); }, 3000);
-setInterval(async () => { await loadMeteo(); wxApply(); }, 15 * 60000 + 5000);
+setInterval(async () => { await loadMeteo(); wxApply(); }, 10 * 60000 + 5000);
 /* meteo di Venezia (Open-Meteo, senza chiave), aggiornato ogni 15 minuti */
 let METEO = null, meteoAt = 0;
 const WMO = c => c === 0 ? ["☀️", "sereno"] : c <= 2 ? ["🌤️", "poco nuvoloso"] : c === 3 ? ["☁️", "nuvoloso"] : c <= 48 ? ["🌫️", "nebbia"] : c <= 57 ? ["🌦️", "pioviggine"] : c <= 67 ? ["🌧️", "pioggia"] : c <= 77 ? ["🌨️", "neve"] : c <= 82 ? ["🌧️", "rovesci"] : c <= 86 ? ["🌨️", "neve"] : ["⛈️", "temporale"];
+// meteo di adesso: oltre al codice del cielo, quanta acqua sta scendendo in questi 15 minuti (non la previsione della giornata)
 async function loadMeteo(){
-  if (Date.now() - meteoAt < 15 * 60000) return; meteoAt = Date.now();
+  if (Date.now() - meteoAt < 10 * 60000) return; meteoAt = Date.now();
   const p = lastPos || { lat: 45.4371, lng: 12.3326 };
-  try{ const j = await fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${p.lat.toFixed(3)}&longitude=${p.lng.toFixed(3)}&current=temperature_2m,weather_code,wind_speed_10m,precipitation&timezone=Europe%2FRome`, {}, 12000).then(r => r.json());
-    if (j && j.current) METEO = { t: j.current.temperature_2m, c: j.current.weather_code, w: j.current.wind_speed_10m, p: j.current.precipitation || 0 }; }catch(e){ meteoAt = Date.now() - 13 * 60000; }
+  try{ const j = await fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${p.lat.toFixed(3)}&longitude=${p.lng.toFixed(3)}&current=temperature_2m,weather_code,wind_speed_10m,precipitation,rain,showers,snowfall,visibility&minutely_15=precipitation,snowfall&past_minutely_15=2&forecast_minutely_15=8&timezone=GMT`, {}, 12000).then(r => r.json());
+    if (j && j.current){
+      const cu = j.current, M = j.minutely_15 || {}, T = (M.time || []).map(t => Date.parse(t + ":00Z"));
+      // fascia di 15 minuti in corso: quella iniziata da meno di 15 minuti
+      let i = -1; const now = Date.now(); T.forEach((t, k) => { if (t <= now) i = k; });
+      const mm15 = i >= 0 && M.precipitation ? +M.precipitation[i] || 0 : (cu.precipitation || 0) / 4;
+      const sn15 = i >= 0 && M.snowfall ? +M.snowfall[i] || 0 : (cu.snowfall || 0) / 4;
+      let fra = null; if (M.precipitation) for (let k = i + 1; k < M.precipitation.length; k++){ if ((+M.precipitation[k] || 0) >= .1){ fra = Math.max(5, Math.round((T[k] - now) / 60000)); break; } }
+      METEO = { t: cu.temperature_2m, c: cu.weather_code, w: cu.wind_speed_10m, mmh: Math.round(mm15 * 4 * 10) / 10, neve: sn15 > 0, vis: cu.visibility, fra };
+    } }catch(e){ meteoAt = Date.now() - 8 * 60000; }
 }
+const pioveOra = () => METEO && METEO.mmh >= .1;
 function paintMeteo(){
-  if (Date.now() - meteoAt > 15 * 60000) loadMeteo();
-  if (!METEO) return; const [ic, nm] = WMO(METEO.c);
-  $("#mwMetI").textContent = ic; $("#mwMet").textContent = Math.round(METEO.t) + "°"; $("#mwMetL").textContent = nm + (METEO.w ? " · " + Math.round(METEO.w) + " km/h" : "");
+  if (Date.now() - meteoAt > 10 * 60000) loadMeteo();
+  if (!METEO) return; let [ic, nm] = WMO(METEO.c); const rainCode = METEO.c >= 51 && METEO.c <= 82 || METEO.c >= 95;
+  if (pioveOra()){ if (!rainCode && !METEO.neve) [ic, nm] = ["🌧️", "pioggia"]; nm += " " + String(METEO.mmh).replace(".", ",") + " mm/h"; }
+  else if (rainCode){ [ic, nm] = ["☁️", METEO.fra ? "pioggia tra " + METEO.fra + " min" : "nuvoloso"]; }   // previsto ma non sta piovendo adesso
+  $("#mwMetI").textContent = ic; $("#mwMet").textContent = Math.round(METEO.t) + "°"; $("#mwMetL").textContent = nm + (METEO.w && !pioveOra() ? " · " + Math.round(METEO.w) + " km/h" : "");
 }
 function paintMini(){
   const w = $("#miniW"); if (!w || GM || document.hidden || !w.offsetParent) return;   // nascosti: niente calcoli
