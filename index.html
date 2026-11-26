@@ -1435,15 +1435,21 @@
   #tabs button[data-pm="shop"].pop svg{animation:none}
 
   /* ---------- Food: tasto con il logo delle patatine e colori presi dal logo ---------- */
-  #tabs .foodTab{width:30px;height:30px;display:block;object-fit:contain;filter:grayscale(1) opacity(.55);transition:filter .25s,transform .45s cubic-bezier(.34,1.56,.64,1);-webkit-user-drag:none;user-select:none;pointer-events:none;transform-origin:50% 90%}
-  #tabs button[data-pm="market"].on .foodTab{filter:none;animation:foodBob 2.6s ease-in-out infinite alternate}
-  #tabs button[data-pm="market"].pop .foodTab{animation:tabHop .55s cubic-bezier(.34,1.56,.64,1)}
-  @keyframes foodBob{from{transform:rotate(-3deg)}to{transform:rotate(3deg) translateY(-.5px)}}
-  #mkPanel .mkh b{color:var(--f-navy)!important}
+  #tabs .foodIc{position:relative;display:block;width:26px;height:26px;flex:none}   /* stessa scatola delle altre icone: resta allineato */
+  #tabs .foodIc img{position:absolute;left:50%;top:50%;width:32px;height:32px;margin:-17px 0 0 -16px;-webkit-user-drag:none;user-select:none;pointer-events:none}
+  #tabs .foodTab{filter:grayscale(1) opacity(.55);transition:filter .25s}
+  #tabs .foodSmoke{filter:grayscale(1) opacity(.45);transition:filter .25s}
+  #tabs .foodSmoke.s2{display:none}
+  #tabs button[data-pm="market"].on .foodTab{filter:none}
+  #tabs button[data-pm="market"].on .foodSmoke{filter:none;animation:foodSmoke 2.8s linear infinite}
+  #tabs button[data-pm="market"].on .foodSmoke.s2{display:block;animation-delay:-1.4s}   /* due sbuffi sfasati: il fumo non si interrompe mai */
+  @keyframes foodSmoke{0%{transform:translateY(3px) scale(.92);opacity:0}25%{opacity:1}70%{opacity:.75}100%{transform:translateY(-5px) scale(1.06);opacity:0}}
+  #tabs button[data-pm="market"].pop .foodIc{animation:tabHop .55s cubic-bezier(.34,1.56,.64,1)}
+  #mkPanel .mkh b{color:var(--f-deep)!important}
   #mkPanel .pcard h4{color:var(--f-ink)}
   #mkPanel .pcard .bdg{background:var(--f-gold)!important;border-color:var(--f-gold)!important;color:var(--f-ink)!important}
   #mkPanel .pcard .go{background:var(--f-navy)!important;box-shadow:0 3px 0 var(--f-ink)}
-  #mkPanel .pcard .row2 button{border-color:#cfe3f2!important;color:var(--f-ink)!important}
+  #mkPanel .pcard .row2 button{border-color:#f6d3b4!important;color:var(--f-ink)!important;background:#fff8f1!important}
   #mkPanel .stop b{color:var(--f-teal)}
   body.mode-market #mkPanel{border-top:4px solid var(--f-teal)}
   #mkOrder{background:var(--f-navy)!important}
@@ -1511,7 +1517,7 @@
 </style>
 <style id="modeColors">
   /* colore di ogni modalità: tasto premuto, banner e tasti principali del suo pannello */
-  :root{ --c-market:#14a39a; --f-navy:#1f4e79; --f-ink:#172b45; --f-teal:#14a39a; --f-gold:#f2b437; --f-amber:#dd9742; --f-steam:#9fcaea; --c-meet:#f2b738; --c-shop:#1d4e89; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#d96b43; --laguna:#13294b; --promo:#d96b43 }
+  :root{ --c-market:#d6551b; --f-navy:#d6551b; --f-ink:#501b17; --f-teal:#e69141; --f-gold:#f2b12c; --f-amber:#db8724; --f-steam:#f9b577; --f-deep:#ac3d21; --c-meet:#f2b738; --c-shop:#1d4e89; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#d96b43; --laguna:#13294b; --promo:#d96b43 }
   #tabs [data-pm="market"].on{color:var(--c-market)!important}
   #tabs [data-pm="shop"].on{color:var(--c-shop)!important}
   #tabs [data-pm="sport"].on{color:var(--c-sport)!important}
@@ -1991,7 +1997,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.04</p>
+      <p class="sub">clickVenice · versione 4.05</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2402,8 +2408,8 @@ function showView(v){
   if (v === "boat") setTimeout(() => { renderBoat(); paintEngChips(); }, 0);
 }
 const MODES = [
-  { k: "market", ic: "🍟", n: "Food", v: "map", am: "market" },
   { k: "shop", ic: "🛥️", n: "Barketplace", v: "shop" },
+  { k: "market", ic: "🍟", n: "Food", v: "map", am: "market" },
   { k: "nautica", ic: "⚓", n: "Naviga", v: "map", am: "nautica" },
   { k: "ship", ic: "🧰", n: "Servizi", v: "ship" },
   { k: "sport", ic: "🎲", n: "Gioca", v: "map", am: "sport", hidden: true },   // Gioca ora si apre da myClick
@@ -2432,7 +2438,7 @@ const TAB_IC = {   // linea sottile · .s si riempie quando la scheda è selezio
 function buildDial(){
   $("#tabs").innerHTML = MODES.filter(x => !x.hidden).map(x => x.k === "nautica"
     ? `<button role="tab" data-pm="${x.k}" class="mid"><i class="ring"><img class="logoTab" src="logo-tab.png" alt="" draggable="false"></i><span>${x.n}</span></button>`
-    : x.k === "market" ? `<button role="tab" data-pm="market"><img class="foodTab" src="food-tab.png" alt="" draggable="false"><span>${x.n}</span></button>`
+    : x.k === "market" ? `<button role="tab" data-pm="market"><i class="foodIc" aria-hidden="true"><img class="foodTab" src="food-tab.png" alt="" draggable="false"><img class="foodSmoke" src="food-smoke.png" alt="" draggable="false"><img class="foodSmoke s2" src="food-smoke.png" alt="" draggable="false"></i><span>${x.n}</span></button>`
     : `<button role="tab" data-pm="${x.k}"><svg viewBox="${x.k === "shop" ? "3 7.5 21 16" : "0 0 24 24"}" aria-hidden="true">${TAB_IC[x.k] || ""}</svg><span>${x.n}</span></button>`).join("");
 }
 /* barra in basso: la pillola segue il tasto attivo con una molla, si allunga mentre corre e sparisce su Naviga */
@@ -8768,7 +8774,7 @@ function renderMk(){
   const list = mkShown().map(p => ({ p, d: hav(ref.lat, ref.lng, p.lat, p.lng) })).sort((a, b) => a.d - b.d);
   $("#mkCount").textContent = list.length ? list.length + (list.length === 1 ? " convenzionato" : " convenzionati") : "";
   if (!list.length){ box.innerHTML = `<p class="trnote">${DLVSEL === "conv" || DLVSEL === "food" ? "Ancora nessun convenzionato qui." : "Tocca un punto sulla mappa per vedere il negozio."}</p>`; return; }
-  box.innerHTML = list.slice(0, 4).map(x => `<div class="stop" data-mk="${x.p.id}"><span>${esc(x.p.name)}${+x.p.sconto_pct ? ` <b style="background:#f2b437;color:#172b45;border-radius:99px;padding:1px 7px;font-size:11.5px">-${x.p.sconto_pct}%</b>` : ""}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
+  box.innerHTML = list.slice(0, 4).map(x => `<div class="stop" data-mk="${x.p.id}"><span>${esc(x.p.name)}${+x.p.sconto_pct ? ` <b style="background:#f2b12c;color:#501b17;border-radius:99px;padding:1px 7px;font-size:11.5px">-${x.p.sconto_pct}%</b>` : ""}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
   box.querySelectorAll("[data-mk]").forEach(el => el.onclick = () => { const p = PARTNERS.find(z => z.id === +el.dataset.mk); if (p) dlvSelectPartner(p); });
 }
 function openPartner(p){
@@ -8821,7 +8827,7 @@ function partnerPin(kind){
   const W = 72, H = 88, c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
   g.shadowColor = "rgba(0,0,0,.3)"; g.shadowBlur = 6; g.shadowOffsetY = 2;
   g.beginPath(); g.arc(36, 34, 28, Math.PI * .82, Math.PI * .18); g.lineTo(36, 84); g.closePath();
-  g.fillStyle = kind === "food" ? "#1f4e79" : "#8c2d19"; g.fill(); g.shadowColor = "transparent"; g.lineWidth = 5; g.strokeStyle = "#fff"; g.stroke();
+  g.fillStyle = kind === "food" ? "#d6551b" : "#8c2d19"; g.fill(); g.shadowColor = "transparent"; g.lineWidth = 5; g.strokeStyle = "#fff"; g.stroke();
   g.strokeStyle = "#fff"; g.fillStyle = "#fff"; g.lineWidth = 3.2; g.lineCap = "round"; g.lineJoin = "round";
   if (kind === "food"){ g.beginPath(); g.moveTo(27, 20); g.lineTo(27, 30); g.moveTo(23, 20); g.lineTo(23, 27); g.quadraticCurveTo(23, 32, 27, 32); g.quadraticCurveTo(31, 32, 31, 27); g.lineTo(31, 20); g.moveTo(27, 32); g.lineTo(27, 48); g.stroke();
     g.beginPath(); g.moveTo(45, 48); g.lineTo(45, 19); g.quadraticCurveTo(38, 23, 38, 33); g.lineTo(45, 33); g.stroke(); }
@@ -9024,7 +9030,7 @@ document.querySelectorAll("#mkCats [data-c]").forEach(b => b.onclick = () => {
 });
 $("#mkOrder").onclick = () => { showView("order"); };
 /* Delivery: tasti che mostrano o nascondono food, negozi, tabaccherie e farmacie sulla mappa */
-const DLV_C = { conv: ["Convenzionati", "#111111"], food: ["Food", "#dd9742"], negozi: ["Negozi", "#8c2d19"], tabacchi: ["Tabaccheria", "#1d4e89"], farmacie: ["Farmacia", "#15a34a"] };
+const DLV_C = { conv: ["Convenzionati", "#111111"], food: ["Food", "#db8724"], negozi: ["Negozi", "#8c2d19"], tabacchi: ["Tabaccheria", "#1d4e89"], farmacie: ["Farmacia", "#15a34a"] };
 let DLV = Object.assign({ conv: true, food: true, negozi: true, tabacchi: true, farmacie: true }, store.get("ln_dlv", {})), NEGOZI = store.get("ln_negozi", null);
 async function loadNegozi(){
   if (NEGOZI && Date.now() - (NEGOZI.t || 0) < 3 * 864e5) return drawDlv();
