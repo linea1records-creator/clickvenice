@@ -1339,7 +1339,7 @@
   #dlvDock button{flex:1 0 auto;height:34px;padding:0 13px;border:0;border-radius:999px;background:transparent;color:#111;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
   #dlvDock button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   #dlvDock button.on{background:#d96b43;color:#fff;box-shadow:0 2px 6px rgba(217,107,67,.35)}
-  body.mode-market.dlvdock #searchBox{top:calc(54px + var(--safe-t))}
+  
   body:not(.mode-market) #dlvDock, body:not(.mode-market) #dlvPick{display:none}
   body.mode-market:not(.dlvdock) #mkPanel{display:none}
   #mkPanel{border-radius:20px} #mkPanel .pcard h4{margin:0;font-size:18px;font-weight:800} #mkPanel .pcard .d{color:#6f7a74;font-size:13px;margin:2px 0 8px}
@@ -1433,6 +1433,20 @@
   @keyframes bkPitch{from{transform:rotate(-3.5deg) translateY(-.35px)}to{transform:rotate(2.5deg) translateY(.35px)}}
   @keyframes bkWaves{from{transform:translateX(0)}to{transform:translateX(-22px)}}
   #tabs button[data-pm="shop"].pop svg{animation:none}
+
+  /* ---------- Food: tasto con il logo delle patatine e colori presi dal logo ---------- */
+  #tabs .foodTab{width:30px;height:30px;display:block;object-fit:contain;filter:grayscale(1) opacity(.55);transition:filter .25s,transform .45s cubic-bezier(.34,1.56,.64,1);-webkit-user-drag:none;user-select:none;pointer-events:none;transform-origin:50% 90%}
+  #tabs button[data-pm="market"].on .foodTab{filter:none;animation:foodBob 2.6s ease-in-out infinite alternate}
+  #tabs button[data-pm="market"].pop .foodTab{animation:tabHop .55s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes foodBob{from{transform:rotate(-3deg)}to{transform:rotate(3deg) translateY(-.5px)}}
+  #mkPanel .mkh b{color:var(--f-navy)!important}
+  #mkPanel .pcard h4{color:var(--f-ink)}
+  #mkPanel .pcard .bdg{background:var(--f-gold)!important;border-color:var(--f-gold)!important;color:var(--f-ink)!important}
+  #mkPanel .pcard .go{background:var(--f-navy)!important;box-shadow:0 3px 0 var(--f-ink)}
+  #mkPanel .pcard .row2 button{border-color:#cfe3f2!important;color:var(--f-ink)!important}
+  #mkPanel .stop b{color:var(--f-teal)}
+  body.mode-market #mkPanel{border-top:4px solid var(--f-teal)}
+  #mkOrder{background:var(--f-navy)!important}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1497,7 +1511,7 @@
 </style>
 <style id="modeColors">
   /* colore di ogni modalità: tasto premuto, banner e tasti principali del suo pannello */
-  :root{ --c-market:#d96b43; --c-meet:#f2b738; --c-shop:#1d4e89; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#d96b43; --laguna:#13294b; --promo:#d96b43 }
+  :root{ --c-market:#14a39a; --f-navy:#1f4e79; --f-ink:#172b45; --f-teal:#14a39a; --f-gold:#f2b437; --f-amber:#dd9742; --f-steam:#9fcaea; --c-meet:#f2b738; --c-shop:#1d4e89; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#d96b43; --laguna:#13294b; --promo:#d96b43 }
   #tabs [data-pm="market"].on{color:var(--c-market)!important}
   #tabs [data-pm="shop"].on{color:var(--c-shop)!important}
   #tabs [data-pm="sport"].on{color:var(--c-sport)!important}
@@ -1655,7 +1669,7 @@
 
     <!-- Shopping: attività convenzionate sulla mappa -->
     <div id="mkPanel">
-      <div class="mkh"><b>Delivery</b><span id="mkCount"></span></div>
+      <div class="mkh"><b>Food</b><span id="mkCount"></span></div>
       <div class="mkcats hidden" id="dlvCats"><button data-dc="conv">🍽️ Convenzionati</button><button data-dc="food">Food</button><button data-dc="negozi">Negozi</button><button data-dc="tabacchi">Tabaccherie</button><button data-dc="farmacie">Farmacie</button></div>
       <div id="mkList"></div>
       <button class="btn small" id="mkOrder">🍝 Ordina cibo in barca o a casa</button>
@@ -1819,8 +1833,8 @@
   <!-- ORDINA -->
   <section class="view hidden" id="v-order">
     <div class="scroll">
-      <div class="backbar" data-back="market">‹ Delivery</div>
-      <h2>Delivery</h2>
+      <div class="backbar" data-back="market">‹ Food</div>
+      <h2>Food</h2>
       <div class="seg hidden" id="mktSeg">
         <button data-k="food" class="on">🍝 Food</button>
       </div>
@@ -1977,7 +1991,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.03</p>
+      <p class="sub">clickVenice · versione 4.04</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2388,7 +2402,7 @@ function showView(v){
   if (v === "boat") setTimeout(() => { renderBoat(); paintEngChips(); }, 0);
 }
 const MODES = [
-  { k: "market", ic: "🛥️", n: "Delivery", v: "map", am: "market" },
+  { k: "market", ic: "🍟", n: "Food", v: "map", am: "market" },
   { k: "shop", ic: "🛥️", n: "Barketplace", v: "shop" },
   { k: "nautica", ic: "⚓", n: "Naviga", v: "map", am: "nautica" },
   { k: "ship", ic: "🧰", n: "Servizi", v: "ship" },
@@ -2418,6 +2432,7 @@ const TAB_IC = {   // linea sottile · .s si riempie quando la scheda è selezio
 function buildDial(){
   $("#tabs").innerHTML = MODES.filter(x => !x.hidden).map(x => x.k === "nautica"
     ? `<button role="tab" data-pm="${x.k}" class="mid"><i class="ring"><img class="logoTab" src="logo-tab.png" alt="" draggable="false"></i><span>${x.n}</span></button>`
+    : x.k === "market" ? `<button role="tab" data-pm="market"><img class="foodTab" src="food-tab.png" alt="" draggable="false"><span>${x.n}</span></button>`
     : `<button role="tab" data-pm="${x.k}"><svg viewBox="${x.k === "shop" ? "3 7.5 21 16" : "0 0 24 24"}" aria-hidden="true">${TAB_IC[x.k] || ""}</svg><span>${x.n}</span></button>`).join("");
 }
 /* barra in basso: la pillola segue il tasto attivo con una molla, si allunga mentre corre e sparisce su Naviga */
@@ -8734,7 +8749,7 @@ function drawPartners(){
 }
 function renderMk(){
   const box = $("#mkList"); if (!box) return;
-  const hd = $("#mkPanel .mkh b"); if (hd) hd.textContent = DLVSEL ? DLV_SEL_C[DLVSEL][0] : "Delivery";
+  const hd = $("#mkPanel .mkh b"); if (hd) hd.textContent = DLVSEL ? DLV_SEL_C[DLVSEL][0] : "Food";
   const ref = refPoint();
   if (DLVPART){
     const p = DLVPART, d = hav(ref.lat, ref.lng, p.lat, p.lng), min = Math.max(1, Math.round(d * 1.35 / 80)), sc = +p.sconto_pct || 0;
@@ -8753,7 +8768,7 @@ function renderMk(){
   const list = mkShown().map(p => ({ p, d: hav(ref.lat, ref.lng, p.lat, p.lng) })).sort((a, b) => a.d - b.d);
   $("#mkCount").textContent = list.length ? list.length + (list.length === 1 ? " convenzionato" : " convenzionati") : "";
   if (!list.length){ box.innerHTML = `<p class="trnote">${DLVSEL === "conv" || DLVSEL === "food" ? "Ancora nessun convenzionato qui." : "Tocca un punto sulla mappa per vedere il negozio."}</p>`; return; }
-  box.innerHTML = list.slice(0, 4).map(x => `<div class="stop" data-mk="${x.p.id}"><span>${esc(x.p.name)}${+x.p.sconto_pct ? ` <b style="background:#d96b43;color:#fff;border-radius:99px;padding:1px 7px;font-size:11.5px">-${x.p.sconto_pct}%</b>` : ""}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
+  box.innerHTML = list.slice(0, 4).map(x => `<div class="stop" data-mk="${x.p.id}"><span>${esc(x.p.name)}${+x.p.sconto_pct ? ` <b style="background:#f2b437;color:#172b45;border-radius:99px;padding:1px 7px;font-size:11.5px">-${x.p.sconto_pct}%</b>` : ""}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
   box.querySelectorAll("[data-mk]").forEach(el => el.onclick = () => { const p = PARTNERS.find(z => z.id === +el.dataset.mk); if (p) dlvSelectPartner(p); });
 }
 function openPartner(p){
@@ -8769,10 +8784,8 @@ function openPartner(p){
 }
 /* ---------- Delivery a due fasi: "Cosa vuoi ordinare oggi?" al centro, poi la barra compatta in alto ---------- */
 const DLV_SEL_C = {
-  food: ["Food", "Ristoranti, piatti caldi, pizze", '<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16 21V3c-2.5 1-4 3.5-4 7h4"/>'],
-  conv: ["Convenzionati", "Attività partner a Venezia", '<path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.4l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z"/>'],
-  spesa: ["Negozi & Spesa", "Alimentari, bevande, tabacchi", '<path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 10.5V6.8a3 3 0 0 1 6 0v3.7"/>'],
-  nautica: ["Nautica & Ricambi", "Accessori barca, ghiaccio, cime", '<circle cx="12" cy="5" r="2"/><path d="M12 7v14M7 11h10M4 15c1.5 3.5 4.5 6 8 6s6.5-2.5 8-6"/>'] };
+  food: ["Food", "Ristoranti, piatti caldi, pizze", '<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16 21V3c-2.5 1-4 3.5-4 7h4"/>']
+ };   // ora solo Food (convenzionati, spesa e nautica tolti)
 const DLV_SPESA = new Set(["supermarket", "convenience", "beverages", "alcohol", "wine", "greengrocer", "butcher", "seafood", "cheese", "deli", "frozen_food", "pasta", "bakery", "tobacco", "e-cigarette", "newsagent", "health_food", "organic", "dairy", "spices", "coffee", "tea", "kiosk"]);
 const DLV_NAUT = new Set(["marine", "boat", "fishing", "ship_chandler", "outdoor", "hardware", "doityourself", "fuel", "ice"]);
 let DLVSEL = null, DLVPART = null;
@@ -8783,16 +8796,10 @@ function dlvCatOf(x){   // a quale scelta appartiene un punto della mappa
   if (DLV_SPESA.has(x.s)) return "spesa";
   return null;
 }
-const partnerInSel = p => DLVSEL === "conv" || (DLVSEL === "food" && p.category === "food") || (DLVSEL === "spesa" && p.category === "shop") || (DLVSEL === "nautica" && p.category === "boats");
-function dlvEnter(){
-  DLVSEL = null; DLVPART = null; document.body.classList.remove("dlvdock"); $("#dlvDock") && $("#dlvDock").remove();
-  let o = $("#dlvPick"); if (o) o.remove(); o = document.createElement("div"); o.id = "dlvPick";
-  o.innerHTML = `<div class="card"><h3>Cosa vuoi ordinare oggi?</h3><p>Scegli e ti mostro sulla mappa dove ordinare a Venezia.</p>
-    <div class="g">${Object.entries(DLV_SEL_C).map(([k, [n, d, ic]]) => `<button data-ds="${k}"><svg viewBox="0 0 24 24">${ic}</svg><b>${n}</b><small>${d}</small></button>`).join("")}</div></div>`;
-  document.body.appendChild(o);
-  o.onclick = e => { if (e.target === o) dlvChoose("food"); };   // tocco fuori: parte dal food
-  o.querySelectorAll("[data-ds]").forEach(b => b.onclick = () => dlvChoose(b.dataset.ds));
-  dlvApply();
+const partnerInSel = p => DLVSEL === "food" && p.category === "food";
+function dlvEnter(){   // c'è solo Food: niente più finestra di scelta sopra la mappa (copriva anche la barra in basso)
+  $("#dlvPick") && $("#dlvPick").remove(); $("#dlvDock") && $("#dlvDock").remove();
+  DLVSEL = "food"; DLVPART = null; document.body.classList.add("dlvdock"); dlvApply();
 }
 function dlvChoose(k){
   haptic(); DLVSEL = k; DLVPART = null;
@@ -8814,7 +8821,7 @@ function partnerPin(kind){
   const W = 72, H = 88, c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
   g.shadowColor = "rgba(0,0,0,.3)"; g.shadowBlur = 6; g.shadowOffsetY = 2;
   g.beginPath(); g.arc(36, 34, 28, Math.PI * .82, Math.PI * .18); g.lineTo(36, 84); g.closePath();
-  g.fillStyle = kind === "food" ? "#d95f26" : "#8c2d19"; g.fill(); g.shadowColor = "transparent"; g.lineWidth = 5; g.strokeStyle = "#fff"; g.stroke();
+  g.fillStyle = kind === "food" ? "#1f4e79" : "#8c2d19"; g.fill(); g.shadowColor = "transparent"; g.lineWidth = 5; g.strokeStyle = "#fff"; g.stroke();
   g.strokeStyle = "#fff"; g.fillStyle = "#fff"; g.lineWidth = 3.2; g.lineCap = "round"; g.lineJoin = "round";
   if (kind === "food"){ g.beginPath(); g.moveTo(27, 20); g.lineTo(27, 30); g.moveTo(23, 20); g.lineTo(23, 27); g.quadraticCurveTo(23, 32, 27, 32); g.quadraticCurveTo(31, 32, 31, 27); g.lineTo(31, 20); g.moveTo(27, 32); g.lineTo(27, 48); g.stroke();
     g.beginPath(); g.moveTo(45, 48); g.lineTo(45, 19); g.quadraticCurveTo(38, 23, 38, 33); g.lineTo(45, 33); g.stroke(); }
@@ -9017,7 +9024,7 @@ document.querySelectorAll("#mkCats [data-c]").forEach(b => b.onclick = () => {
 });
 $("#mkOrder").onclick = () => { showView("order"); };
 /* Delivery: tasti che mostrano o nascondono food, negozi, tabaccherie e farmacie sulla mappa */
-const DLV_C = { conv: ["Convenzionati", "#111111"], food: ["Food", "#d95f26"], negozi: ["Negozi", "#8c2d19"], tabacchi: ["Tabaccheria", "#1d4e89"], farmacie: ["Farmacia", "#15a34a"] };
+const DLV_C = { conv: ["Convenzionati", "#111111"], food: ["Food", "#dd9742"], negozi: ["Negozi", "#8c2d19"], tabacchi: ["Tabaccheria", "#1d4e89"], farmacie: ["Farmacia", "#15a34a"] };
 let DLV = Object.assign({ conv: true, food: true, negozi: true, tabacchi: true, farmacie: true }, store.get("ln_dlv", {})), NEGOZI = store.get("ln_negozi", null);
 async function loadNegozi(){
   if (NEGOZI && Date.now() - (NEGOZI.t || 0) < 3 * 864e5) return drawDlv();
