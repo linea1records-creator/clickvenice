@@ -1483,6 +1483,8 @@
   @keyframes srvTap{0%,100%{transform:translate(2.2px,2.2px)}38%{transform:translate(0,0)}46%{transform:translate(-.3px,-.3px) scale(.96)}56%{transform:translate(0,0)}}
   @keyframes srvRip{0%,40%{transform:scale(.3);opacity:0}46%{transform:scale(.5);opacity:1}90%,100%{transform:scale(1.7);opacity:0}}
   #tabs button[data-pm="ship"].pop .srvIc{animation:tabHop .55s cubic-bezier(.34,1.56,.64,1)}
+  /* notte: la mappa scura si vede anche dal fondo dietro, prima che carichi */
+  body.night #map{background:#232a36}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1987,6 +1989,7 @@
         <button class="card rowbtn" data-go="boat">⛵ La mia barca <span>›</span></button>
         <button class="card rowbtn" id="pfPark">⚓ Parcheggio della barca nel gioco <span id="pfParkSub">Scegli ›</span></button>
         <button class="card rowbtn hidden" id="pfLuogo">📍 Aggiungi un luogo (tabaccheria, ristorante…) <span>›</span></button>
+        <button class="card rowbtn" id="pfNight">🌙 Mappa di notte <em id="pfNightV" style="font-style:normal;color:#64748b;margin-left:auto;margin-right:6px">Automatica</em><span>›</span></button>
         <button class="card rowbtn hidden" id="pfValida">✓ Valida segnalazioni <i class="pfBdg hidden"></i><span>›</span></button>
         <button class="card rowbtn hidden" id="pfHidden">🙈 Cose eliminate dalla mappa <span>›</span></button>
         <button class="card rowbtn" data-go="rider">🚶 Rider <span>›</span></button>
@@ -2027,7 +2030,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.10</p>
+      <p class="sub">clickVenice · versione 4.11</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -4621,7 +4624,7 @@ function kissSummary(rows){
 function addLayers(){
   setTimeout(drawOneWay, 300); setTimeout(addManLayer, 400);
   BASE_LAYERS = map.getStyle().layers.map(l => ({ id: l.id, type: l.type, vis: (l.layout && l.layout.visibility) || "visible" }));
-  setTimeout(() => { applyLandColors(); applyWaterColor(); loadWaterColor(); }, 0);
+  setTimeout(() => { applyNight(true); applyLandColors(); applyWaterColor(); loadWaterColor(); }, 0);
   // foto satellitare (sotto a tutti i nostri strati)
   map.addSource("sat", { type: "raster", tileSize: 256, maxzoom: 19, attribution: "Foto © Esri, Maxar, Earthstar Geographics",
     tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"] });
@@ -7563,11 +7566,15 @@ function keepSimple(l){
   return false;
 }
 // colore dell'acqua della mappa (scelto da tropss, uguale per tutti)
-const WATER_DEFAULT = "#8ec5e5";   // canali principali e laguna (i rii interni più chiari: WATER_RII); tropss può cambiarla per tutti
-const WATER_RII = "#a3d2ec";
+let WATER_DEFAULT = "#8ec5e5";   // canali principali e laguna (i rii interni più chiari: WATER_RII); tropss può cambiarla per tutti
+let WATER_RII = "#a3d2ec";
 let WATER_COL = store.get("ln_water_col", null), WATER_ORIG = null;
 // terra bianca (fondamenta, campi, pavimenti) e case color mattone
-const LAND_COL = "#f4f1ea", LAND_FAR = "#c97a63", BRICK = "#c97a63", BRICK_LINE = "#b3634d", CANAL_LBL = "#1b365d";   // calli e campi avorio caldo, case terracotta desaturata
+const DAY_C = { land: "#f4f1ea", far: "#c97a63", brick: "#c97a63", brickLine: "#b3634d", canal: "#1b365d", water: "#8ec5e5", rii: "#a3d2ec" };
+const NIGHT_C = { land: "#232a36", far: "#4a3a3c", brick: "#5b3f38", brickLine: "#3a2622", canal: "#cfe0f2", water: "#0f2b46", rii: "#173a5c" };   // notte: calli blu ardesia, case mattone scuro, acqua blu notte
+let NIGHT = false;
+const MC = () => NIGHT ? NIGHT_C : DAY_C;
+let LAND_COL = DAY_C.land, LAND_FAR = DAY_C.far, BRICK = DAY_C.brick, BRICK_LINE = DAY_C.brickLine, CANAL_LBL = DAY_C.canal;   // calli e campi avorio caldo, case terracotta desaturata
 function applyLandColors(){
   if (!map || !BASE_LAYERS.length) return; const base = new Set(BASE_LAYERS.map(l => l.id));
   BASE_LAYERS.forEach(l => { const id = l.id, water = /water|river|canal|ocean|sea|lake/i.test(id); if (!map.getLayer(id)) return;
@@ -7586,10 +7593,42 @@ function applyWaterColor(){
   const L = BASE_LAYERS.filter(l => /water|river|canal|ocean|sea|lake/i.test(l.id) && (l.type === "fill" || l.type === "line"));
   if (!WATER_ORIG){ WATER_ORIG = {}; L.forEach(l => { try{ WATER_ORIG[l.id] = map.getPaintProperty(l.id, l.type + "-color"); }catch(e){} }); }
   // senza un colore scelto da tropss: canali principali e laguna #8EC5E5, rii interni (canali stretti e corsi d'acqua) #A3D2EC
-  L.forEach(l => { try{ map.setPaintProperty(l.id, l.type + "-color", WATER_COL ? WATER_COL : l.type === "line" ? WATER_RII
+  L.forEach(l => { try{ map.setPaintProperty(l.id, l.type + "-color", WATER_COL && !NIGHT ? WATER_COL : l.type === "line" ? WATER_RII
     : ["match", ["coalesce", ["get", "class"], ""], ["river", "canal", "stream", "ditch", "drain"], WATER_RII, WATER_DEFAULT]); }catch(e){} });
   const inp = $("#waterCol"); if (inp) inp.value = WATER_COL || WATER_DEFAULT;
 }
+/* ---------- Modalità notte: finito il crepuscolo (sole 6° sotto l'orizzonte a Venezia) la mappa diventa scura ---------- */
+function sunAlt(d, lat = 45.437, lng = 12.335){   // altezza del sole in gradi (formule NOAA semplificate)
+  const rad = Math.PI / 180, n = d.getTime() / 864e5 + 2440587.5 - 2451545, L = (280.46 + .9856474 * n) % 360, g = ((357.528 + .9856003 * n) % 360) * rad;
+  const lam = (L + 1.915 * Math.sin(g) + .02 * Math.sin(2 * g)) * rad, eps = (23.439 - 4e-7 * n) * rad;
+  const ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam)), dec = Math.asin(Math.sin(eps) * Math.sin(lam));
+  const gmst = (18.697374558 + 24.06570982441908 * n) % 24, ha = ((gmst * 15 + lng) * rad) - ra;
+  return Math.asin(Math.sin(lat * rad) * Math.sin(dec) + Math.cos(lat * rad) * Math.cos(dec) * Math.cos(ha)) / rad;
+}
+const NIGHT_ORIG = {};
+function nightWanted(){
+  const q = new URLSearchParams(location.search).get("notte"); if (q != null) return q !== "0";
+  const pref = store.get("ln_night", "auto"); if (pref === "on") return true; if (pref === "off") return false;
+  return sunAlt(new Date()) < -6;
+}
+function applyNight(force){
+  const want = nightWanted(); if (want === NIGHT && !force) return; NIGHT = want;
+  const C = MC(); LAND_COL = C.land; LAND_FAR = C.far; BRICK = C.brick; BRICK_LINE = C.brickLine; CANAL_LBL = C.canal; WATER_DEFAULT = C.water; WATER_RII = C.rii;
+  document.body.classList.toggle("night", NIGHT);
+  if (!map || !BASE_LAYERS.length) return;
+  applyLandColors(); applyWaterColor();
+  // scritte e strade della base: chiare su scuro di notte, originali di giorno
+  BASE_LAYERS.forEach(l => { if (!map.getLayer(l.id)) return;
+    const props = l.type === "symbol" && !/water|waterway|marine|ocean|lake|river/i.test(l.id) ? [["text-color", "#e8ecf2"], ["text-halo-color", "#141a24"]]
+      : l.type === "line" && !/water|river|canal/i.test(l.id) ? [["line-color", "#3b4554"]] : l.type === "raster" ? [["raster-brightness-max", .45]] : [];
+    props.forEach(([k, v]) => { const key = l.id + "|" + k; try{
+      if (!(key in NIGHT_ORIG)) NIGHT_ORIG[key] = map.getPaintProperty(l.id, k);
+      map.setPaintProperty(l.id, k, NIGHT ? v : NIGHT_ORIG[key] === undefined ? null : NIGHT_ORIG[key]); }catch(e){} }); });
+  ["sat"].forEach(id => { try{ if (map.getLayer(id)) map.setPaintProperty(id, "raster-brightness-max", NIGHT ? .45 : 1); }catch(e){} });
+}
+setInterval(() => applyNight(), 60000);
+setTimeout(() => applyNight(), 0);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) applyNight(); });
 async function loadWaterColor(){
   try{ const r = await api("app_settings?key=eq.water_color&select=value"); const v = r && r[0] ? r[0].value : null;
     if (v !== WATER_COL){ WATER_COL = v; store.set("ln_water_col", v); applyWaterColor(); } }catch(e){}
@@ -12463,6 +12502,13 @@ if (PROFILE && PROFILE.age !== undefined){
   const old = PROFILE.clickname; PROFILE = null; try{ localStorage.removeItem("ln_profile"); localStorage.removeItem("ln_schei"); }catch(e){} try{ SCHEI.saldo = null; hudPaint(); }catch(e){}
   openApp(); regOpen("reg"); $("#rpName").value = old; rpNameOk = true; rpStep(2); $("#rpMsg").textContent = "Scegli un PIN per proteggere @" + old;
 } else if (PROFILE){ openApp(); } else { openApp(); setTimeout(() => regOpen("reg"), 400); }   // chi arriva da un link vede subito Venezia, con la registrazione sopra
+
+(function(){ const N = { auto: "Automatica", on: "Sempre", off: "Mai" }, nx = { auto: "on", on: "off", off: "auto" };
+  const paint = () => { const v = $("#pfNightV"); if (v) v.textContent = N[store.get("ln_night", "auto")] || "Automatica"; };
+  const b = document.getElementById("pfNight"); if (!b) return; paint();
+  b.onclick = () => { const v = nx[store.get("ln_night", "auto")] || "auto"; store.set("ln_night", v); paint(); haptic(); applyNight(true);
+    toast(v === "auto" ? "Mappa di notte automatica: si scurisce dopo il tramonto" : v === "on" ? "Mappa sempre in modalità notte" : "Mappa sempre chiara"); };
+})();
 </script>
 </body>
 </html>
