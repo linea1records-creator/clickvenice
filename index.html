@@ -1420,6 +1420,19 @@
   .sxRow .lnk{color:#2563eb;font-weight:700;font-style:normal}
   .sxRow.last{background:#f8fafc}
   .sxBlock{padding:0 18px}
+  /* ---------- Barketplace: marchio barketplace.it, tasto Vendi o segnala e logo animato nella barra ---------- */
+  .bkBrand{font-weight:900!important;letter-spacing:-.03em} .bkBrand i{font-style:normal;-webkit-text-fill-color:currentColor}
+  .bkBrand i:nth-child(1){color:#0b2545} .bkBrand i:nth-child(2){color:#18a0db} .bkBrand i:nth-child(3){color:#2b7bba;font-size:.62em;margin-left:1px}
+  .bkSell{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;border:0;border-radius:16px;background:linear-gradient(135deg,#0b2545,#1d4e89);color:#fff;padding:13px 16px;margin:0 0 10px;box-shadow:0 6px 16px rgba(11,37,69,.22)}
+  .bkSell b{font-size:17px;font-weight:800} .bkSell small{font-size:12.5px;color:#bfe3f5;line-height:1.35} .bkSell:active{transform:scale(.98)}
+  #tabs button[data-pm="shop"] svg{width:34px;height:26px;overflow:hidden;stroke:none} #tabs button[data-pm="shop"] svg *{transform-box:view-box}
+  #tabs button[data-pm="shop"]:not(.on) svg{filter:grayscale(1);opacity:.62}
+  #tabs button[data-pm="shop"] .bkBoat{transform-origin:14px 16px}
+  #tabs button[data-pm="shop"].on .bkBoat{animation:bkPitch 2.6s ease-in-out infinite}
+  #tabs button[data-pm="shop"].on .bkWaves{animation:bkWaves 1.6s linear infinite}
+  @keyframes bkPitch{0%,100%{transform:rotate(0) translateY(0)}30%{transform:rotate(-4deg) translateY(-.4px)}70%{transform:rotate(2.5deg) translateY(.3px)}}
+  @keyframes bkWaves{from{transform:translateX(0)}to{transform:translateX(-11px)}}
+  #tabs button[data-pm="shop"].pop svg{animation:none}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1484,7 +1497,7 @@
 </style>
 <style id="modeColors">
   /* colore di ogni modalità: tasto premuto, banner e tasti principali del suo pannello */
-  :root{ --c-market:#d96b43; --c-meet:#f2b738; --c-shop:#d96b43; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#d96b43; --laguna:#13294b; --promo:#d96b43 }
+  :root{ --c-market:#d96b43; --c-meet:#f2b738; --c-shop:#1d4e89; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#d96b43; --laguna:#13294b; --promo:#d96b43 }
   #tabs [data-pm="market"].on{color:var(--c-market)!important}
   #tabs [data-pm="shop"].on{color:var(--c-shop)!important}
   #tabs [data-pm="sport"].on{color:var(--c-sport)!important}
@@ -1827,7 +1840,7 @@
   <!-- MARKETPLACE: negozi, barche e usato (il cibo resta in Delivery) -->
   <section class="view hidden" id="v-shop">
     <div class="scroll lightv" id="shopScroll">
-      <div class="igh"><img src="barketplace.png" alt="" class="bkLogo"><h2>Barketplace</h2><button class="mpadd" id="mpAdd">+ Vendi o segnala</button></div>
+      <div class="igh"><img src="barketplace.png" alt="" class="bkLogo"><h2 class="bkBrand"><i>bark</i><i>etplace</i><i>.it</i></h2><button class="mpadd hidden" id="mpAdd" hidden>+ Vendi o segnala</button></div>
       <div id="bkBox"></div>
       <div id="mpUsato" class="hidden">
       <div class="mpbar"><button id="mpCatBtn" class="mpcat">☰ <span id="mpCatName">Tutte le categorie</span></button><button id="mpMine" class="mpcat">I miei</button></div>
@@ -1964,7 +1977,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.01</p>
+      <p class="sub">clickVenice · versione 4.02</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2394,7 +2407,10 @@ function haptic(){
 const TAB_IC = {   // linea sottile · .s si riempie quando la scheda è selezionata, .c resta come dettaglio
   nautica: '<path class="s" d="M3 14.5h18l-2.6 5H5.6z"/><path d="M12 3.5v11"/><path class="s" d="M12 4.5l6 8h-6z"/>',
   market: '<path class="s" d="M2.5 13.5h16l-2 5H5.3z"/><path d="M8.5 13.5l1.7-3.6h4.2l1.3 3.6"/><path class="s" d="M18.8 9.6h2.6v4.6h-2.6z"/><path d="M20.1 14.2v3.6"/>',   // barchino a motore
-  shop: '<path class="s" d="M5 14.2h16.5l-3.4 4.8H6.6z"/><path d="M8 14.2l1.6-4.2h6.2l2.6 4.2"/><path d="M10.6 10l.9-2.5h4.2"/><path class="s" d="M2.2 11.2h2.6v3.8H2.2z"/><path d="M3.5 15v3.2"/>',   // barca con cabina e fuoribordo (Barketplace)
+  shop: `<g class="bkBoat"><path d="M7.2 15.6l1.6-3.2 9.5-1.2 4.6 1.5-.8 1.6-3.6 2.4H8.4z" fill="#1d4e89" stroke="#0b2545" stroke-width=".9" stroke-linejoin="round"/><path d="M8.6 13.4l9.3-1.2 4.3 1.3" fill="none" stroke="#5bc0eb" stroke-width="1.1"/>
+    <path d="M10.4 12.2l1.4-3.3h5.2l2.2 2.4" fill="#2b7bba" stroke="#0b2545" stroke-width=".9" stroke-linejoin="round"/><path d="M12.4 11.6l.8-1.9h3.1l1.1 1.3z" fill="#fff" stroke="none"/>
+    <path d="M4.3 10.4h2.6l.4 3.6-1 3.4H5.1l.4-3.3-1.2-.4z" fill="#0b2545" stroke="#0b2545" stroke-width=".6" stroke-linejoin="round"/><path d="M5.2 10.7h1.4" stroke="#5bc0eb" stroke-width=".8"/></g>
+    <g class="bkWaves"><path d="M2 19.6h8M13 19.6h8M24 19.6h8M35 19.6h8M5 22h6M16 22h8M27 22h6M38 22h8" fill="none" stroke="#2b7bba" stroke-width="1.3" stroke-linecap="round"/></g>`,   // logo di Barketplace: barca con fuoribordo e onde
   ship: '<rect class="s" x="3.5" y="3.5" width="7" height="7" rx="2"/><rect class="s" x="13.5" y="3.5" width="7" height="7" rx="2"/><rect class="s" x="3.5" y="13.5" width="7" height="7" rx="2"/><rect class="s" x="13.5" y="13.5" width="7" height="7" rx="2"/>',   // servizi
   sport: '<rect class="s" x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle class="c" cx="8.3" cy="8.3" r="1.2"/><circle class="c" cx="15.7" cy="15.7" r="1.2"/><circle class="c" cx="12" cy="12" r="1.2"/>',
   my: '<path class="s" d="M9.5 8.5l10 4.3-4.4 1.3-1.3 4.4z"/><path d="M6 4l1 2.1M3.3 7.6l2.2.8M10 3l-.2 2.3M4.3 12l1.9-1.1"/>'   // un clic
@@ -2402,7 +2418,7 @@ const TAB_IC = {   // linea sottile · .s si riempie quando la scheda è selezio
 function buildDial(){
   $("#tabs").innerHTML = MODES.filter(x => !x.hidden).map(x => x.k === "nautica"
     ? `<button role="tab" data-pm="${x.k}" class="mid"><i class="ring"><img class="logoTab" src="logo-tab.png" alt="" draggable="false"></i><span>${x.n}</span></button>`
-    : `<button role="tab" data-pm="${x.k}"><svg viewBox="0 0 24 24" aria-hidden="true">${TAB_IC[x.k] || ""}</svg><span>${x.n}</span></button>`).join("");
+    : `<button role="tab" data-pm="${x.k}"><svg viewBox="${x.k === "shop" ? "3 7.5 21 16" : "0 0 24 24"}" aria-hidden="true">${TAB_IC[x.k] || ""}</svg><span>${x.n}</span></button>`).join("");
 }
 /* barra in basso: la pillola segue il tasto attivo con una molla, si allunga mentre corre e sparisce su Naviga */
 let tabPillX = null;
@@ -3846,8 +3862,7 @@ function bkPaint(){
   const att = BK.list.filter(x => x.stato === "attiva"), top = Math.max(0, ...att.map(x => +x.top || 0)), rii = BK.modo === "rii";
   const kf = document.activeElement && document.activeElement.id === "bkQ";
   box.innerHTML = `<div class="bkseg"><button data-bm="vendita" class="${rii ? "" : "on"}">⚓ In vendita${BK.n.vendita != null ? ` <em>${BK.n.vendita}</em>` : ""}</button><button data-bm="rii" class="${rii ? "on" : ""}">👀 Nei rii${BK.n.rii != null ? ` <em>${BK.n.rii}</em>` : ""}</button></div>
-    <div class="bkhud"><div class="g"><div><small>${rii ? "Nei rii" : "In vendita"}</small><b>${att.length}</b></div><div><small>⚡ Offerta top</small><b style="color:#18a0db">${top ? bkEur(top) : "—"}</b></div><div><small>Offerte</small><b>${att.reduce((s, x) => s + (+x.n || 0), 0)}</b></div></div>
-      <p>${rii ? "Hai visto una barca ferma nei rii? Segnalala e fai un'offerta anonima: col bigliettino QR il proprietario la scopre." : "Barche e fuoribordo messi in vendita dai proprietari, a Venezia e in laguna."}</p></div>
+    <button class="bkSell" id="bkSell"><b>+ Vendi o segnala</b><small>${rii ? "Hai visto una barca ferma nei rii? Segnalala e fai un'offerta anonima" : "Barca, motore, elica o accessorio: pubblica in un minuto"}</small></button>
     ${BK.admin && BK.reclami ? `<button class="btn small" id="bkRec" style="margin:0 0 10px">Reclami da verificare · ${BK.reclami}</button>` : ""}
     <div class="bkpills">${(rii ? [["tutte", "Tutte"], ["posto", "Posto barca"], ["vendute", "Vendute"]] : [["tutte", "Tutto"], ["barca", "Barche"], ["motore", "Motori"], ["elica", "Eliche"], ["accessorio", "Accessori"], ["posto", "Posto barca"], ["vendute", "Vendute"]]).map(([k, n]) => `<button data-bf="${k}" class="${BK.f === k ? "on" : ""}">${n}</button>`).join("")}<button data-bf="__f" class="${Object.keys(BK.flt || {}).length ? "on" : ""}">⚙︎ Filtri${Object.keys(BK.flt || {}).length ? " · " + Object.keys(BK.flt).length : ""}</button></div>
     <div class="field" style="margin:0 0 10px"><input id="bkQ" type="search" placeholder="Cerca barca, motore, rio…" value="${esc(BK.q)}"></div>
@@ -3861,6 +3876,7 @@ function bkPaint(){
   box.querySelectorAll("[data-bk]").forEach(b => b.onclick = () => bkOpen(+b.dataset.bk));
   const qi = $("#bkQ"); qi.oninput = e => { BK.q = e.target.value; bkPaint(); }; if (kf){ qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); }
   if ($("#bkRec")) $("#bkRec").onclick = bkReclami;
+  $("#bkSell").onclick = () => bkNew();
 }
 async function bkOpen(id, flash){
   let x; try{ x = await rpc("bk_dettaglio", { p_id: id }); }catch(e){ x = null; }
