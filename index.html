@@ -1322,6 +1322,30 @@
   .dmModal>div{width:100%;max-height:88%;overflow-y:auto;background:#fff;color:#111;border-radius:22px 22px 0 0;padding:16px 16px calc(16px + var(--safe-b, 0px))}
   .dmModal h3{margin:0 0 4px;color:#4f060b;font:900 24px/1 Impact,"Arial Narrow Bold",sans-serif;text-transform:uppercase}
   .dmModal .go{width:100%;border:0;border-radius:14px;background:#4f060b;color:#f5b800;font-weight:900;font-size:16px;padding:14px;margin-top:6px}
+  /* ---------- Delivery a due fasi: scelta al centro, poi barra compatta in alto ---------- */
+  #dlvPick{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,12,14,.28);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:dpFade .25s ease}
+  @keyframes dpFade{from{opacity:0}to{opacity:1}}
+  #dlvPick .card{width:min(100%,400px);background:#fff;color:#111;border-radius:20px;padding:18px 16px 16px;box-shadow:0 14px 40px rgba(0,0,0,.28);animation:dpIn .3s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes dpIn{from{transform:translateY(20px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+  #dlvPick.out{animation:dpOutBg .35s ease forwards} #dlvPick.out .card{animation:dpOut .35s cubic-bezier(.5,0,.8,.4) forwards}
+  @keyframes dpOut{to{transform:translateY(-46vh) scale(.55);opacity:0}} @keyframes dpOutBg{to{background:rgba(10,12,14,0);backdrop-filter:blur(0)}}
+  #dlvPick h3{margin:0 0 4px;font-size:21px;font-weight:800} #dlvPick p{margin:0 0 14px;color:#6f7a74;font-size:13.5px}
+  #dlvPick .g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  #dlvPick .g button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;border:1px solid #eceeed;background:#fafafa;border-radius:16px;padding:14px 12px;color:#111;min-height:118px}
+  #dlvPick .g button:active{transform:scale(.97)} #dlvPick .g svg{width:34px;height:34px;padding:7px;border-radius:12px;background:#d95f26;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  #dlvPick .g b{font-size:15px} #dlvPick .g small{font-size:11.5px;color:#6f7a74;line-height:1.3}
+  #dlvDock{position:absolute;z-index:21;left:8px;right:8px;top:calc(8px + var(--safe-t));display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px;border-radius:999px;background:rgba(255,255,255,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,.08);box-shadow:0 2px 10px rgba(0,0,0,.12);animation:ddIn .35s cubic-bezier(.2,.9,.3,1.1)}
+  #dlvDock::-webkit-scrollbar{display:none} @keyframes ddIn{from{transform:translateY(-20px);opacity:0}to{transform:none;opacity:1}}
+  #dlvDock button{flex:1 0 auto;height:34px;padding:0 13px;border:0;border-radius:999px;background:transparent;color:#111;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+  #dlvDock button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  #dlvDock button.on{background:#d95f26;color:#fff;box-shadow:0 2px 6px rgba(217,95,38,.35)}
+  body.mode-market.dlvdock #searchBox{top:calc(54px + var(--safe-t))}
+  body:not(.mode-market) #dlvDock, body:not(.mode-market) #dlvPick{display:none}
+  body.mode-market:not(.dlvdock) #mkPanel{display:none}
+  #mkPanel{border-radius:20px} #mkPanel .pcard h4{margin:0;font-size:18px;font-weight:800} #mkPanel .pcard .d{color:#6f7a74;font-size:13px;margin:2px 0 8px}
+  #mkPanel .pcard .bdg{display:inline-block;background:#fff3e6;color:#d95f26;border:1px solid #f6cfa9;font-weight:800;font-size:12px;border-radius:99px;padding:4px 10px;margin-bottom:8px}
+  #mkPanel .pcard .go{display:block;width:100%;border:0;border-radius:14px;background:#111;color:#fff;font-weight:800;font-size:15px;padding:13px;margin-top:2px}
+  #mkPanel .pcard .row2{display:flex;gap:8px;margin-top:8px} #mkPanel .pcard .row2 button{flex:1;border:1px solid #e6e9e7;background:#fff;border-radius:12px;padding:9px;font-weight:700;font-size:13px;color:#111}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1545,7 +1569,7 @@
     <!-- Shopping: attività convenzionate sulla mappa -->
     <div id="mkPanel">
       <div class="mkh"><b>Delivery</b><span id="mkCount"></span></div>
-      <div class="mkcats" id="dlvCats"><button data-dc="conv">🍽️ Convenzionati</button><button data-dc="food">Food</button><button data-dc="negozi">Negozi</button><button data-dc="tabacchi">Tabaccherie</button><button data-dc="farmacie">Farmacie</button></div>
+      <div class="mkcats hidden" id="dlvCats"><button data-dc="conv">🍽️ Convenzionati</button><button data-dc="food">Food</button><button data-dc="negozi">Negozi</button><button data-dc="tabacchi">Tabaccherie</button><button data-dc="farmacie">Farmacie</button></div>
       <div id="mkList"></div>
       <button class="btn small" id="mkOrder">🍝 Ordina cibo in barca o a casa</button>
     </div>
@@ -1868,7 +1892,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.94</p>
+      <p class="sub">clickVenice · versione 3.95</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -3990,8 +4014,8 @@ function initMap(){
     if (addMode === "luogoadd"){ addMode = null; $("#modeHint").classList.add("hidden"); return extraForm(e.lngLat); }
     if (addMode === "gmpark"){ addMode = null; $("#modeHint").classList.add("hidden"); return gmParkSet(e.lngLat); }
     if (addMode === "segpick"){ addMode = null; $("#modeHint").classList.add("hidden"); return segForm(e.lngLat.lat, e.lngLat.lng); }
-    if (appMode === "market" && DLV.conv !== false && map.getLayer("partners")){ const pf = map.queryRenderedFeatures([[e.point.x - 14, e.point.y - 14], [e.point.x + 14, e.point.y + 14]], { layers: ["partners"] })[0];
-      if (pf){ const p = PARTNERS.find(x => x.id === pf.properties.id); if (p) return openPartner(p); } }
+    if (appMode === "market" && DLVSEL && map.getLayer("partners")){ const pf = map.queryRenderedFeatures([[e.point.x - 14, e.point.y - 14], [e.point.x + 14, e.point.y + 14]], { layers: ["partners"] })[0];
+      if (pf){ const p = PARTNERS.find(x => x.id === pf.properties.id); if (p) return dlvSelectPartner(p); } }
     if (appMode === "market" && map.getLayer("dlv")){ const d = map.queryRenderedFeatures([[e.point.x - 10, e.point.y - 10], [e.point.x + 10, e.point.y + 10]], { layers: ["dlv"] })[0]; if (d) return openDlv(d.properties.i); }
     { const mp = map.getLayer("myplaces") && map.queryRenderedFeatures([[e.point.x - 10, e.point.y - 10], [e.point.x + 10, e.point.y + 10]], { layers: ["myplaces"] })[0];
       if (mp) return openMyPlace(mp.properties.i); }
@@ -7582,7 +7606,7 @@ function setAppMode(m){
   if (m === "incontra") loadEvents();
   try{ paintSos(); }catch(e){} try{ applyMapMode(); }catch(e){}   // niente movimenti di telecamera al cambio sezione
   if (m !== "nautica" && PLAN) closePlan();
-  if (m === "market"){ loadPartners(); renderMk(); }
+  if (m === "market"){ loadPartners(); dlvEnter(); } else { const o = $("#dlvPick"); if (o) o.remove(); }
   layerVis();
   if (m === "nautica" && (LY.actv || LY.alilaguna)){ if (LY.actv) loadFermate(); actvStart(); setBattelliFilter(); } else actvStop();
   if (m === "trasporti"){ loadFermate(); renderTr(); }
@@ -8496,13 +8520,15 @@ function addPartnersLayer(){
   if (!map || map.getSource("partners")) return;
   map.addSource("partners", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
   const col = ["match", ["get", "c"], "food", MK_CATS.food[2], "shop", MK_CATS.shop[2], "boats", MK_CATS.boats[2], MK_CATS.used[2]];
-  map.addLayer({ id: "partners", type: "circle", source: "partners", layout: { visibility: appMode === "market" ? "visible" : "none" },
-    paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 6, 16, 11], "circle-color": col, "circle-stroke-color": "#fff", "circle-stroke-width": 3 } });
-  if (map.getStyle().glyphs) map.addLayer({ id: "partners-lbl", type: "symbol", source: "partners", minzoom: 14, layout: { visibility: appMode === "market" ? "visible" : "none",
-    "text-field": ["get", "n"], "text-size": 13, "text-offset": [0, 1.3], "text-anchor": "top", "text-font": ["Noto Sans Regular"] },
+  if (!map.hasImage("pin-food")) map.addImage("pin-food", partnerPin("food"), { pixelRatio: 2 });
+  if (!map.hasImage("pin-conv")) map.addImage("pin-conv", partnerPin("conv"), { pixelRatio: 2 });
+  map.addLayer({ id: "partners", type: "symbol", source: "partners", layout: { visibility: appMode === "market" ? "visible" : "none",
+    "icon-image": ["case", ["==", ["get", "c"], "food"], "pin-food", "pin-conv"], "icon-anchor": "bottom", "icon-size": ["interpolate", ["linear"], ["zoom"], 11, .75, 16, 1.05], "icon-allow-overlap": true, "icon-ignore-placement": true } });
+  if (map.getStyle().glyphs) map.addLayer({ id: "partners-lbl", type: "symbol", source: "partners", minzoom: 12.5, layout: { visibility: appMode === "market" ? "visible" : "none",
+    "text-field": ["get", "n"], "text-size": 12.5, "text-offset": [0, .35], "text-anchor": "top", "text-font": ["Noto Sans Regular"], "text-allow-overlap": true },
     paint: { "text-color": "#4a1410", "text-halo-color": "#fff", "text-halo-width": 1.8 } });
 }
-const mkShown = () => PARTNERS.filter(p => !mkCat || p.category === mkCat);
+const mkShown = () => PARTNERS.filter(p => DLVSEL ? partnerInSel(p) : (!mkCat || p.category === mkCat));
 function drawPartners(){
   if (!map) return;
   if (!map.getSource("partners")){ if (map.isStyleLoaded()) addPartnersLayer(); else return; }
@@ -8511,11 +8537,27 @@ function drawPartners(){
 }
 function renderMk(){
   const box = $("#mkList"); if (!box) return;
-  const ref = refPoint(), list = mkShown().map(p => ({ p, d: hav(ref.lat, ref.lng, p.lat, p.lng) })).sort((a, b) => a.d - b.d);
-  $("#mkCount").textContent = list.length ? list.length + (list.length === 1 ? " attività" : " attività") : "";
-  if (!list.length){
-    box.innerHTML = `<p class="trnote">${PARTNERS.length ? "Nessuna attività convenzionata in questa categoria." : "Le attività convenzionate compariranno qui sulla mappa, appena entrano in Ordina."}</p>`; return; }
-  box.innerHTML = list.slice(0, 6).map((x, i) => `<div class="stop" data-mk="${x.p.id}"><span>${MK_CATS[x.p.category][0]} ${esc(x.p.name)}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
+  const hd = $("#mkPanel .mkh b"); if (hd) hd.textContent = DLVSEL ? DLV_SEL_C[DLVSEL][0] : "Delivery";
+  const ref = refPoint();
+  if (DLVPART){
+    const p = DLVPART, d = hav(ref.lat, ref.lng, p.lat, p.lng), min = Math.max(1, Math.round(d * 1.35 / 80)), sc = +p.sconto_pct || 0;
+    $("#mkCount").textContent = "";
+    box.innerHTML = `<div class="pcard"><h4>${esc(p.name)}</h4><div class="d">${fmtDist(d * 1.35)} · ${fmtMin(min)} a piedi${p.address ? " · " + esc(p.address) : ""}</div>
+      ${p.order_rest ? `<span class="bdg">${sc ? "-" + sc + "% Sconto + " : ""}Posate Omaggio</span>` : ""}
+      ${p.order_rest ? `<button class="go" id="mkMenu">🍴 Apri Menu e Ordina</button>` : ""}
+      <div class="row2"><button id="mkVai">Portami qui</button>${p.phone ? `<button id="mkTel">Chiama</button>` : ""}<button id="mkAltri">Altri locali</button></div></div>`;
+    if ($("#mkMenu")) $("#mkMenu").onclick = () => deliveryMenu(p);
+    $("#mkVai").onclick = () => { setMode("nautica"); openPlan({ name: p.name, lat: p.lat, lng: p.lng }); };
+    if ($("#mkTel")) $("#mkTel").onclick = () => { location.href = "tel:" + String(p.phone).replace(/[^+\d]/g, ""); };
+    $("#mkAltri").onclick = () => { DLVPART = null; renderMk(); };
+    $("#mkOrder").classList.add("hidden"); return;
+  }
+  $("#mkOrder").classList.add("hidden");
+  const list = mkShown().map(p => ({ p, d: hav(ref.lat, ref.lng, p.lat, p.lng) })).sort((a, b) => a.d - b.d);
+  $("#mkCount").textContent = list.length ? list.length + (list.length === 1 ? " convenzionato" : " convenzionati") : "";
+  if (!list.length){ box.innerHTML = `<p class="trnote">${DLVSEL === "conv" || DLVSEL === "food" ? "Ancora nessun convenzionato qui." : "Tocca un punto sulla mappa per vedere il negozio."}</p>`; return; }
+  box.innerHTML = list.slice(0, 4).map(x => `<div class="stop" data-mk="${x.p.id}"><span>${esc(x.p.name)}${+x.p.sconto_pct ? ` <b style="color:#d95f26">-${x.p.sconto_pct}%</b>` : ""}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
+  box.querySelectorAll("[data-mk]").forEach(el => el.onclick = () => { const p = PARTNERS.find(z => z.id === +el.dataset.mk); if (p) dlvSelectPartner(p); });
 }
 function openPartner(p){
   const c = MK_CATS[p.category] || ["", ""];
@@ -8527,6 +8569,60 @@ function openPartner(p){
     <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`);
   if ($("#pOrder")) $("#pOrder").onclick = () => deliveryMenu(p);
   $("#pGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: p.name, lat: p.lat, lng: p.lng }); };
+}
+/* ---------- Delivery a due fasi: "Cosa vuoi ordinare oggi?" al centro, poi la barra compatta in alto ---------- */
+const DLV_SEL_C = {
+  food: ["Food", "Ristoranti, piatti caldi, pizze", '<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16 21V3c-2.5 1-4 3.5-4 7h4"/>'],
+  conv: ["Convenzionati", "Attività partner a Venezia", '<path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.4l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z"/>'],
+  spesa: ["Negozi & Spesa", "Alimentari, bevande, tabacchi", '<path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 10.5V6.8a3 3 0 0 1 6 0v3.7"/>'],
+  nautica: ["Nautica & Ricambi", "Accessori barca, ghiaccio, cime", '<circle cx="12" cy="5" r="2"/><path d="M12 7v14M7 11h10M4 15c1.5 3.5 4.5 6 8 6s6.5-2.5 8-6"/>'] };
+const DLV_SPESA = new Set(["supermarket", "convenience", "beverages", "alcohol", "wine", "greengrocer", "butcher", "seafood", "cheese", "deli", "frozen_food", "pasta", "bakery", "tobacco", "e-cigarette", "newsagent", "health_food", "organic", "dairy", "spices", "coffee", "tea", "kiosk"]);
+const DLV_NAUT = new Set(["marine", "boat", "fishing", "ship_chandler", "outdoor", "hardware", "doityourself", "fuel", "ice"]);
+let DLVSEL = null, DLVPART = null;
+function dlvCatOf(x){   // a quale scelta appartiene un punto della mappa
+  if (x.k === "food") return DLV_SPESA.has(x.s) && x.s !== "bakery" ? "spesa" : "food";
+  if (x.k === "tabacchi") return "spesa";
+  if (DLV_NAUT.has(x.s)) return "nautica";
+  if (DLV_SPESA.has(x.s)) return "spesa";
+  return null;
+}
+const partnerInSel = p => DLVSEL === "conv" || (DLVSEL === "food" && p.category === "food") || (DLVSEL === "spesa" && p.category === "shop") || (DLVSEL === "nautica" && p.category === "boats");
+function dlvEnter(){
+  DLVSEL = null; DLVPART = null; document.body.classList.remove("dlvdock"); $("#dlvDock") && $("#dlvDock").remove();
+  let o = $("#dlvPick"); if (o) o.remove(); o = document.createElement("div"); o.id = "dlvPick";
+  o.innerHTML = `<div class="card"><h3>Cosa vuoi ordinare oggi?</h3><p>Scegli e ti mostro sulla mappa dove ordinare a Venezia.</p>
+    <div class="g">${Object.entries(DLV_SEL_C).map(([k, [n, d, ic]]) => `<button data-ds="${k}"><svg viewBox="0 0 24 24">${ic}</svg><b>${n}</b><small>${d}</small></button>`).join("")}</div></div>`;
+  document.body.appendChild(o);
+  o.onclick = e => { if (e.target === o) dlvChoose("food"); };   // tocco fuori: parte dal food
+  o.querySelectorAll("[data-ds]").forEach(b => b.onclick = () => dlvChoose(b.dataset.ds));
+  dlvApply();
+}
+function dlvChoose(k){
+  haptic(); DLVSEL = k; DLVPART = null;
+  const o = $("#dlvPick"); if (o){ o.classList.add("out"); setTimeout(() => o.remove(), 340); }
+  let d = $("#dlvDock"); if (!d){ d = document.createElement("div"); d.id = "dlvDock"; $("#v-map").appendChild(d); }
+  d.innerHTML = Object.entries(DLV_SEL_C).map(([c, [n, , ic]]) => `<button data-dd="${c}" class="${c === k ? "on" : ""}"><svg viewBox="0 0 24 24">${ic}</svg>${n}</button>`).join("");
+  d.querySelectorAll("[data-dd]").forEach(b => b.onclick = () => { if (DLVSEL === b.dataset.dd) return; haptic(); DLVSEL = b.dataset.dd; DLVPART = null; d.querySelectorAll("[data-dd]").forEach(x => x.classList.toggle("on", x === b)); dlvApply(); });
+  document.body.classList.add("dlvdock"); dlvApply();
+}
+function dlvApply(){ try{ drawDlv(); drawPartners(); layerVis(); renderMk(); }catch(e){} }
+// tocco su un locale convenzionato: la mappa lo centra e la scheda in basso diventa la sua
+function dlvSelectPartner(p){
+  DLVPART = p; haptic();
+  try{ map.easeTo({ center: [p.lng, p.lat], offset: [0, -Math.round(innerHeight * .12)], zoom: Math.max(map.getZoom(), 15.5), duration: 600 }); }catch(e){}
+  renderMk();
+}
+// pin a goccia con forchetta e coltello (food) o stella (altri convenzionati), bordo bianco
+function partnerPin(kind){
+  const W = 72, H = 88, c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
+  g.shadowColor = "rgba(0,0,0,.3)"; g.shadowBlur = 6; g.shadowOffsetY = 2;
+  g.beginPath(); g.arc(36, 34, 28, Math.PI * .82, Math.PI * .18); g.lineTo(36, 84); g.closePath();
+  g.fillStyle = kind === "food" ? "#d95f26" : "#8c2d19"; g.fill(); g.shadowColor = "transparent"; g.lineWidth = 5; g.strokeStyle = "#fff"; g.stroke();
+  g.strokeStyle = "#fff"; g.fillStyle = "#fff"; g.lineWidth = 3.2; g.lineCap = "round"; g.lineJoin = "round";
+  if (kind === "food"){ g.beginPath(); g.moveTo(27, 20); g.lineTo(27, 30); g.moveTo(23, 20); g.lineTo(23, 27); g.quadraticCurveTo(23, 32, 27, 32); g.quadraticCurveTo(31, 32, 31, 27); g.lineTo(31, 20); g.moveTo(27, 32); g.lineTo(27, 48); g.stroke();
+    g.beginPath(); g.moveTo(45, 48); g.lineTo(45, 19); g.quadraticCurveTo(38, 23, 38, 33); g.lineTo(45, 33); g.stroke(); }
+  else { g.beginPath(); for (let i = 0; i < 10; i++){ const r = i % 2 ? 7 : 15, a = -Math.PI / 2 + i * Math.PI / 5; g.lineTo(36 + r * Math.cos(a), 34 + r * Math.sin(a)); } g.closePath(); g.fill(); }
+  return { width: W, height: H, data: g.getImageData(0, 0, W, H).data };
 }
 /* ---------- Menu delivery interattivo (pagina a tutto schermo, stile locandina) ---------- */
 const DM_CAT = { primi: "Primi della tradizione", secondi: "Secondi & contorni caldi", pizze: "Pizze al forno", "": "Piatti del giorno" };
@@ -8722,8 +8818,6 @@ async function restOrdini(p){
 document.querySelectorAll("#mkCats [data-c]").forEach(b => b.onclick = () => {
   mkCat = b.dataset.c; document.querySelectorAll("#mkCats [data-c]").forEach(x => x.classList.toggle("on", x === b)); drawPartners(); renderMk();
 });
-$("#mkList").addEventListener("click", e => { const r = e.target.closest("[data-mk]"); if (!r) return; const p = PARTNERS.find(x => x.id === +r.dataset.mk); if (!p) return;
-  setFollow(false); if (map) map.easeTo({ center: [p.lng, p.lat], zoom: 16.5, pitch: 0, bearing: 0, duration: 600 }); openPartner(p); });
 $("#mkOrder").onclick = () => { showView("order"); };
 /* Delivery: tasti che mostrano o nascondono food, negozi, tabaccherie e farmacie sulla mappa */
 const DLV_C = { conv: ["Convenzionati", "#111111"], food: ["Food", "#d95f26"], negozi: ["Negozi", "#8c2d19"], tabacchi: ["Tabaccheria", "#1d4e89"], farmacie: ["Farmacia", "#15a34a"] };
@@ -8746,6 +8840,15 @@ async function loadNegozi(){
   drawDlv();
 }
 function dlvItems(){
+  const L = [];
+  if (!DLVSEL || DLVSEL === "conv") return L;   // prima della scelta, e nei Convenzionati, solo i partner
+  const add = x => { if (dlvCatOf(x) === DLVSEL) L.push(x); };
+  if (DLVSEL === "food") (POI || []).forEach(x => L.push({ n: x.n, k: "food", lat: x.lat, lng: x.lng, s: x.k }));
+  ((NEGOZI && NEGOZI.p) || []).forEach(a => { if (!a[0]) return; const k = DLV_FOODSHOP.has(a[4]) ? "food" : a[1]; add({ n: a[0], k, lat: a[2], lng: a[3], s: a[4] }); });
+  (EXTRA || []).forEach(x => { const T = EXTRA_T[x.t]; if (T && T.k) add({ n: x.n, k: T.k, lat: x.lat, lng: x.lng, s: T.s, extra: x.id }); });
+  return L;
+}
+function dlvItemsOld(){
   const L = [];
   if (DLV.food) (POI || []).forEach(x => L.push({ n: x.n, k: "food", lat: x.lat, lng: x.lng, s: x.k }));
   ((NEGOZI && NEGOZI.p) || []).forEach(a => { const k = DLV_FOODSHOP.has(a[4]) ? "food" : a[1]; if (DLV[k] && a[0]) L.push({ n: a[0], k, lat: a[2], lng: a[3], s: a[4] }); });
@@ -9241,7 +9344,7 @@ function layerVis(){
     "sensi": n, "fermate": appMode === "trasporti" || (n && LY.actv), "fermate-lbl": appMode === "trasporti" || (n && LY.actv),
     "battelli": n && (LY.actv || LY.alilaguna), "battelli-lbl": n && (LY.actv || LY.alilaguna), "battelli3d": n && (LY.actv || LY.alilaguna), "trk3d": n, "traghetti": n && LY.gondole !== false,
     "aero": n,
-    "partners": appMode === "market" && DLV.conv !== false, "partners-lbl": appMode === "market" && DLV.conv !== false, "dlv": appMode === "market", "dlv-lbl": appMode === "market"
+    "partners": appMode === "market" && !!DLVSEL, "partners-lbl": appMode === "market" && !!DLVSEL, "dlv": appMode === "market", "dlv-lbl": appMode === "market"
   };
   Object.entries(want).forEach(([id, v]) => /^route/.test(id) ? (map.getLayer(id) && map.setLayoutProperty(id, "visibility", v ? "visible" : "none")) : fadeVis(id, v));
   if (destMarker) fadeEl(destMarker.getElement(), n);
