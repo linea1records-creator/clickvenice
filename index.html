@@ -1032,9 +1032,11 @@
   svg.ei{display:inline-block;width:1.2em;height:1.2em;vertical-align:-.22em;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;overflow:visible}
   .big svg.ei,.big > svg.ei{width:1em;height:1em}
   /* schermata d'apertura con il logo */
-  #boot{position:fixed;inset:0;z-index:7000;background:#ffffff;display:flex;align-items:center;justify-content:center;transition:opacity .45s ease}
-  #boot img{width:min(62vw,42vh,340px);height:auto;animation:bootIn .6s ease}
-  #boot.out{opacity:0;pointer-events:none}
+  #boot{position:fixed;inset:0;z-index:7000;background:#ffffff;display:flex;align-items:center;justify-content:center;transition:opacity .5s ease}
+  #boot img{width:auto;height:min(38vh,300px);max-width:62vw;object-fit:contain;animation:bootIn .6s ease,bootSway 3s ease-in-out .6s infinite;transform-origin:50% 92%}
+  #boot.out{opacity:0;pointer-events:none} #boot.out img{animation:bootOut .5s cubic-bezier(.5,0,.75,0) forwards}
+  @keyframes bootSway{0%,100%{transform:rotate(0)}25%{transform:rotate(3deg)}75%{transform:rotate(-3deg)}}
+  @keyframes bootOut{from{transform:scale(1)}to{transform:scale(1.6) translateY(-6%);opacity:0}}
   @keyframes bootIn{from{transform:scale(.92);opacity:0}}
   /* ===== intro animata ===== */
   #intro{position:fixed;inset:0;z-index:6000;background:#f7f7f2;display:flex;align-items:center;justify-content:center;pointer-events:none}
@@ -1606,8 +1608,8 @@
 </head>
 <body>
 
-<!-- ============ INTRO animata del logo (2,2 s) ============ -->
-<div id="intro" aria-hidden="true"><svg id="introSvg" viewBox="0 0 400 140"></svg></div>
+<!-- ============ apertura: il logo finché l'app carica, poi transizione di 0,5 s ============ -->
+<div id="boot" aria-hidden="true"><img src="logo-mark.png" alt=""></div>
 
 <!-- ============ SPLASH: avviso obbligatorio ============ -->
 <div id="splash">
@@ -2063,7 +2065,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.15</p>
+      <p class="sub">clickVenice · versione 4.16</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -12509,7 +12511,11 @@ function playIntro(){
     .onfinish = () => box.remove();
   setTimeout(() => { if (box.isConnected) box.remove(); }, 3000);
 }
-{ const b = $("#intro"); if (b) b.remove(); }   // niente animazione iniziale: la mappa si apre subito
+// apertura: appena l'app (e la mappa, se c'è) ha finito di caricare, il logo esce con una transizione di 0,5 s
+{ const t0 = Date.now(), fine = () => { const b = $("#boot"); if (!b || b.classList.contains("out")) return; b.classList.add("out"); setTimeout(() => b.remove(), 520); };
+  const chk = () => { const pronta = (typeof map !== "undefined" && map && map.loaded && map.loaded()) || !$("#splash").classList.contains("hidden") || !window._mapReady;
+    if ((pronta && Date.now() - t0 > 400) || Date.now() - t0 > 3500) fine(); else setTimeout(chk, 100); };
+  if (document.readyState === "complete") chk(); else window.addEventListener("load", chk); }
 
 /* ---------- icone: tutte le emoji dell'app diventano icone a linea sottile, come quelle della barra in basso ---------- */
 const ICO = {
