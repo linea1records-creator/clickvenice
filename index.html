@@ -1826,7 +1826,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.92</p>
+      <p class="sub">clickVenice · versione 3.93</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -3549,18 +3549,20 @@ $("#shopQ").oninput = e => { MP.q = e.target.value; paintMp(); };
 /* =========================================================
    BARKETPLACE: barche avvistate nei rii (offerte anonime, bigliettino QR per il proprietario) e barche in vendita
    ========================================================= */
-const BK = { seg: "barche", modo: "vendita", f: "tutte", q: "", list: [], admin: false, reclami: 0, n: {} };
+const BK = { seg: "barche", modo: "vendita", flt: {}, f: "tutte", q: "", list: [], admin: false, reclami: 0, n: {} };
 const BK_TIPI = { open: "Open / Barchino", pilotina: "Pilotina / Topa", motore: "Solo fuoribordo", altro: "Altro" };
 const BK_ZONE = ["Cannaregio", "Castello", "Dorsoduro", "San Polo", "Santa Croce", "San Marco", "Giudecca", "Sant'Elena", "Sacca Fisola", "Certosa", "Lido", "Murano", "Burano", "Laguna nord", "Laguna sud"];
 const bkEur = v => v == null || v === "" ? "—" : "€ " + Number(v).toLocaleString("it-IT", { maximumFractionDigits: 0 });
 const agoShort = t => { const m = Math.max(1, Math.round((Date.now() - new Date(t)) / 60000)); return m < 60 ? m + " min" : m < 1440 ? Math.round(m / 60) + " h" : Math.round(m / 1440) + " g"; };
 function bkSvg(t){
+  if (t === "elica") return `<svg viewBox="0 0 100 100" style="width:84px;height:84px"><g fill="#2b7bba" stroke="#0b2545" stroke-width="2.5" stroke-linejoin="round"><path d="M50 50C44 30 46 12 58 8c10 6 4 26-8 42z"/><path d="M50 50c20-3 36 5 37 18-8 8-26-2-37-18z"/><path d="M50 50c-12 16-30 26-38 18 1-13 18-21 38-18z"/></g><circle cx="50" cy="50" r="9" fill="#0b2545"/><circle cx="50" cy="50" r="3.5" fill="#5bc0eb"/></svg>`;
+  if (t === "acc") return `<svg viewBox="0 0 100 100" style="width:80px;height:80px"><path d="M30 78l30-30" stroke="#0b2545" stroke-width="9" stroke-linecap="round"/><path d="M58 22a16 16 0 0 0 20 20l-8 8-20-20z" fill="#2b7bba" stroke="#0b2545" stroke-width="2.5" stroke-linejoin="round"/><circle cx="30" cy="78" r="4" fill="#5bc0eb"/><path d="M20 30h22M31 19v22" stroke="#f2b738" stroke-width="5" stroke-linecap="round"/></svg>`;
   if (t === "motore") return `<svg viewBox="0 0 100 100" style="width:80px;height:80px"><rect x="33" y="14" width="34" height="32" rx="8" fill="#0b2545" stroke="#18a0db" stroke-width="2.5"/><path d="M40 24h20M40 31h14" stroke="#f2b738" stroke-width="2.2" stroke-linecap="round"/><path d="M42 46h16l-3 32H45z" fill="#27272a"/><path d="M35 76h28l4 6H31z" fill="#18a0db"/></svg>`;
   if (t === "pilotina") return `<svg viewBox="0 0 180 90"><path d="M18 58h138l12-14H55l-8-14H24z" fill="#fff" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/><rect x="30" y="35" width="14" height="8" rx="2" fill="#18a0db"/><path d="M10 66c15-3 30-3 45 0s30 3 45 0 30-3 45 0 20 2 25 0" stroke="#2b7bba" stroke-opacity=".45" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
   return `<svg viewBox="0 0 180 90"><path d="M16 54c35 6 105 6 144-6l-8 14c-35 8-98 8-128 0z" fill="#18a0db" stroke="#111" stroke-width="2.5" stroke-linejoin="round"/><path d="M88 52V37h12l4 15" stroke="#111" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M12 69c18-3 36-3 54 0s36 3 54 0 36-3 50 0" stroke="#2b7bba" stroke-opacity=".45" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>`;
 }
 function bkPh(x, big){
-  return `<div class="bkph${big ? " big" : ""}">${x.foto ? `<img loading="lazy" src="${esc(x.foto)}" alt="">` : bkSvg(x.tipo)}
+  return `<div class="bkph${big ? " big" : ""}">${x.foto ? `<img loading="lazy" src="${esc(x.foto)}" alt="">` : bkSvg(x.categoria === "elica" ? "elica" : x.categoria === "accessorio" ? "acc" : x.tipo)}
     <span class="pin"><i>B</i>${esc(x.codice)}</span><span class="who${x.stato === "venduta" ? " sold" : ""}">${x.modo === "rii" ? "👀 " : ""}@${esc(x.autore || "")} · ${esc(agoShort(x.quando))}</span>
     ${x.modo === "rii" ? `<span class="tg">🔒 Targa e ormeggio nascosti</span>` : ""}${x.posto ? `<span class="posto">⚓ POSTO BARCA</span>` : ""}</div>`;
 }
@@ -3570,7 +3572,11 @@ function bkStato(x){
   if (x.modo === "vendita") return `<span class="bkst ok">In vendita</span>`;
   return x.verificata ? `<span class="bkst ok">✓ Reclamata</span>` : `<span class="bkst">Proprietario cercasi</span>`;
 }
-const bkSpecs = x => [x.lunghezza, x.motore, x.dettagli].filter(Boolean).join(" · ") || BK_TIPI[x.tipo] || "";
+const bkSpecs = x => { const S = x.specs || {};
+  if (x.categoria === "motore") return [S.tipo_motore, S.potenza, S.gambo, S.anno, S.ore != null ? S.ore + " ore" : ""].filter(Boolean).join(" · ");
+  if (x.categoria === "elica") return [S.pale ? S.pale + " pale" : "", S.diametro && S.passo ? S.diametro + " × " + S.passo : "", S.righe ? S.righe + " righe" : "", S.materiale_elica].filter(Boolean).join(" · ");
+  if (x.categoria === "accessorio") return [x.sottocat, S.condizioni].filter(Boolean).join(" · ");
+  return [x.sottocat, x.lunghezza, x.motore, S.altezza ? S.altezza.split(" (")[0] + " sotto i ponti" : ""].filter(Boolean).join(" · ") || [x.lunghezza, x.motore, x.dettagli].filter(Boolean).join(" · ") || BK_TIPI[x.tipo] || ""; };
 function mpSeg(seg){
   BK.seg = seg; document.querySelectorAll("#mpSeg [data-ms]").forEach(b => b.classList.toggle("on", b.dataset.ms === seg));
   $("#mpUsato").classList.toggle("hidden", seg !== "usato"); $("#bkBox").classList.toggle("hidden", seg !== "barche");
@@ -3590,24 +3596,25 @@ function bkPaint(){
   const box = $("#bkBox"); if (!box) return;
   const q = norm(BK.q), F = BK.list.filter(x => {
     if (BK.f === "vendute"){ if (x.stato !== "venduta") return false; }
-    if (["open", "pilotina", "motore"].includes(BK.f) && x.tipo !== BK.f) return false;
+    if (["barca", "motore", "elica", "accessorio"].includes(BK.f) && (x.categoria || "barca") !== BK.f) return false;
+    if (!bkFltPass(x)) return false;
     if (BK.f === "posto" && !x.posto) return false;
-    return !q || norm([x.titolo, x.zona, x.dettagli, x.motore, x.codice].join(" ")).includes(q); });
+    return !q || norm([x.titolo, x.zona, x.dettagli, x.motore, x.codice, x.marca, x.modello, x.sottocat].join(" ")).includes(q); });
   const att = BK.list.filter(x => x.stato === "attiva"), top = Math.max(0, ...att.map(x => +x.top || 0)), rii = BK.modo === "rii";
   const kf = document.activeElement && document.activeElement.id === "bkQ";
   box.innerHTML = `<div class="bkseg"><button data-bm="vendita" class="${rii ? "" : "on"}">⚓ In vendita${BK.n.vendita != null ? ` <em>${BK.n.vendita}</em>` : ""}</button><button data-bm="rii" class="${rii ? "on" : ""}">👀 Nei rii${BK.n.rii != null ? ` <em>${BK.n.rii}</em>` : ""}</button></div>
     <div class="bkhud"><div class="g"><div><small>${rii ? "Nei rii" : "In vendita"}</small><b>${att.length}</b></div><div><small>⚡ Offerta top</small><b style="color:#18a0db">${top ? bkEur(top) : "—"}</b></div><div><small>Offerte</small><b>${att.reduce((s, x) => s + (+x.n || 0), 0)}</b></div></div>
       <p>${rii ? "Hai visto una barca ferma nei rii? Segnalala e fai un'offerta anonima: col bigliettino QR il proprietario la scopre." : "Barche e fuoribordo messi in vendita dai proprietari, a Venezia e in laguna."}</p></div>
     ${BK.admin && BK.reclami ? `<button class="btn small" id="bkRec" style="margin:0 0 10px">Reclami da verificare · ${BK.reclami}</button>` : ""}
-    <div class="bkpills">${[["tutte", "Tutte"], ["open", "Open / Barchini"], ["pilotina", "Pilotine e tope"], ["motore", "Fuoribordo"], ["posto", "Posto barca"], ["vendute", "Vendute"]].map(([k, n]) => `<button data-bf="${k}" class="${BK.f === k ? "on" : ""}">${n}</button>`).join("")}</div>
+    <div class="bkpills">${(rii ? [["tutte", "Tutte"], ["posto", "Posto barca"], ["vendute", "Vendute"]] : [["tutte", "Tutto"], ["barca", "Barche"], ["motore", "Motori"], ["elica", "Eliche"], ["accessorio", "Accessori"], ["posto", "Posto barca"], ["vendute", "Vendute"]]).map(([k, n]) => `<button data-bf="${k}" class="${BK.f === k ? "on" : ""}">${n}</button>`).join("")}<button data-bf="__f" class="${Object.keys(BK.flt || {}).length ? "on" : ""}">⚙︎ Filtri${Object.keys(BK.flt || {}).length ? " · " + Object.keys(BK.flt).length : ""}</button></div>
     <div class="field" style="margin:0 0 10px"><input id="bkQ" type="search" placeholder="Cerca barca, motore, rio…" value="${esc(BK.q)}"></div>
     <div class="bkgrid">${F.length ? F.map(x => `<button class="bkc${x.stato === "venduta" ? " sold" : ""}" data-bk="${x.id}">${bkPh(x)}
       <div class="bd"><div class="z"><span>📍 ${esc(x.zona || "Venezia")}</span>${bkStato(x)}</div><h4>${esc(x.titolo)}</h4><p class="sp">${esc(bkSpecs(x))}</p></div>
       <div class="bkstrip"><div><small>${x.stato === "venduta" ? "Chiusa a" : x.modo === "vendita" && !x.top ? "Prezzo" : "Offerta top"}</small><b>${bkEur(x.stato === "venduta" ? x.finale : x.top || x.prezzo)}</b></div>
         <span>${x.n} off.<em style="${x.stato === "venduta" ? "background:#1d4e89" : ""}">${x.stato === "venduta" ? "Vedi" : "Offri"}</em></span></div></button>`).join("")
       : `<div class="card soonbox" style="text-align:center"><h3 style="margin:4px 0">Nessuna barca qui</h3><p class="muted">${rii ? "Segnala tu la prima barca ferma in un rio: tocca «+ Vendi o segnala»." : "Vendi la tua barca o il tuo motore: tocca «+ Vendi o segnala»."}</p></div>`}</div>`;
-  box.querySelectorAll("[data-bm]").forEach(b => b.onclick = () => { if (BK.modo === b.dataset.bm) return; BK.modo = b.dataset.bm; BK.list = []; BK.f = "tutte"; bkLoad(); });
-  box.querySelectorAll("[data-bf]").forEach(b => b.onclick = () => { BK.f = b.dataset.bf; bkPaint(); });
+  box.querySelectorAll("[data-bm]").forEach(b => b.onclick = () => { if (BK.modo === b.dataset.bm) return; BK.modo = b.dataset.bm; BK.list = []; BK.f = "tutte"; BK.flt = {}; bkLoad(); });
+  box.querySelectorAll("[data-bf]").forEach(b => b.onclick = () => { if (b.dataset.bf === "__f") return bkFiltri(); if (BK.f !== b.dataset.bf) BK.flt = {}; BK.f = b.dataset.bf; bkPaint(); });
   box.querySelectorAll("[data-bk]").forEach(b => b.onclick = () => bkOpen(+b.dataset.bk));
   const qi = $("#bkQ"); qi.oninput = e => { BK.q = e.target.value; bkPaint(); }; if (kf){ qi.focus(); qi.setSelectionRange(qi.value.length, qi.value.length); }
   if ($("#bkRec")) $("#bkRec").onclick = bkReclami;
@@ -3620,8 +3627,9 @@ async function bkOpen(id, flash){
   const link = location.origin + location.pathname + "#barca=" + x.id;
   openSheet(`${bkPh(x, true)}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><b style="font-size:12.5px;color:#1d4e89">📍 ${esc(x.zona || "Venezia")}</b>${bkStato(x)}</div>
-    <h3 style="margin:4px 0 2px">${esc(x.titolo)}</h3><p class="muted" style="margin:0;font-size:13px">${esc(BK_TIPI[x.tipo] || "")}${x.dettagli ? " · " + esc(x.dettagli) : ""}</p>
-    <div class="bkspec"><div><small>Lunghezza</small><b>${esc(x.lunghezza || "—")}</b></div><div><small>Motore</small><b style="color:#f2b738">${esc(x.motore || "—")}</b></div><div><small>Posto barca</small><b style="color:#18a0db">${x.posto ? "Incluso" : "No"}</b></div></div>
+    <h3 style="margin:4px 0 2px">${esc(x.titolo)}</h3><p class="muted" style="margin:0;font-size:13px">${esc(x.sottocat || (x.categoria && x.categoria !== "barca" ? BK_CATS[x.categoria] : BK_TIPI[x.tipo]) || "")}${x.dettagli ? " · " + esc(x.dettagli) : ""}</p>
+    ${(x.categoria || "barca") === "barca" ? `<div class="bkspec"><div><small>Lunghezza</small><b>${esc(x.lunghezza || "—")}</b></div><div><small>Motore</small><b style="color:#f2b738">${esc(x.motore || "—")}</b></div><div><small>Posto barca</small><b style="color:#18a0db">${x.posto ? "Incluso" : "No"}</b></div></div>` : ""}
+    ${Object.keys(x.specs || {}).length ? `<div class="shsum" style="margin:10px 0">${Object.entries(x.specs).filter(([k]) => BK_SPEC_N[k]).map(([k, v]) => `<div class="shrow"><span>${BK_SPEC_N[k]}</span><b>${esc(k === "lung" ? String(v).replace(".", ",") + " m" : v)}</b></div>`).join("")}</div>` : ""}
     <div class="bkoff" id="bkOff"><div class="r"><small>${sold ? "Prezzo finale" : "Offerta top"}</small><em>${x.n} ${+x.n === 1 ? "offerta" : "offerte"}</em></div>
       <div class="big">${bkEur(sold ? x.finale : x.top)}</div><div class="sub">${x.modo === "vendita" ? "Prezzo richiesto " + bkEur(x.prezzo) : "Offerte anonime e non vincolanti"}${x.mia_offerta ? " · la tua: " + bkEur(x.mia_offerta) : ""}</div></div>
     ${canBid ? `<div class="bkbid"><div style="display:flex;justify-content:space-between"><b style="font-size:13px">Fai un'offerta anonima</b><small class="muted">Non vincolante</small></div>
@@ -3689,46 +3697,147 @@ async function bkReclami(){
     <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`, "light");
   document.querySelectorAll("[data-rc]").forEach(b => b.onclick = () => bkOpen(+b.dataset.rc));
 }
-// segnala una barca nei rii o vendi la tua: foto, poi una domanda alla volta
+// catalogo di Barketplace: barche per categoria e cantiere, motori, eliche e accessori (catalogo-barche.json)
+let BKC = null;
+async function bkCat(){ if (!BKC){ try{ BKC = await fetch("catalogo-barche.json").then(r => r.json()); }catch(e){ BKC = { barche: {}, motori: {}, eliche: {}, accessori: {}, spec: {} }; } } return BKC; }
+const BK_CATS = { barca: "Barche", motore: "Motori", elica: "Eliche", accessorio: "Accessori" };
+const BK_SPEC_N = { lung: "Lunghezza", altezza: "Passaggio ponti", materiale: "Materiale", guida: "Guida", motorizzata: "Motore incluso", m_marca: "Marca motore", m_modello: "Modello motore",
+  anno: "Anno", ore: "Ore moto", immatricolazione: "Immatricolazione", tipo_motore: "Tipo", potenza: "Potenza", gambo: "Gambo", avviamento: "Avviamento", trim: "Trim / tilt", piede: "Piede",
+  documenti: "Documenti", cat_elica: "Tipo di elica", righe: "Righe albero", mozzo: "Piede / mozzo", compatibili: "Compatibile con", rotazione: "Rotazione", diametro: "Diametro", passo: "Passo",
+  passo_reale: "Passo reale", lavorazioni: "Lavorazioni", pale: "Pale", materiale_elica: "Materiale", condizioni: "Condizioni" };
+const bkO = a => (a || []).map(x => [x, x]);
+function bkLungFascia(m){ m = +m; return !m ? "" : m < 4.5 ? "< 4,5 m" : m <= 5.5 ? "4,5-5,5 m" : m <= 7 ? "5,5-7 m" : "> 7 m"; }
+function bkTipoDa(v){
+  if (v.categoria === "motore") return "motore"; if (v.categoria !== "barca") return "altro";
+  return /Pilotine|Toppe|lavoro/i.test(v.sottocat || "") ? "pilotina" : "open";
+}
+// segnala una barca nei rii o vendi: foto, poi una domanda alla volta con il catalogo
 function bkNew(){
   if (!TOKEN) return toast("Per segnalare o vendere serve l'account.");
   const A = { foto: null };
-  openSheet(`<h3>Segnala o vendi</h3><p class="muted">Cosa vuoi fare?</p>
-    <button class="card shmine" id="bkNr" style="width:100%;text-align:left"><span><b>👀 Ho visto una barca nei rii</b><small>Sembra ferma da tempo o in vendita: la segnali e fai un'offerta</small></span></button>
-    <button class="card shmine" id="bkNv" style="width:100%;text-align:left;margin-top:8px"><span><b>⚓ Vendo la mia barca o il motore</b><small>Annuncio diretto: ricevi le offerte</small></span></button>
+  openSheet(`<h3>Vendi o segnala</h3><p class="muted">Cosa vuoi fare?</p>
+    <button class="card shmine" id="bkNv" style="width:100%;text-align:left"><span><b>⚓ Vendo</b><small>Barca, motore, elica o accessorio: ricevi le offerte</small></span></button>
+    <button class="card shmine" id="bkNr" style="width:100%;text-align:left;margin-top:8px"><span><b>👀 Ho visto una barca nei rii</b><small>Sembra ferma da tempo o in vendita: la segnali e fai un'offerta</small></span></button>
     <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Annulla</button>`, "light");
-  const foto = modo => { A.modo = modo; openSheet(`<h3>${modo === "rii" ? "Barca nei rii" : "Vendo"} · foto</h3><p class="muted" style="line-height:1.45">${modo === "rii" ? "Fotografa la barca senza inquadrare la targa e senza persone." : "Una bella foto aiuta a vendere."}</p>
+  const foto = () => { openSheet(`<h3>${A.modo === "rii" ? "Barca nei rii" : "Vendo"} · foto</h3><p class="muted" style="line-height:1.45">${A.modo === "rii" ? "Fotografa la barca senza inquadrare la targa e senza persone." : "Una bella foto aiuta a vendere."}</p>
       <label class="btn" style="display:block;text-align:center">Scatta o scegli una foto<input type="file" accept="image/*" id="bkF" hidden></label><button class="btn ghost" id="bkNoF" style="margin-top:10px">Senza foto</button>`, "light");
     $("#bkF").onchange = async e => { const f = e.target.files[0]; if (!f) return; try{ A.foto = await shrinkPhoto(f); domande(); }catch(_){ toast("Foto non valida, provane un'altra."); } };
     $("#bkNoF").onclick = domande; };
-  const domande = () => { closeSheet(); const rii = A.modo === "rii";
-    wizard({ title: rii ? "Barca nei rii" : "Vendo barca o motore", values: {}, steps: [
-      { k: "tipo", q: "Che cos'è?", type: "choice", options: Object.entries(BK_TIPI) },
-      { k: "titolo", q: "Modello e motore", hint: "Come la descriveresti in poche parole", type: "text", max: 80, ph: "es. Open 4,8 m · Yamaha 40/60 4T", check: t => t.trim().length < 3 ? "Scrivi qualche parola." : "" },
-      { k: "zona", q: rii ? "Dove l'hai vista?" : "Dove si trova?", hint: "Solo la zona: l'ormeggio esatto resta nascosto", type: "text", max: 80, chips: BK_ZONE, ph: "es. Cannaregio, rio della Sensa", check: t => t.trim().length < 2 ? "Scegli la zona." : "" },
-      { k: "lunghezza", q: "Lunghezza", type: "text", max: 20, optional: true, skipLabel: "Non lo so", chips: ["4 m", "4,5 m", "5 m", "5,5 m", "6 m", "7 m", "8 m"], when: v => v.tipo !== "motore" },
-      { k: "motore", q: "Motore", type: "text", max: 40, optional: true, skipLabel: "Non lo so", chips: ["Senza motore", "15 cv", "25 cv", "40/60 4T", "60 cv", "90 cv", "Entrobordo"] },
-      { k: "posto", q: "C'è il posto barca?", type: "choice", options: [["no", "No / non lo so"], ["si", "Sì, incluso"]], when: v => v.tipo !== "motore" },
-      { k: "dettagli", q: "Qualcosa da aggiungere?", type: "text", max: 300, optional: true, skipLabel: "No", ph: rii ? "es. ferma da mesi, telo rovinato" : "es. tagliandata, 140 ore, gambo lungo" },
-      { k: "prezzo", q: rii ? "Vuoi fare tu la prima offerta?" : "Prezzo richiesto in euro", hint: rii ? "Anonima e non vincolante, in euro" : "Solo il numero", type: "text", inputType: "number", max: 8,
-        optional: rii, skipLabel: "No, solo segnalo", check: t => !t ? (rii ? "" : "Scrivi il prezzo.") : (+String(t).replace(/[^\d]/g, "") >= 50 ? "" : "Almeno 50 €.") }
-    ], onDone: v => bkRiep(Object.assign({}, A, v)) }); };
-  $("#bkNr").onclick = () => foto("rii"); $("#bkNv").onclick = () => foto("vendita");
+  const cosa = () => { openSheet(`<h3>Cosa vendi?</h3>${Object.entries(BK_CATS).map(([k, n]) => `<button class="card shmine" data-bkc="${k}" style="width:100%;text-align:left;margin-top:8px"><span><b>${{ barca: "Barca", motore: "Motore", elica: "Elica", accessorio: "Accessorio" }[k]}</b><small>${{ barca: "Cofani, toppe, pilotine, open, gommoni, tipiche veneziane, da lavoro, kayak e vela", motore: "Fuoribordo, entrobordo ed elettrici", elica: "Di serie, inox o lavorate da elicaio", accessorio: "Lift, timoneria, elettronica, teli, ormeggio e sicurezza" }[k]}</small></span></button>`).join("")}
+      <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Annulla</button>`, "light");
+    document.querySelectorAll("[data-bkc]").forEach(b => b.onclick = () => { A.categoria = b.dataset.bkc; foto(); }); };
+  const domande = async () => { closeSheet(); const C = await bkCat(), S = C.spec || {}, rii = A.modo === "rii", cat = A.categoria;
+    const zona = { k: "zona", q: rii ? "Dove l'hai vista?" : "Dove si trova?", hint: "Solo la zona: l'ormeggio esatto resta nascosto", type: "text", max: 80, chips: BK_ZONE, ph: "es. Cannaregio, rio della Sensa" };
+    const dettagli = { k: "dettagli", q: "Qualcosa da aggiungere?", type: "long", max: 300, optional: true, skipLabel: "No", ph: rii ? "es. ferma da mesi, telo rovinato" : "es. tagliandata, sempre in rimessa" };
+    const prezzo = { k: "prezzo", q: rii ? "Vuoi fare tu la prima offerta?" : "Prezzo richiesto", hint: rii ? "Anonima e non vincolante, almeno 50 €" : "In euro, solo il numero", type: "number", unit: "€", min: 0, optional: rii, skipLabel: "No, solo segnalo" };
+    let steps = [];
+    if (cat === "barca"){
+      const B = C.barche || {};
+      steps = [
+        { k: "sottocat", q: "Che barca è?", type: "choice", options: bkO(Object.keys(B)) },
+        { k: "marca", q: "Cantiere o tipo", type: "text", max: 60, chips: v => Object.keys(B[v.sottocat] || {}), ph: "es. Brube, Gobbi, Sfriso…", optional: rii, skipLabel: "Non lo so" },
+        { k: "modello", q: "Modello", type: "text", max: 60, chips: v => ((B[v.sottocat] || {})[v.marca] || []), ph: "es. Evo 3", optional: true, skipLabel: rii ? "Non lo so" : "Altro / non c'è" },
+        { k: "lung", q: "Lunghezza", type: "number", unit: "m", min: 1, max: 30, optional: rii, skipLabel: "Non lo so" },
+        { k: "altezza", q: "Altezza fuori acqua", hint: "Per sapere sotto quali ponti passa", type: "choice", options: bkO(S.altezza), optional: true, skipLabel: "Non lo so" },
+        { k: "materiale", q: "Materiale di scafo e coperta", type: "choice", options: bkO(S.materiale), optional: rii, skipLabel: "Non lo so" },
+        { k: "guida", q: "Tipo di guida", type: "choice", options: bkO(S.guida), optional: rii, skipLabel: "Non lo so" },
+        { k: "motorizzata", q: "Il motore è incluso?", type: "choice", options: [["Sì", "Sì, con motore"], ["No", "No, solo scafo"]], when: () => !rii },
+        { k: "m_marca", q: "Marca del motore", type: "text", max: 40, chips: Object.keys(C.motori || {}), when: v => v.motorizzata === "Sì" || rii, optional: rii, skipLabel: "Non lo so" },
+        { k: "m_modello", q: "Modello / potenza del motore", type: "text", max: 60, chips: v => (C.motori || {})[v.m_marca] || [], when: v => (v.motorizzata === "Sì" || rii) && v.m_marca, optional: true, skipLabel: "Non lo so" },
+        { k: "anno", q: "Anno del motore", type: "number", min: 1950, max: 2030, when: v => v.motorizzata === "Sì", optional: true, skipLabel: "Non lo so" },
+        { k: "ore", q: "Ore di moto", type: "number", unit: "ore", min: 0, when: v => v.motorizzata === "Sì", optional: true, skipLabel: "Non lo so" },
+        { k: "immatricolazione", q: "Immatricolazione / uso", type: "choice", options: bkO(S.immatricolazione), when: () => !rii },
+        { k: "posto", q: "C'è il posto barca?", type: "choice", options: [["no", "No / non lo so"], ["si", "Sì, incluso"]] },
+        zona, dettagli, prezzo ];
+    } else if (cat === "motore"){
+      const M = C.motori || {};
+      steps = [
+        { k: "tipo_motore", q: "Che motore è?", type: "choice", options: bkO(S.tipo_motore) },
+        { k: "marca", q: "Marca", type: "text", max: 40, chips: Object.keys(M), ph: "es. Yamaha" },
+        { k: "modello", q: "Modello", type: "text", max: 60, chips: v => M[v.marca] || [], ph: "es. F40G (40/70)" },
+        { k: "potenza", q: "Potenza a libretto", type: "choice", options: bkO(S.potenza) },
+        { k: "gambo", q: "Lunghezza del gambo", type: "choice", options: bkO(S.gambo), when: v => !/Entrobordo/.test(v.tipo_motore || ""), optional: true, skipLabel: "Non lo so" },
+        { k: "avviamento", q: "Avviamento e guida", type: "choice", options: bkO(S.avviamento), optional: true, skipLabel: "Non lo so" },
+        { k: "trim", q: "Trim e tilt", type: "choice", options: bkO(S.trim), optional: true, skipLabel: "Non lo so" },
+        { k: "piede", q: "Piede", type: "choice", options: bkO(S.piede), optional: true, skipLabel: "Non lo so" },
+        { k: "anno", q: "Anno di produzione", type: "number", min: 1950, max: 2030, optional: true, skipLabel: "Non lo so" },
+        { k: "ore", q: "Ore di moto", type: "number", unit: "ore", min: 0, optional: true, skipLabel: "Non lo so" },
+        { k: "documenti", q: "Documenti", type: "choice", options: bkO(S.documenti) },
+        zona, dettagli, prezzo ];
+    } else if (cat === "elica"){
+      const E = C.eliche || {};
+      steps = [
+        { k: "cat_elica", q: "Che elica è?", type: "choice", options: bkO(S.cat_elica) },
+        { k: "marca", q: "Marca", type: "text", max: 40, chips: Object.keys(E), ph: "es. Solas" },
+        { k: "modello", q: "Modello", type: "text", max: 60, chips: v => E[v.marca] || [], optional: true, skipLabel: "Altro / non c'è" },
+        { k: "compatibili", q: "Per quali motori va bene?", hint: "Tocca tutti quelli che valgono", type: "text", multi: true, max: 200, chips: S.compatibili, optional: true, skipLabel: "Non lo so" },
+        { k: "righe", q: "Righe sull'albero", type: "choice", options: bkO(S.righe), optional: true, skipLabel: "Non lo so" },
+        { k: "mozzo", q: "Piede / mozzo", type: "choice", options: bkO(S.mozzo), optional: true, skipLabel: "Non lo so" },
+        { k: "rotazione", q: "Rotazione", type: "choice", options: bkO(S.rotazione) },
+        { k: "diametro", q: "Diametro (pollici)", type: "text", max: 12, chips: ["10\"", "10 1/8\"", "10,5\"", "11,1\"", "11,6\"", "13\"", "13,5\"", "13 3/4\"", "14 1/2\"", "14 3/4\""], ph: "es. 13 3/4\"" },
+        { k: "passo", q: "Passo stampigliato (pollici)", type: "text", max: 12, chips: ["11\"", "12\"", "13\"", "14\"", "15\"", "16\"", "17\"", "19\"", "21\"", "25\""], ph: "es. 15\"" },
+        { k: "passo_reale", q: "Passo reale misurato", hint: "Se è stata lavorata", type: "text", max: 12, optional: true, skipLabel: "No / non lo so", ph: "es. 15,5\"" },
+        { k: "lavorazioni", q: "Lavorazioni fatte", type: "text", multi: true, max: 200, chips: S.lavorazioni, optional: true, skipLabel: "Nessuna" },
+        { k: "pale", q: "Numero di pale", type: "choice", options: S.pale.map(x => [x, x + " pale"]) },
+        { k: "materiale_elica", q: "Materiale", type: "choice", options: bkO(S.materiale_elica) },
+        { k: "condizioni", q: "Condizioni", type: "choice", options: bkO(S.condizioni_elica) },
+        zona, dettagli, prezzo ];
+    } else {
+      const X = C.accessori || {};
+      steps = [
+        { k: "sottocat", q: "Che accessorio è?", type: "choice", options: bkO(Object.keys(X)) },
+        { k: "modello", q: "Cosa vendi esattamente?", type: "text", max: 80, chips: v => X[v.sottocat] || [], ph: "es. Power lift idraulico Bob's" },
+        { k: "marca", q: "Marca", type: "text", max: 40, optional: true, skipLabel: "Senza marca / non lo so", ph: "es. Garmin" },
+        { k: "condizioni", q: "Condizioni", type: "choice", options: bkO(S.condizioni) },
+        zona, dettagli, prezzo ];
+    }
+    wizard({ title: rii ? "Barca nei rii" : "Vendo · " + BK_CATS[cat], values: {}, steps, onDone: v => bkRiep(Object.assign({}, A, v)) }); };
+  $("#bkNv").onclick = () => { A.modo = "vendita"; cosa(); };
+  $("#bkNr").onclick = () => { A.modo = "rii"; A.categoria = "barca"; foto(); };
+}
+function bkPayload(v){
+  const specs = {}; Object.keys(BK_SPEC_N).forEach(k => { const x = v[k]; if (x !== undefined && x !== null && String(x).trim() !== "") specs[k] = typeof x === "number" ? x : String(x).slice(0, 200); });
+  const titolo = [v.marca, v.modello].filter(Boolean).join(" ") || (v.categoria === "barca" ? v.sottocat : v.modello) || BK_CATS[v.categoria];
+  const lunghezza = v.lung ? String(v.lung).replace(".", ",") + " m" : "";
+  const motore = v.categoria === "barca" ? [v.m_marca, v.m_modello].filter(Boolean).join(" ") : v.categoria === "motore" ? (v.potenza || "") : "";
+  return { modo: v.modo, categoria: v.categoria, sottocat: v.sottocat || "", marca: v.marca || "", modello: v.modello || "", specs, tipo: bkTipoDa(v), titolo: String(titolo).slice(0, 80),
+    zona: v.zona || "", lunghezza, motore, posto: v.posto === "si", dettagli: v.dettagli || "", prezzo: v.prezzo ? String(Math.round(+v.prezzo)) : "", foto: v.foto };
 }
 function bkRiep(v){
-  const row = (a, b) => `<div class="shrow"><span>${a}</span><b>${b}</b></div>`;
+  const row = (a, b) => `<div class="shrow"><span>${a}</span><b>${b}</b></div>`, P = bkPayload(v);
+  if (v.modo === "vendita" && !(+P.prezzo >= 1)) toast("Scrivi il prezzo richiesto.");
   openSheet(`<h3>${v.modo === "rii" ? "La tua segnalazione" : "Il tuo annuncio"}</h3>${v.foto ? `<img src="${v.foto}" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-bottom:8px">` : ""}
-    <div class="shsum">${row("Tipo", esc(BK_TIPI[v.tipo]))}${row("Modello", esc(v.titolo))}${row("Zona", esc(v.zona || "—"))}${v.lunghezza ? row("Lunghezza", esc(v.lunghezza)) : ""}${v.motore ? row("Motore", esc(v.motore)) : ""}
-      ${v.posto === "si" ? row("Posto barca", "Incluso") : ""}${row(v.modo === "rii" ? "La tua offerta" : "Prezzo", v.prezzo ? bkEur(+String(v.prezzo).replace(/[^\d]/g, "")) : "—")}</div>
+    <div class="shsum">${row("Cosa", esc(BK_CATS[v.categoria]) + (P.sottocat ? " · " + esc(P.sottocat) : ""))}${row("Titolo", esc(P.titolo))}${row("Zona", esc(P.zona || "—"))}
+      ${Object.entries(P.specs).map(([k, x]) => row(BK_SPEC_N[k], esc(k === "lung" ? String(x).replace(".", ",") + " m" : x))).join("")}
+      ${P.posto ? row("Posto barca", "Incluso") : ""}${row(v.modo === "rii" ? "La tua offerta" : "Prezzo", P.prezzo ? bkEur(+P.prezzo) : "—")}</div>
     <div class="bkhud" style="margin-top:8px"><p>🛡️ Targa e ormeggio esatto non vengono mai mostrati.${v.modo === "rii" ? " Le offerte sono anonime e non vincolanti." : ""}</p></div>
     <button class="btn" id="bkPub" style="margin-top:6px">Pubblica su Barketplace</button><button class="btn ghost" id="bkEd" style="margin-top:8px">Annulla</button>`, "light");
   $("#bkEd").onclick = () => closeSheet();
-  $("#bkPub").onclick = async () => { const b = $("#bkPub"); b.disabled = true; b.textContent = "Pubblico…";
-    try{ const r = await fetchT(CONFIG.SUPABASE_URL + "/functions/v1/barca", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ token: TOKEN, modo: v.modo, tipo: v.tipo, titolo: v.titolo, zona: v.zona,
-        lunghezza: v.lunghezza || "", motore: v.motore || "", posto: v.posto === "si", dettagli: v.dettagli || "", prezzo: v.prezzo ? String(v.prezzo).replace(/[^\d]/g, "") : "", foto: v.foto }) }, 30000), j = await r.json();
+  $("#bkPub").onclick = async () => { if (v.modo === "vendita" && !(+P.prezzo >= 1)) return toast("Manca il prezzo: tocca Annulla e rifai l'annuncio.");
+    const b = $("#bkPub"); b.disabled = true; b.textContent = "Pubblico…";
+    try{ const r = await fetchT(CONFIG.SUPABASE_URL + "/functions/v1/barca", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(Object.assign({ token: TOKEN }, P)) }, 30000), j = await r.json();
       if (!j.ok){ b.disabled = false; b.textContent = "Pubblica su Barketplace"; return toast(j.errore === "troppi" ? "Hai pubblicato tanto nell'ultima ora: riprova più tardi." : j.errore === "prezzo" ? "Controlla il prezzo." : "Non pubblicata, riprova."); }
-      haptic(); toast(v.modo === "rii" ? "Barca segnalata ✓" : "Annuncio pubblicato ✓"); BK.modo = v.modo; BK.list = []; BK.f = "tutte"; BK.n = {}; bkLoad(); bkOpen(j.id);
+      haptic(); toast(v.modo === "rii" ? "Barca segnalata ✓" : "Annuncio pubblicato ✓"); BK.modo = v.modo; BK.list = []; BK.f = "tutte"; BK.flt = {}; BK.n = {}; bkLoad(); bkOpen(j.id);
     }catch(e){ b.disabled = false; b.textContent = "Pubblica su Barketplace"; toast("Non pubblicata: controlla la connessione."); } };
+}
+// filtri del catalogo: categoria, fasce di lunghezza, passaggio sotto i ponti, materiale, guida, immatricolazione, marca motore, potenza, gambo, righe dell'elica…
+const BK_FLT = {
+  barca: [["sottocat", "Tipo di barca", x => x.sottocat], ["lungf", "Lunghezza", x => bkLungFascia((x.specs || {}).lung)], ["altezza", "Passaggio ponti", x => (x.specs || {}).altezza],
+    ["materiale", "Materiale", x => (x.specs || {}).materiale], ["guida", "Guida", x => (x.specs || {}).guida], ["motorizzata", "Motore incluso", x => (x.specs || {}).motorizzata], ["immatricolazione", "Immatricolazione", x => (x.specs || {}).immatricolazione]],
+  motore: [["tipo_motore", "Tipo", x => (x.specs || {}).tipo_motore], ["marca", "Marca", x => x.marca], ["potenza", "Potenza", x => (x.specs || {}).potenza], ["gambo", "Gambo", x => (x.specs || {}).gambo], ["piede", "Piede", x => (x.specs || {}).piede]],
+  elica: [["marca", "Marca", x => x.marca], ["righe", "Righe albero", x => (x.specs || {}).righe], ["rotazione", "Rotazione", x => (x.specs || {}).rotazione], ["pale", "Pale", x => (x.specs || {}).pale], ["cat_elica", "Tipo", x => (x.specs || {}).cat_elica]],
+  accessorio: [["sottocat", "Tipo", x => x.sottocat], ["condizioni", "Condizioni", x => (x.specs || {}).condizioni]] };
+function bkFltPass(x){
+  const F = BK.flt || {}, defs = BK_FLT[x.categoria || "barca"] || [];
+  return Object.entries(F).every(([k, val]) => { if (!val) return true; const d = defs.find(z => z[0] === k); return d ? d[2](x) === val : true; });
+}
+function bkFiltri(){
+  const cat = ["barca", "motore", "elica", "accessorio"].includes(BK.f) ? BK.f : "barca", defs = BK_FLT[cat], L = BK.list.filter(x => (x.categoria || "barca") === cat);
+  openSheet(`<h3>Filtri · ${BK_CATS[cat]}</h3>${defs.map(([k, n, g]) => { const vals = [...new Set(L.map(g).filter(Boolean))].sort();
+      return `<div class="field"><label>${n}</label><select data-bkf="${k}"><option value="">Tutti</option>${vals.map(v => `<option${(BK.flt || {})[k] === v ? " selected" : ""}>${esc(v)}</option>`).join("")}</select></div>`; }).join("")}
+    <button class="btn" id="bkFOk">Mostra risultati</button><button class="btn ghost" id="bkFX" style="margin-top:8px">Togli i filtri</button>`, "light");
+  $("#bkFOk").onclick = () => { BK.flt = {}; document.querySelectorAll("[data-bkf]").forEach(s => { if (s.value) BK.flt[s.dataset.bkf] = s.value; }); BK.f = cat; closeSheet(); bkPaint(); };
+  $("#bkFX").onclick = () => { BK.flt = {}; closeSheet(); bkPaint(); };
 }
 // link dal bigliettino QR: #barca=ID apre la scheda
 setTimeout(() => { const m = /barca=(\d+)/.exec(location.hash || ""); if (!m) return; history.replaceState(null, "", location.pathname + location.search);

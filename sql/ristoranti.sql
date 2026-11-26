@@ -10,3 +10,6 @@
 
 -- v3.77 Barketplace (Marketplace → ⚓ Barketplace): tabelle bk_barche, bk_offerte; funzioni bk_lista, bk_dettaglio, bk_offri,
 -- bk_reclama, bk_azione, bk_reclami; edge function "barca" per pubblicare con foto. Link QR: clickvenice.com/#barca=ID
+
+-- v3.93 catalogo Barketplace: bk_barche + categoria (barca|motore|elica|accessorio), sottocat, marca, modello, specs jsonb;
+-- catalogo in catalogo-barche.json (barche per cantiere e modello, motori, eliche, accessori, valori dei filtri)
