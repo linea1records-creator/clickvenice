@@ -1365,9 +1365,9 @@
   #tabs button.mid:not(.on) .logoTab{filter:grayscale(1) opacity(.6)}   /* spento come gli altri tasti */
   #tabs button.mid .logoTab{transition:filter .25s,transform .5s cubic-bezier(.34,1.56,.64,1)}
   #tabs button.mid.on .logoTab{animation:navSway 7s ease-in-out infinite}
-  @keyframes navSway{0%,100%{transform:rotate(0)}25%{transform:rotate(12deg)}75%{transform:rotate(-12deg)}}   /* oscilla piano a destra e a sinistra, simmetrica */
+  @keyframes navSway{0%,100%{transform:rotate(0)}25%{transform:rotate(5deg)}75%{transform:rotate(-5deg)}}   /* oscilla piano a destra e a sinistra, simmetrica */
   #tabs button.mid .ring::before,#tabs button.mid .ring::after{content:"";position:absolute;inset:4px;border-radius:50%;border:2px solid #3da6c4;opacity:0;pointer-events:none}
-  #tabs button.mid.on .ring::before{animation:sonar 2.4s cubic-bezier(.2,.6,.4,1) infinite} #tabs button.mid.on .ring::after{animation:sonar 2.4s cubic-bezier(.2,.6,.4,1) 1.2s infinite}
+  #tabs button.mid.on .ring::before{animation:sonar 4.8s cubic-bezier(.2,.6,.4,1) infinite} #tabs button.mid.on .ring::after{animation:sonar 4.8s cubic-bezier(.2,.6,.4,1) 2.4s infinite}
   @keyframes sonar{0%{transform:scale(.75);opacity:.5}100%{transform:scale(1.75);opacity:0}}
   /* micro-animazioni delle icone */
   #tabs svg *{transform-box:fill-box;transform-origin:center}
@@ -1438,7 +1438,7 @@
 
   /* ---------- Food: tasto con il logo delle patatine e colori presi dal logo ---------- */
   #tabs .foodIc{position:relative;display:block;width:26px;height:26px;flex:none}   /* stessa scatola delle altre icone: resta allineato */
-  #tabs .foodIc img{position:absolute;left:50%;top:50%;width:32px;height:32px;margin:-17px 0 0 -16px;-webkit-user-drag:none;user-select:none;pointer-events:none}
+  #tabs .foodIc img{position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-26px 0 0 -21px;-webkit-user-drag:none;user-select:none;pointer-events:none}
   #tabs .foodTab{filter:grayscale(1) opacity(.55);transition:filter .25s}
   #tabs .foodSmoke{filter:grayscale(1) opacity(.45);transition:filter .25s}
   #tabs .foodSmoke.s2{display:none}
@@ -1999,7 +1999,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.06</p>
+      <p class="sub">clickVenice · versione 4.07</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
