@@ -1764,7 +1764,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.74</p>
+      <p class="sub">clickVenice · versione 3.75</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2375,7 +2375,7 @@ function paintSrv(){
   if (off.length) h += `<details class="srvSoon"${on.length ? "" : " open"}><summary>Prossimamente · ${off.length} servizi</summary><p class="muted" style="margin:6px 0 8px;font-size:13px">Si attivano appena c'è almeno un professionista. Candidati per sbloccarli.</p>` +
     off.map(k => `<button class="srvOff" data-soon="${k}">${srvIco(k)}<span>${SRV[k].s}</span><em>Candidati</em></button>`).join("") + `</details>`;
   $("#shipTypes").innerHTML = h;
-  document.querySelectorAll("#shipTypes [data-srv]").forEach(b => b.onclick = () => { const S = SRV[b.dataset.srv]; S.ship ? shipStart(S.ship) : S.video ? srvPros(b.dataset.srv) : S.audio ? srvVetrina(b.dataset.srv) : srvStart(b.dataset.srv); });
+  document.querySelectorAll("#shipTypes [data-srv]").forEach(b => b.onclick = () => srvPros(b.dataset.srv));   // sempre prima la scelta del professionista
   document.querySelectorAll("#shipTypes [data-soon]").forEach(b => b.onclick = () => goLavora(b.dataset.soon));
 }
 function goLavora(cat){
@@ -2821,32 +2821,42 @@ function ytBind(root){
     el.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1&modestbranding=1" title="Video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
     el.classList.add("on"); el.onclick = null; });
 }
-// clienti: scelta del professionista della categoria
+// clienti: per ogni servizio si sceglie prima il professionista (anche se ce n'è uno solo), poi si apre la sua scheda
+const proInfo = x => [x.zona, x.tariffa != null ? "da " + shEur(x.tariffa) + (x.unita === "ora" ? "/ora" : "") : ""].filter(Boolean).join(" · ");
 async function srvPros(cat){
-  const S = SRV[cat]; haptic();
-  openSheet(`<h3>${esc(S.s)}</h3><p class="muted" style="margin-top:-4px">Scegli il professionista e guarda i suoi lavori.</p><div id="spL"><p class="muted">Carico…</p></div>
+  const S = SRV[cat]; haptic(); audStop();
+  openSheet(`<h3>${esc(S.s)}</h3><p class="muted" style="margin-top:-4px">Scegli il professionista e apri la sua scheda.</p><div id="spL"><p class="muted">Carico…</p></div>
     <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`, "light");
   let L = null; try{ const r = await rpc("pro_lista", { p_cat: cat }); L = r && r.lista; }catch(e){}
+  if (S.audio){ try{ const r = await rpc("pro_audio_cat", { p_cat: cat }); SRV_AUDIO[cat] = (r && r.lista) || []; }catch(e){ SRV_AUDIO[cat] = []; } }
   const box = $("#spL"); if (!box) return;
   if (!Array.isArray(L)){ box.innerHTML = `<p class="muted">Non riesco a caricare i professionisti: controlla la connessione.</p>`; return; }
   if (!L.length){ box.innerHTML = `<p class="muted">Nessun professionista disponibile adesso.</p>`; return; }
-  box.innerHTML = L.map(x => `<button class="spro" data-spro="${x.id}"><b class="spi">${esc((x.nome || "?").slice(0, 1).toUpperCase())}</b>
-      <span><b>${esc(x.nome)}</b><small>${esc([x.zona, x.tariffa != null ? "da " + shEur(x.tariffa) + (x.unita === "ora" ? "/ora" : "") : ""].filter(Boolean).join(" · "))}</small>
-      ${(x.video || []).length ? `<em class="sth">${x.video.slice(0, 3).map(v => `<img loading="lazy" src="${ytThumb(v.id)}" alt="">`).join("")}<small>${x.video.length} ${x.video.length === 1 ? "video" : "video"}</small></em>` : `<small class="muted">Nessun video ancora</small>`}</span><i>›</i></button>`).join("");
+  const nAud = id => (SRV_AUDIO[cat] || []).filter(a => a.pro === id).length;
+  box.innerHTML = `<p class="muted" style="margin:0 0 8px;font-size:13px">${L.length === 1 ? "1 professionista disponibile" : L.length + " professionisti disponibili"}</p>` + L.map(x => {
+    const v = x.video || [], na = S.audio ? nAud(x.id) : 0;
+    const extra = v.length ? `<em class="sth">${v.slice(0, 3).map(y => `<img loading="lazy" src="${ytThumb(y.id)}" alt="">`).join("")}<small>${v.length} video</small></em>`
+      : S.audio ? `<small class="muted">${na ? "🎧 " + na + (na === 1 ? " brano da ascoltare" : " brani da ascoltare") : "Nessun brano ancora"}</small>`
+      : S.video ? `<small class="muted">Nessun video ancora</small>`
+      : x.bio ? `<small class="muted">${esc(x.bio.length > 70 ? x.bio.slice(0, 70) + "…" : x.bio)}</small>` : "";
+    return `<button class="spro" data-spro="${x.id}"><b class="spi">${esc((x.nome || "?").slice(0, 1).toUpperCase())}</b>
+      <span><b>${esc(x.nome)}</b><small>${esc(proInfo(x))}</small>${extra}</span><i>›</i></button>`; }).join("");
   box.querySelectorAll("[data-spro]").forEach(b => b.onclick = () => { const x = L.find(y => y.id === +b.dataset.spro); if (x) proPage(cat, x); });
 }
 function proPage(cat, x){
-  const S = SRV[cat]; haptic();
+  const S = SRV[cat], v = x.video || [], au = S.audio ? (SRV_AUDIO[cat] || []).filter(a => a.pro === x.id) : []; haptic();
   openSheet(`<button class="pback" id="ppBack">‹ ${esc(S.pro)}</button>
-    <div class="phd"><b class="spi big">${esc((x.nome || "?").slice(0, 1).toUpperCase())}</b><div><h3 style="margin:0">${esc(x.nome)}</h3><small class="muted">${esc([x.zona, x.tariffa != null ? "da " + shEur(x.tariffa) + (x.unita === "ora" ? "/ora" : "") : ""].filter(Boolean).join(" · "))}</small></div></div>
+    <div class="phd"><b class="spi big">${esc((x.nome || "?").slice(0, 1).toUpperCase())}</b><div><h3 style="margin:0">${esc(x.nome)}</h3><small class="muted">${esc(S.pro)}${proInfo(x) ? " · " + esc(proInfo(x)) : ""}</small></div></div>
     ${x.bio ? `<p style="line-height:1.45;margin:8px 0 12px">${esc(x.bio)}</p>` : ""}
-    <h4 style="margin:6px 0 8px">I suoi lavori</h4>
-    <div class="ytg">${(x.video || []).length ? x.video.map(ytLite).join("") : `<p class="muted">Non ha ancora caricato video.</p>`}</div>
+    ${S.video || v.length ? `<h4 style="margin:6px 0 8px">I suoi lavori</h4><div class="ytg">${v.length ? v.map(ytLite).join("") : `<p class="muted">Non ha ancora caricato video.</p>`}</div>` : ""}
+    ${S.audio ? `<h4 style="margin:6px 0 8px">${S.audio === "beat" ? "I suoi beat" : "Ascolta i suoi lavori"}</h4><div id="ppAud">${au.length ? au.map(a => audRow(Object.assign({}, a, { nome: "" }), false)).join("") : `<p class="muted">Non ha ancora caricato brani.</p>`}</div>` : ""}
     <button class="btn" id="ppGo" style="margin-top:12px">Prenota con ${esc(x.nome)}</button>
     <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`, "light");
-  ytBind($("#sheetIn"));
+  ytBind($("#sheetIn")); if (S.audio) audBind($("#ppAud"));
   $("#ppBack").onclick = () => srvPros(cat);
-  $("#ppGo").onclick = () => { closeSheet(); srvStart(cat, { pro: x.id, proNome: x.nome }); };
+  $("#ppGo").onclick = () => { audStop(); closeSheet(); const pre = { pro: x.id, proNome: x.nome };
+    if (S.audio) SRV_AUDIO[cat] = au;   // per i beat: i titoli da scegliere sono quelli di questo produttore
+    S.ship ? shipStart(S.ship, pre) : srvStart(cat, pre); };
 }
 // professionisti: i propri video YouTube (da Lavora con noi)
 function proVideoSheet(x){
