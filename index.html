@@ -1360,9 +1360,11 @@
   #tabs button.mid .ring{position:relative;transition:transform .45s cubic-bezier(.34,1.56,.64,1)!important}
   #tabs button.mid:active .ring{transform:scale(.92)!important;transition:transform .12s ease!important}
   #tabs button.mid svg{transition:transform .5s cubic-bezier(.34,1.56,.64,1)!important}
-  #tabs button.mid.on svg{animation:navSway 7s ease-in-out infinite}
+  #tabs button.mid .ring{height:62px!important;margin-top:-32px!important}
+  #tabs button.mid .logoTab{height:58px;width:auto;display:block;transform-origin:50% 92%;transition:transform .5s cubic-bezier(.34,1.56,.64,1);-webkit-user-drag:none;user-select:none;pointer-events:none}
+  #tabs button.mid.on .logoTab{animation:navSway 7s ease-in-out infinite}
   @keyframes navSway{0%,100%{transform:rotate(0)}25%{transform:rotate(12deg)}75%{transform:rotate(-12deg)}}   /* oscilla piano a destra e a sinistra, simmetrica */
-  #tabs button.mid .ring::before,#tabs button.mid .ring::after{content:"";position:absolute;inset:4px;border-radius:50%;border:2px solid #13294b;opacity:0;pointer-events:none}
+  #tabs button.mid .ring::before,#tabs button.mid .ring::after{content:"";position:absolute;inset:4px;border-radius:50%;border:2px solid #d96b43;opacity:0;pointer-events:none}
   #tabs button.mid.on .ring::before{animation:sonar 2.4s cubic-bezier(.2,.6,.4,1) infinite} #tabs button.mid.on .ring::after{animation:sonar 2.4s cubic-bezier(.2,.6,.4,1) 1.2s infinite}
   @keyframes sonar{0%{transform:scale(.75);opacity:.5}100%{transform:scale(1.75);opacity:0}}
   /* micro-animazioni delle icone */
@@ -1962,7 +1964,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.00</p>
+      <p class="sub">clickVenice · versione 4.01</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2399,7 +2401,7 @@ const TAB_IC = {   // linea sottile · .s si riempie quando la scheda è selezio
 };
 function buildDial(){
   $("#tabs").innerHTML = MODES.filter(x => !x.hidden).map(x => x.k === "nautica"
-    ? `<button role="tab" data-pm="${x.k}" class="mid"><i class="ring"><svg viewBox="0 0 60 60" aria-hidden="true"><path class="arw" d="M30 3 L54 55 L30 43 L6 55 Z"/><path class="arl" d="M30 12 L30 41"/></svg></i><span>${x.n}</span></button>`
+    ? `<button role="tab" data-pm="${x.k}" class="mid"><i class="ring"><img class="logoTab" src="logo-tab.png" alt="" draggable="false"></i><span>${x.n}</span></button>`
     : `<button role="tab" data-pm="${x.k}"><svg viewBox="0 0 24 24" aria-hidden="true">${TAB_IC[x.k] || ""}</svg><span>${x.n}</span></button>`).join("");
 }
 /* barra in basso: la pillola segue il tasto attivo con una molla, si allunga mentre corre e sparisce su Naviga */
