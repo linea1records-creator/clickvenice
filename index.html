@@ -964,6 +964,9 @@
   .siteForm{border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px}
   .runBig,.runSmall{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center;margin:8px 0} .runBig b{font-size:40px;font-variant-numeric:tabular-nums;display:block;line-height:1.1}
   .runSmall b{font-size:22px;font-variant-numeric:tabular-nums;display:block} .runBig small,.runSmall small{color:var(--muted);font-size:12px}
+  .pfBdg{font-style:normal;background:#d32f2f;color:#fff;border-radius:9px;min-width:18px;height:18px;font:800 11px/18px system-ui;text-align:center;padding:0 5px;margin-left:auto;margin-right:6px}
+  .admDel{position:absolute;top:10px;right:10px;z-index:5;width:auto!important;padding:5px 9px!important;border-radius:99px!important;font-size:12px!important;font-weight:800;background:#fff!important;color:#d32f2f!important;border:1px solid #f1c4c4!important;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  #sheetIn{position:relative}
   #hudAdm{padding:0 11px!important;background:#0a8f4e!important;font-size:13px!important;position:relative}
   #hudAdm i{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:#e5322d;color:#fff;font:800 11px/18px system-ui;font-style:normal;text-align:center;padding:0 4px;box-sizing:border-box}
   #hudCoin.pop{animation:schPop .5s ease}
@@ -1783,7 +1786,8 @@
         <button class="card rowbtn" data-go="boat">⛵ La mia barca <span>›</span></button>
         <button class="card rowbtn" id="pfPark">⚓ Parcheggio della barca nel gioco <span id="pfParkSub">Scegli ›</span></button>
         <button class="card rowbtn hidden" id="pfLuogo">📍 Aggiungi un luogo (tabaccheria, ristorante…) <span>›</span></button>
-        <button class="card rowbtn hidden" id="pfHidden">🙈 Cose nascoste dalla mappa <span>›</span></button>
+        <button class="card rowbtn hidden" id="pfValida">✓ Valida segnalazioni <i class="pfBdg hidden"></i><span>›</span></button>
+        <button class="card rowbtn hidden" id="pfHidden">🙈 Cose eliminate dalla mappa <span>›</span></button>
         <button class="card rowbtn" data-go="rider">🚶 Rider <span>›</span></button>
         <button class="card rowbtn" data-go="info">ⓘ Impostazioni e info <span>›</span></button>
         <button class="card rowbtn" id="pfEdit">🔑 Cambia PIN <span>›</span></button>
@@ -1822,7 +1826,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.89</p>
+      <p class="sub">clickVenice · versione 3.90</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -1888,7 +1892,7 @@
       <button id="gmAct" class="hidden"></button>
       <button id="gmSet" aria-label="Cosa vedere sulla mappa"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.4 7.4 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7.4 7.4 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.4 7.4 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7.4 7.4 0 0 0 1.7-1l2.4 1 2-3.4z"/></svg></button>
     </div>
-    <div id="hud" class="hidden"><button id="hudHide" class="hidden" aria-label="Modalità nascondi" title="Nascondi cose dalla mappa" data-noico>🙈</button><button id="hudAdm" class="hidden" aria-label="Valida segnalazioni" title="Valida segnalazioni">✓ Valida<i class="hidden"></i></button><button id="hudCoin" aria-label="I tuoi schei"></button></div>
+    <div id="hud" class="hidden"><button id="hudHide" class="hidden" hidden data-noico></button><button id="hudAdm" class="hidden" hidden><i class="hidden"></i></button><button id="hudCoin" aria-label="I tuoi schei"></button></div>
     <button id="tesBtn" class="hidden"></button>
     <button id="luogoBtn" class="hidden"></button>
   </nav>
@@ -3093,7 +3097,8 @@ $("#pfBagBtn").onclick = () => { haptic(); zainoOpen(); };
 $("#pfShop2").onclick = () => shopOpen();
 $("#pfPark").onclick = () => gmParkPick();
 $("#pfLuogo").onclick = () => extraPick(); setTimeout(() => { try{ $("#pfLuogo").classList.toggle("hidden", !isTropss()); $("#pfHidden").classList.toggle("hidden", !isTropss()); }catch(e){} }, 1500);
-$("#pfHidden").onclick = () => hiddenSheet(); setTimeout(() => { try{ paintGmPark(); }catch(e){} }, 0);
+$("#pfHidden").onclick = () => hiddenSheet();
+$("#pfValida").onclick = () => { haptic(); segAdmin(); }; setTimeout(() => { try{ $("#pfValida").classList.toggle("hidden", !isTropss()); }catch(e){} }, 1500); setTimeout(() => { try{ paintGmPark(); }catch(e){} }, 0);
 $("#pfMeBack").onclick = () => setPfTab("home");
 $("#pfAmBtn").onclick = () => setPfTab("friends");
 $("#pfCmBtn").onclick = () => openMeet("match");
@@ -3823,6 +3828,7 @@ function initMap(){
     if (addMode === "pick2"){ if (window._pk2Click) window._pk2Click(e.lngLat); return; }   // scelta di ritiro e consegna di un servizio
     if ($("#sheet") && !$("#sheet").classList.contains("hidden")) return;   // appena dopo il tocco lungo si apre la scheda: il rilascio non conta
     if (HIDEMODE && isTropss()) return hideAtPoint(e);
+    ADM_F = isTropss() ? hideFeatAt(e.point) : null; if (ADM_F) ADM_F.t = Date.now();   // la scheda che si apre avrà il tasto Elimina
     if (GM){ const ap = map.project([GM.lng, GM.lat]); if (Math.hypot(e.point.x - ap.x, e.point.y - ap.y) < 60){ haptic(); return zainoOpen(); } }
     else if (lastPos && map.getZoom() > 15){ const ap = map.project([lastPos.lng, lastPos.lat]); if (Math.hypot(e.point.x - ap.x, e.point.y - ap.y) < 34){ haptic(); return zainoOpen(); } }
     if (GM){ const fr = map.queryRenderedFeatures([[e.point.x - 16, e.point.y - 16], [e.point.x + 16, e.point.y + 16]], { layers: ["frman", "frdot"].filter(l => map.getLayer(l)) })[0];
@@ -4463,6 +4469,7 @@ function popupFor(f, ll){
       + (z.ex ? `<br><span style="color:#999">Esempio, da verificare</span>`
         : mine.zones.includes(z.id) ? `<br><a href="#" data-delz="${z.id}" style="color:#d95f26">Elimina (è tua)</a>` : `<br><span style="color:#999">Segnalata da un utente</span>`);
   }
+  if (ADM_F) html += `<br><a href="#" data-admdel="1" style="color:#d32f2f;font-weight:700">🗑 Elimina dalla mappa</a>`;
   new maplibregl.Popup({ closeButton: true, maxWidth: "260px" }).setLngLat(ll).setHTML(html).addTo(map);
 }
 function closePopups(){ document.querySelectorAll(".maplibregl-popup").forEach(p => p.remove()); }
@@ -4864,8 +4871,8 @@ function setAddMode(m){
 }
 if ($("#fabZone")) $("#fabZone").onclick = () => setAddMode("zone");
 $("#fabDepth").onclick = () => setAddMode("depth");
-function openSheet(html, cls){ const i = $("#sheetIn"); i.innerHTML = html; i.className = "in" + (cls ? " " + cls : ""); $("#sheet").classList.remove("hidden"); }
-function closeSheet(){ $("#sheet").classList.add("hidden"); try{ audStop(); }catch(e){} try{ pcFlagClear(); }catch(e){} }
+function openSheet(html, cls){ const i = $("#sheetIn"); i.innerHTML = (typeof admDelBtn === "function" ? admDelBtn() : "") + html; i.className = "in" + (cls ? " " + cls : ""); $("#sheet").classList.remove("hidden"); }
+function closeSheet(){ $("#sheet").classList.add("hidden"); try{ audStop(); }catch(e){} try{ pcFlagClear(); }catch(e){} ADM_F = null; }
 $("#sheet").onclick = e => { if (e.target.id === "sheet") closeSheet(); };
 
 function zoneForm(ll){
@@ -9803,7 +9810,8 @@ function hudPaint(){
   const h = $("#hud"); if (!h) return;
   const on = !!(PROFILE && PROFILE.clickname); h.classList.toggle("hidden", !on);
   $("#hudCoin").innerHTML = SCHEO_SVG + `<b>${SCHEI.saldo == null ? "–" : SCHEI.saldo}</b>`;
-  const adm = on && isTropss(); $("#hudAdm").classList.toggle("hidden", !adm); $("#hudHide").classList.toggle("hidden", !adm);
+  const adm = false;   // Valida e Nascondi ora stanno in myClick e sulle schede dei luoghi
+  try{ $("#pfValida").classList.toggle("hidden", !isTropss()); $("#pfValida i").textContent = SCHEI.pending || ""; $("#pfValida i").classList.toggle("hidden", !SCHEI.pending); }catch(e){}
   $("#hudAdm i").textContent = SCHEI.pending || ""; $("#hudAdm i").classList.toggle("hidden", !SCHEI.pending);
   requestAnimationFrame(() => document.documentElement.style.setProperty("--hudw", (on ? h.offsetWidth + 18 : 10) + "px"));
 }
@@ -10300,12 +10308,23 @@ function hideToggle(){
   toast(HIDEMODE ? "🙈 Modalità nascondi: tocca una cosa sulla mappa per nasconderla a tutti" : "Modalità nascondi spenta");
 }
 async function hideAsk(layer, val, label){
-  if (!confirm(`Nascondere «${label}» dalla mappa per tutti?`)) return;
+  if (!confirm(`Eliminare «${label}» dalla mappa per tutti?`)) return;
   const j = await rpc("map_hide", { p_layer: layer, p_val: val, p_label: String(label).slice(0, 80), p_hide: true }).catch(() => null);
   if (!j || !j.ok) return toast("Non nascosto, riprova.");
-  if (!HIDDEN.has(layer)) HIDDEN.set(layer, new Set()); HIDDEN.get(layer).add(val); hideApply(); haptic(); toast("🙈 Nascosto: lo ritrovi in myClick ⚙️ → Cose nascoste");
+  if (!HIDDEN.has(layer)) HIDDEN.set(layer, new Set()); HIDDEN.get(layer).add(val); hideApply(); haptic(); toast("Eliminato dalla mappa: lo ritrovi in myClick ⚙️ → Cose eliminate");
 }
 // tocco in modalità nascondi: cosa c'è sotto il dito?
+let ADM_F = null;
+function hideFeatAt(pt){
+  const ls = HIDE_LAYERS.filter(l => map.getLayer(l)); if (!ls.length) return null;
+  const f = map.queryRenderedFeatures([[pt.x - 12, pt.y - 12], [pt.x + 12, pt.y + 12]], { layers: ls })[0]; if (!f) return null;
+  const P = f.properties || {}, prop = ["hk", "k", "gk", "id", "n", "name", "nome"].find(k => P[k] !== undefined && P[k] !== ""); if (!prop) return null;
+  const layer = f.layer.id === "battelli3d" ? "battelli" : f.layer.id === "frdot" ? "frman" : f.layer.id;
+  return { layer, val: prop + "=" + P[prop], label: P.n || P.name || P.nome || (P.l ? "linea " + P.l : layer) };
+}
+function admDelBtn(){ return ADM_F && Date.now() - ADM_F.t < 30000 ? `<button class="admDel" data-admdel="1">🗑 Elimina</button>` : ""; }
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-admdel]"); if (!b || !ADM_F) return; e.preventDefault(); e.stopPropagation();
+  const F = ADM_F; hideAsk(F.layer, F.val, F.label).then(() => { if (HIDDEN.has(F.layer) && HIDDEN.get(F.layer).has(F.val)){ ADM_F = null; closeSheet(); document.querySelectorAll(".maplibregl-popup").forEach(p => p.remove()); } }); }, true);
 function hideAtPoint(e){
   const ls = HIDE_LAYERS.filter(l => map.getLayer(l)), f = map.queryRenderedFeatures([[e.point.x - 12, e.point.y - 12], [e.point.x + 12, e.point.y + 12]], { layers: ls })[0];
   if (!f) return toast("Qui non c'è niente da nascondere");
