@@ -1178,7 +1178,7 @@
   .txo b.pz{font-size:15px;white-space:nowrap} .txo em{font-style:normal;font-weight:800;font-size:11px;background:#111;color:#f2b738;border-radius:99px;padding:3px 7px;margin-left:6px}
   #rbGo:disabled{opacity:.45}
   /* ===== tema chiaro (v3.70): pagine bianche con scritte nere, tasti neri con scritta bianca ===== */
-  .btn:not(.ghost):not(.taxiY):not(.pcGo):not(.pcPin):not(.danger):not(.vcGo){background:#111;color:#fff}
+  .btn:not(.ghost):not(.taxiY):not(.pcGo):not(.pcPin):not(.danger):not(.vcGo):not(.actvBuy){background:#111;color:#fff}
   .btn.ghost{background:#f1f2f4;color:#111;border:1px solid #e3e5e8}
   #spPanel .btn, #mkPanel .btn, body.food .btn:not(.ghost){background:#111!important;color:#fff!important}
   body.food #v-order .seg button.on, #meetModes button.on, #meetFilters button.on, .mkcats button.on, .avsx button.on, #spPanel .gseg button.on, #cbEdit.on{background:#111!important;color:#fff!important;border-color:#111!important}
@@ -1565,6 +1565,8 @@
   #dmenu.th-dogal .dmBar{background:linear-gradient(135deg,#a9822f,#e7cf85 50%,#b8913b)!important;color:#1a1408!important} #dmenu.th-dogal .dmBar .tot s{color:#5c4318}
   #dmenu.th-dogal .dmBar .go{background:#1a1408!important;color:#e7cf85!important}
   #dmenu.th-dogal .dmBurst{color:#e7cf85} #dmenu.th-dogal .dmBurst svg path{fill:#1a1408!important}
+  .btn.actvBuy{display:flex;flex-direction:column;align-items:center;gap:1px;background:#f2b738!important;color:#111!important;font-weight:800;margin:0 0 10px;border:0}
+  .btn.actvBuy small{font-weight:600;font-size:12px;color:#3b3b3b}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2110,7 +2112,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.22</p>
+      <p class="sub">clickVenice · versione 4.23</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -6818,6 +6820,7 @@ function kwOpenSito(){
 }
 // scelta del mezzo: a piedi, la tua barca, vaporetto o taxi
 // tre modi: a piedi · barca (barca tua, taxi acqueo, vaporetto) · auto (taxi, percorso in macchina)
+const ACTV_BIGLIETTO = "https://www.veneziaunica.it/it/acquista-i-biglietti/trasporto-pubblico-a-venezia/actv-biglietto-ordinario-75";
 function effMode(p){
   p = p || PLAN; if (!p) return ""; const s = (p.sub || {})[p.mode];
   if (p.mode === "barca") return s === "taxi" ? "taxi" : s === "vapo" ? "mezzi" : "barca";
@@ -6894,6 +6897,10 @@ function paintTravel(fit){
     else {
       const o = j.opzioni[0]; info.textContent = `Arrivo ${o.arrivo}${j.endWalk ? " + " + j.endWalk + " min a piedi" : ""} · ${o.durata_min} min in vaporetto`;
       more.innerHTML = `<p class="trnote" style="margin-top:0">Da <b>${esc(j.da)}</b> a <b>${esc(j.a)}</b></p>` + j.opzioni.map((op, k) => tripOptHtml(op, k) .replace(/<\/div>$/, ((op.fine_min ?? j.endWalk) ? `<div class="leg">🚶 poi a piedi fino a ${esc(PLAN.to.name)} · ${op.fine_min ?? j.endWalk} min</div>` : "") + "</div>")).join("") + orarioNote(j.orario_del);
+      // vaporetto ACTV nel tragitto: tasto per comprare il biglietto online su Venezia Unica
+      if ((o.tappe || []).some(t => t.tipo !== "piedi" && !(t.azienda === "Alilaguna" || /^Alilaguna /.test(t.linea || "")))){
+        more.insertAdjacentHTML("afterbegin", `<button class="btn actvBuy" id="actvBuy">🎫 Compra il biglietto ACTV online<small>Biglietto ordinario 75 minuti · Venezia Unica</small></button>`);
+        $("#actvBuy").onclick = () => extOpen(ACTV_BIGLIETTO, "Biglietto ACTV"); }
       more.classList.remove("hidden");
       go.textContent = "🚶 Vai alla fermata";
       { const st = strikeToday(); if (st) more.insertAdjacentHTML("beforeend", `<p class="trnote" style="color:#d95f26;font-weight:700">\u26a0\ufe0e Oggi ${esc(strikeName(st).toLowerCase())}: questa corsa potrebbe non esserci se è fuori dalle fasce garantite.</p>`); }
