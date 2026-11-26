@@ -1549,6 +1549,22 @@
   .boGo small{padding:0!important;white-space:nowrap;font-size:14px!important}
   .boGo em{margin:0!important;padding:7px 10px!important;white-space:nowrap}
   .boAdm{flex-direction:column;border-top:0!important;border-left:1px solid #eef0f2;flex:0 0 36px} .boAdm button{padding:0!important;font-size:14px!important}
+  /* menu Dogal: nero e oro */
+  #dmenu.th-dogal{background:#0d0c0a} #dmenu.th-dogal .dmScroll{background:#0d0c0a!important;background-image:none!important}
+  #dmenu.th-dogal .dmHead{background:linear-gradient(135deg,#a9822f,#e7cf85 45%,#b8913b)!important;color:#1a1408!important}
+  #dmenu.th-dogal .dmHead h1,#dmenu.th-dogal .dmSub{color:#1a1408!important}
+  #dmenu.th-dogal .dmLogo b{font-family:Georgia,serif;letter-spacing:.18em;font-size:26px;color:#1a1408} #dmenu.th-dogal .dmLogo small{display:block;letter-spacing:.3em;font-size:10px;color:#3d2c0c}
+  #dmenu.th-dogal .dmPill{background:#1a1408!important;color:#f3e2a4!important}
+  #dmenu.th-dogal .dmTabs button.on{background:#c9a24a!important;color:#1a1408!important}
+  #dmenu.th-dogal .dmSec{color:#e7cf85!important}
+  #dmenu.th-dogal .dmIt{align-items:center} .dmTh{width:58px;height:78px;object-fit:contain;flex:0 0 58px;margin-right:10px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+  #dmenu.th-dogal .dmPr strong{color:#e7cf85!important}
+  #dmenu.th-dogal .dmBody{grid-template-columns:1fr!important}
+  #dmenu.th-dogal .dmHead{padding-bottom:22px!important;border-bottom:2px solid #c9a24a} #dmenu.th-dogal .dmHead::after{display:none}
+  #dmenu.th-dogal .dmTabs{background:rgba(13,12,10,.95)!important} #dmenu.th-dogal .dmTabs button{border-color:#c9a24a;color:#e7cf85}
+  #dmenu.th-dogal .dmBar{background:linear-gradient(135deg,#a9822f,#e7cf85 50%,#b8913b)!important;color:#1a1408!important} #dmenu.th-dogal .dmBar .tot s{color:#5c4318}
+  #dmenu.th-dogal .dmBar .go{background:#1a1408!important;color:#e7cf85!important}
+  #dmenu.th-dogal .dmBurst{color:#e7cf85} #dmenu.th-dogal .dmBurst svg path{fill:#1a1408!important}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2094,7 +2110,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.21</p>
+      <p class="sub">clickVenice · versione 4.22</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -9106,7 +9122,7 @@ function renderMk(){
     const p = DLVPART, d = hav(ref.lat, ref.lng, p.lat, p.lng), min = Math.max(1, Math.round(d * 1.35 / 80)), sc = +p.sconto_pct || 0;
     $("#mkCount").textContent = "";
     box.innerHTML = `<div class="pcard"><h4>${esc(p.name)}</h4><div class="d">${fmtDist(d * 1.35)} · ${fmtMin(min)} a piedi${p.address ? " · " + esc(p.address) : ""}</div>
-      ${p.order_rest ? `<span class="bdg">${sc ? "-" + sc + "% Sconto + " : ""}Posate Omaggio</span>` : ""}
+      ${p.order_rest ? `<span class="bdg">${sc ? "-" + sc + "% Sconto" + (p.order_rest === "dogal" ? " · Consegna a domicilio" : " + Posate Omaggio") : p.order_rest === "dogal" ? "Consegna a domicilio" : "Posate Omaggio"}</span>` : ""}
       ${p.order_rest ? `<button class="go" id="mkMenu">🍴 Apri Menu e Ordina</button>` : ""}
       <div class="row2"><button id="mkVai">Portami qui</button>${p.phone ? `<button id="mkTel">Chiama</button>` : ""}<button id="mkAltri">Altri locali</button></div></div>`;
     if ($("#mkMenu")) $("#mkMenu").onclick = () => deliveryMenu(p);
@@ -9194,9 +9210,16 @@ const DM_FOTO = {   // illustrazioni dei piatti principali nella capsula a destr
 const DM_BURST = `<svg viewBox="0 0 100 100"><path d="M50 2l8 14 15-7 1 16 16 1-7 15 14 9-14 8 7 15-16 1-1 16-15-7-8 14-8-14-15 7-1-16-16-1 7-15-14-8 14-9-7-15 16-1 1-16 15 7z" fill="#2a0306" stroke="#f5b800" stroke-width="3" stroke-linejoin="round"/></svg>`;
 let DM = null;
 const dmEur = v => "€ " + (Math.round(v * 100) / 100).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// aspetto del menu per negozio: San Marco (locandina gialla e bordeaux) e Dogal (vini: nero e oro)
+const DM_TH = {
+  dogal: { titolo: "Vini<br>a domicilio", sub: "Bollicine &amp; vini di Venezia", pill: "<span data-noico>🍾</span> Bottiglia singola – <b>CONSEGNA A DOMICILIO</b>", posate: false,
+    tab: [["tutto", "Tutti"], ["bollicine", "Bollicine"], ["fermi", "Vini fermi"]], cat: { bollicine: "Bollicine", fermi: "Vini fermi", "": "Altri vini" }, cats: ["bollicine", "fermi", ""],
+    unita: ["bottiglia", "bottiglie"], vuoto: "Nessun vino disponibile in questo momento.", consegna: "Venezia, consegna a domicilio", logo: "<b>DOGAL</b><small>VENEZIA</small>" } };
+const dmTh = p => DM_TH[p.order_rest] || { titolo: "Delivery<br>Menu", sub: "Caldi &amp; Appena Sfornati", pill: "<span data-noico>🍴</span> Posate Ecologiche Incluse – <b>IN OMAGGIO</b>", posate: true,
+  tab: DM_TAB, cat: DM_CAT, cats: ["primi", "secondi", "pizze", ""], unita: ["piatto", "piatti"], vuoto: "Nessun piatto disponibile in questo momento.", consegna: "Venezia centro storico &amp; isole", logo: null };
 async function deliveryMenu(p){
-  DM = { p, lista: [], sconto: +p.sconto_pct || 0, admin: false, cart: {}, tab: "tutto", posate: true };
-  let el = $("#dmenu"); if (el) el.remove(); el = document.createElement("div"); el.id = "dmenu"; document.body.appendChild(el);
+  const TH = dmTh(p); DM = { p, TH, lista: [], sconto: +p.sconto_pct || 0, admin: false, cart: {}, tab: "tutto", posate: TH.posate };
+  let el = $("#dmenu"); if (el) el.remove(); el = document.createElement("div"); el.id = "dmenu"; el.className = "th-" + (p.order_rest || "x"); document.body.appendChild(el);
   el.innerHTML = `<div class="dmScroll"><div class="dmHead"><p style="margin:60px 0;font-weight:800">Carico il menu…</p></div></div>`;
   closeSheet(); history.pushState({ dm: 1 }, "");
   let r; try{ r = await rpc("menu_oggi", { p_rest: p.order_rest }); }catch(e){ r = null; }
@@ -9210,19 +9233,19 @@ function dmClose(){ const el = $("#dmenu"); if (el) el.remove(); DM = null; }
 window.addEventListener("popstate", () => { if ($("#dmenu")) dmClose(); });
 function dmPaint(){
   const el = $("#dmenu"); if (!el || !DM) return; const p = DM.p, sc = el.querySelector(".dmScroll"), top = sc ? sc.scrollTop : 0;
-  const L = DM.lista.filter(x => DM.tab === "tutto" || x.cat === DM.tab), gruppi = ["primi", "secondi", "pizze", ""].filter(c => L.some(x => (x.cat || "") === c));
-  const item = x => `<div class="dmIt"><div class="t"><b>${esc(x.nome)}</b>${x.descr ? `<p>${esc(x.descr)}</p>` : ""}<div class="dmPr">${DM.sconto ? `<s>${dmEur(+x.prezzo)}</s>` : ""}<strong>${dmEur(dmPrezzo(x))}</strong></div></div>
+  const TH = DM.TH, L = DM.lista.filter(x => DM.tab === "tutto" || x.cat === DM.tab), gruppi = TH.cats.filter(c => L.some(x => (x.cat || "") === c));
+  const item = x => `<div class="dmIt">${x.foto ? `<img class="dmTh" loading="lazy" src="${esc(x.foto)}" alt="">` : ""}<div class="t"><b>${esc(x.nome)}</b>${x.descr ? `<p>${esc(x.descr)}</p>` : ""}<div class="dmPr">${DM.sconto ? `<s>${dmEur(+x.prezzo)}</s>` : ""}<strong>${dmEur(dmPrezzo(x))}</strong></div></div>
     <div class="dmQ"><button data-dq="${x.id}" data-d="1" aria-label="Aggiungi">+</button><span>${DM.cart[x.id] || 0}</span><button class="m" data-dq="${x.id}" data-d="-1" aria-label="Togli">−</button></div></div>`;
   el.innerHTML = `<div class="dmScroll">
-    <div class="dmHead"><div class="dmTop"><div class="dmLogo">${p.order_rest === "sanmarco" ? `<img src="sanmarco-logo.png" alt="San Marco" onerror="this.outerHTML='<b>SAN MARCO</b><small>HIGH QUALITY FOOD &amp; BEVERAGE</small>'">` : `<b>${esc(p.name)}</b>`}</div>
-        ${DM.admin ? `<div class="dmAdm"><button id="dmEd">✏️ Piatti</button><button id="dmOr">📋 Ordini</button></div>` : ""}<button class="dmX" id="dmX" aria-label="Chiudi" style="${DM.admin ? "margin-left:6px" : ""}">✕</button></div>
-      <h1>Delivery<br>Menu</h1><p class="dmSub">Caldi &amp; Appena Sfornati</p>
-      <div class="dmPill"><span data-noico>🍴</span> Posate Ecologiche Incluse – <b>IN OMAGGIO</b></div>
+    <div class="dmHead"><div class="dmTop"><div class="dmLogo">${p.order_rest === "sanmarco" ? `<img src="sanmarco-logo.png" alt="San Marco" onerror="this.outerHTML='<b>SAN MARCO</b><small>HIGH QUALITY FOOD &amp; BEVERAGE</small>'">` : TH.logo || `<b>${esc(p.name)}</b>`}</div>
+        ${DM.admin ? `<div class="dmAdm"><button id="dmEd">✏️ ${TH.posate ? "Piatti" : "Prodotti"}</button><button id="dmOr">📋 Ordini</button></div>` : ""}<button class="dmX" id="dmX" aria-label="Chiudi" style="${DM.admin ? "margin-left:6px" : ""}">✕</button></div>
+      <h1>${TH.titolo}</h1><p class="dmSub">${TH.sub}</p>
+      <div class="dmPill">${TH.pill}</div>
       ${DM.sconto ? `<div class="dmBurst">${DM_BURST}<span>-${DM.sconto}%<small>SCONTO</small></span></div>` : ""}</div>
-    <div class="dmTabs">${DM_TAB.map(([k, n]) => `<button data-dt="${k}" class="${DM.tab === k ? "on" : ""}">${n}</button>`).join("")}</div>
-    <div class="dmBody"><div class="dmList">${gruppi.length ? gruppi.map(c => `<div class="dmSec">${DM_CAT[c]}</div>` + L.filter(x => (x.cat || "") === c).map(item).join("")).join("") : `<p style="margin:20px 0;color:#f0d7c8">Nessun piatto disponibile in questo momento.</p>`}</div>
-      <aside class="dmCaps"><div>${DM_FOTO.lasagne}</div><small>Lasagne</small><div>${DM_FOTO.pure}</div><small>Secondi con purè</small><div>${DM_FOTO.pizza}</div><small>Pizza</small></aside></div>
-    <div class="dmFoot"><b>${esc(p.name)}</b><br>${esc(p.address || "")}<br>Telefono / WhatsApp: <a href="tel:${esc(String(p.phone || "0415208890").replace(/\s/g, ""))}">${esc(p.phone || "041 520 8890")}</a><br>Consegna: <b style="font-size:13px">Venezia centro storico &amp; isole</b></div>
+    <div class="dmTabs">${TH.tab.map(([k, n]) => `<button data-dt="${k}" class="${DM.tab === k ? "on" : ""}">${n}</button>`).join("")}</div>
+    <div class="dmBody"><div class="dmList">${gruppi.length ? gruppi.map(c => `<div class="dmSec">${TH.cat[c] || ""}</div>` + L.filter(x => (x.cat || "") === c).map(item).join("")).join("") : `<p style="margin:20px 0;color:#f0d7c8">${TH.vuoto}</p>`}</div>
+      ${TH.posate ? `<aside class="dmCaps"><div>${DM_FOTO.lasagne}</div><small>Lasagne</small><div>${DM_FOTO.pure}</div><small>Secondi con purè</small><div>${DM_FOTO.pizza}</div><small>Pizza</small></aside>` : ""}</div>
+    <div class="dmFoot"><b>${esc(p.name)}</b><br>${esc(p.address || "")}<br>Telefono / WhatsApp: <a href="tel:${esc(String(p.phone || "0415208890").replace(/\s/g, ""))}">${esc(p.phone || "041 520 8890")}</a><br>Consegna: <b style="font-size:13px">${TH.consegna}</b></div>
   </div>
   <div class="dmBar" id="dmBar"></div>`;
   el.querySelector(".dmScroll").scrollTop = top;
@@ -9236,9 +9259,9 @@ function dmPaint(){
 function dmTot(){ let l = 0, s = 0, n = 0; DM.lista.forEach(x => { const q = DM.cart[x.id] || 0; l += q * +x.prezzo; s += q * dmPrezzo(x); n += q; }); return { l, s, n }; }
 function dmBar(){
   const b = $("#dmBar"); if (!b) return; const t = dmTot();
-  b.innerHTML = `<label><input type="checkbox" id="dmPos" ${DM.posate ? "checked" : ""}> Posate ecologiche in omaggio · € 0,00</label>
-    <div class="r"><div class="tot"><small>${t.n ? t.n + (t.n === 1 ? " piatto" : " piatti") : "Il tuo ordine"}</small>${DM.sconto && t.n ? `<s>${dmEur(t.l)}</s>` : ""}<b>${dmEur(t.s)}</b></div><button class="go" id="dmGo" ${t.n ? "" : "disabled"}>Ordina ›</button></div>`;
-  $("#dmPos").onchange = e => { DM.posate = e.target.checked; };
+  b.innerHTML = `${DM.TH.posate ? `<label><input type="checkbox" id="dmPos" ${DM.posate ? "checked" : ""}> Posate ecologiche in omaggio · € 0,00</label>` : ""}
+    <div class="r"><div class="tot"><small>${t.n ? t.n + " " + DM.TH.unita[t.n === 1 ? 0 : 1] : "Il tuo ordine"}</small>${DM.sconto && t.n ? `<s>${dmEur(t.l)}</s>` : ""}<b>${dmEur(t.s)}</b></div><button class="go" id="dmGo" ${t.n ? "" : "disabled"}>Ordina ›</button></div>`;
+  if ($("#dmPos")) $("#dmPos").onchange = e => { DM.posate = e.target.checked; };
   $("#dmGo").onclick = dmModal;
 }
 function dmFasce(){
@@ -9268,7 +9291,7 @@ function dmModal(){
     if (addr.length < 4) return toast("Scrivi l'indirizzo di consegna."); if (!nome || tel.replace(/\D/g, "").length < 6) return toast("Scrivi nome e telefono.");
     const b = $("#dmInv"); b.disabled = true; b.textContent = "Invio…";
     const items = DM.lista.filter(x => DM.cart[x.id]).map(x => ({ id: x.id, nome: x.nome, qta: DM.cart[x.id], prezzo: dmPrezzo(x), listino: +x.prezzo }));
-    const note = ["Fascia " + v("dmFa"), DM.posate ? "Posate ecologiche: sì (omaggio)" : "Posate: no", DM.sconto ? "Sconto " + DM.sconto + "% applicato" : "", v("dmNt")].filter(Boolean).join(" · ");
+    const note = ["Fascia " + v("dmFa"), !DM.TH.posate ? "" : DM.posate ? "Posate ecologiche: sì (omaggio)" : "Posate: no", DM.sconto ? "Sconto " + DM.sconto + "% applicato" : "", v("dmNt")].filter(Boolean).join(" · ");
     try{ await api("orders", { method: "POST", body: { restaurant: DM.p.name, mode: "foot", items, total_eur: Math.round(t.s * 100) / 100, customer_name: nome.slice(0, 80), customer_phone: tel.slice(0, 30), address: addr.slice(0, 200), note: note.slice(0, 300) } }); }
     catch(e){ b.disabled = false; b.textContent = "Invia ordine · " + dmEur(t.s); return toast("Ordine non inviato: controlla la connessione."); }
     store.set("ln_ship_contatto", Object.assign({}, last, { nome, tel, addr })); haptic();
@@ -9338,7 +9361,7 @@ async function restAdmin(p){
       <div class="field" style="margin-top:8px"><label>Nome</label><input id="maNome" maxlength="80" placeholder="es. Risotto di pesce"></div>
       <div class="field"><label>Descrizione (facoltativa)</label><input id="maDescr" maxlength="200" placeholder="es. con vongole e calamari"></div>
       <div class="field"><label>Prezzo di listino €</label><input id="maPrezzo" inputmode="decimal" placeholder="es. 9,50"></div>
-      <div class="field"><label>Sezione del menu</label><select id="maCat"><option value="">Piatti del giorno</option><option value="primi">Primi</option><option value="secondi">Secondi &amp; Contorni</option><option value="pizze">Pizze</option></select></div>
+      <div class="field"><label>Sezione del menu</label><select id="maCat">${p.order_rest === "dogal" ? `<option value="bollicine">Bollicine</option><option value="fermi">Vini fermi</option><option value="">Altri vini</option>` : `<option value="">Piatti del giorno</option><option value="primi">Primi</option><option value="secondi">Secondi &amp; Contorni</option><option value="pizze">Pizze</option>`}</select></div>
       <label class="check" style="margin:4px 0 10px"><input type="checkbox" id="maFisso"><span>Sempre nel menu (non solo oggi)</span></label>
       <button class="btn" id="maSave">Aggiungi</button></div>
     <button class="btn ghost" id="maCopy">📋 Copia i piatti dell'ultimo giorno</button>
