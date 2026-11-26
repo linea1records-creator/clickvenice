@@ -1394,6 +1394,30 @@
   .spcard.sv .svPrice{flex:0 0 auto;font-style:normal;font-size:12px;font-weight:800;color:#13294b;background:#f4f1ea;border-radius:99px;padding:5px 9px;white-space:nowrap}
   #shipScroll .srvSoon{background:#fff;border-color:#e6e0d6} #shipScroll .srvSoon summary{color:#13294b} #shipScroll .srvOff em{color:#d96b43}
   .svH2{margin:22px 0 8px;color:#13294b}
+  /* ---------- Servizi: lista minimale ad alto contrasto (solo servizi a pagamento) ---------- */
+  #shipScroll{background:#fff!important;color:#0f172a;padding-top:0!important}
+  .sx{margin:0 -18px}
+  .sxHead{background:#0f172a;color:#fff;padding:calc(14px + var(--safe-t)) 18px 14px;border-radius:0 0 22px 22px}
+  .sxHead h2{margin:0;font-size:27px;font-weight:800;letter-spacing:-.02em;color:#fff} .sxHead p{margin:6px 0 12px;font-size:14px;line-height:1.4;color:#cbd5e1}
+  .sxPills{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -18px;padding:0 18px} .sxPills::-webkit-scrollbar{display:none}
+  .sxPills button{flex:0 0 auto;width:auto;height:32px;padding:0 13px;border-radius:999px;border:1px solid #334155;background:transparent;color:#e2e8f0;font-weight:700;font-size:13px;transition:background-color .2s,border-color .2s}
+  .sxPills button.on{background:#2563eb;border-color:#2563eb;color:#fff}
+  .sxSec{padding:16px 18px 4px;font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#64748b}
+  .sxFeat{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 18px}
+  .sxFeat button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;text-align:left;background:#eff6ff;border:1.5px solid #2563eb;border-radius:16px;padding:12px;color:#0f172a;min-height:150px}
+  .sxFeat b{font-size:15px;line-height:1.2} .sxFeat small{font-size:12px;line-height:1.35;color:#475569;flex:1}
+  .sxFeat svg{width:26px;height:26px;fill:none;stroke:#2563eb;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .sxAct{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;background:#2563eb;color:#fff;font-size:12.5px;font-weight:800;font-style:normal;white-space:nowrap}
+  .sxList{margin-top:4px}
+  .sxRow{display:flex;align-items:center;gap:12px;width:100%;padding:12px 18px;background:#fff;border:0;border-bottom:1px solid #e5e7eb;text-align:left;color:#0f172a}
+  .sxRow:first-child{border-top:1px solid #e5e7eb}
+  .sxRow .ic{flex:0 0 42px;width:42px;height:42px;border-radius:12px;background:#eff6ff;display:flex;align-items:center;justify-content:center}
+  .sxRow .ic svg{width:23px;height:23px;fill:none;stroke:#2563eb!important;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .sxRow span{flex:1;min-width:0} .sxRow b{display:block;font-size:15px;line-height:1.25} .sxRow small{display:block;font-size:12.5px;line-height:1.35;color:#64748b;margin-top:1px}
+  .sxRow .tag{font-style:normal;display:inline-block;vertical-align:2px;margin-left:5px;font-size:10px;font-weight:800;letter-spacing:.03em;color:#2563eb;background:#eff6ff;border-radius:6px;padding:1px 6px}
+  .sxRow .lnk{color:#2563eb;font-weight:700;font-style:normal}
+  .sxRow.last{background:#f8fafc}
+  .sxBlock{padding:0 18px}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1816,12 +1840,9 @@
   <!-- SERVIZI (prima: Spedisci) -->
   <section class="view hidden" id="v-ship">
     <div class="scroll lightv" id="shipScroll">
-      <div class="mchead igh svTitle"><h2>Servizi su misura</h2></div>
-      <p class="svSub">Professionisti verificati in laguna per media, barca e casa. Scegli cosa ti serve e ricevi un preventivo in 2 minuti.</p>
-      <div class="svPills" id="svPills"><button data-svf="" class="on">Tutti</button><button data-svf="media">Media &amp; Musica</button><button data-svf="trasporti">Trasporti &amp; Logistica</button><button data-svf="nautica">Barca</button></div>
       <div id="shipTypes"></div>
       <div id="shipAdmin"></div>
-      <h4 class="svH2">Le tue richieste</h4>
+      <h4 class="svH2" style="color:#0f172a">Le tue richieste</h4>
       <div id="shipMine"><p class="muted">Nessuna richiesta per ora.</p></div>
     </div>
   </section>
@@ -1941,7 +1962,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 3.99</p>
+      <p class="sub">clickVenice · versione 4.00</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2557,7 +2578,7 @@ const UNITA = { ora: "all'ora", servizio: "a servizio", giornata: "a giornata" }
 const ZONE = ["Venezia centro storico", "Lido", "Giudecca", "Murano", "Burano", "Mestre", "Marghera", "Tutta la laguna"];
 let shipMineCache = store.get("ln_ship", []);
 let SRV_ATT = store.get("ln_srv_att", null);   // { t, m: { categoria: { n, tariffa, unita } } }
-const srvNome = r => (SRV[r.categoria] && SRV[r.categoria].s) || (r.tipo && SH_TIPI[r.tipo] && SH_TIPI[r.tipo].n) || r.categoria || "Servizio";
+const srvNome = r => (r.categoria === "su_misura" ? "Richiesta su misura" : null) || (SRV[r.categoria] && SRV[r.categoria].s) || (r.tipo && SH_TIPI[r.tipo] && SH_TIPI[r.tipo].n) || r.categoria || "Servizio";
 const proNome = x => x.categoria === "altro" ? (x.custom || "Altro") : (SRV[x.categoria] ? SRV[x.categoria].pro : x.categoria);
 const shEur = n => Number(n || 0).toLocaleString("it-IT", { style: "currency", currency: "EUR", minimumFractionDigits: Number(n) % 1 ? 2 : 0 });
 const shDay = (g, o) => { const d = new Date(g + "T12:00"); return isNaN(d) ? "" : d.toLocaleDateString("it-IT", o || { weekday: "long", day: "numeric", month: "long" }); };
@@ -2579,6 +2600,67 @@ async function renderShip(){
   if (isTropss()) loadShipAdmin(); else $("#shipAdmin").innerHTML = "";
   await loadSrvAtt(); paintSrv();
 }
+/* ---------- Servizi: lista minimale ad alto contrasto, solo servizi a pagamento ---------- */
+let SX_F = "tutti";
+const SX_IC = {
+  taxi: '<path d="M3 15h18l-2.5 4.5h-13z"/><path d="M7 15l1.5-4h6l2 4"/><path d="M10 11V8.5h3"/><path d="M3 21c1.5.8 3 .8 4.5 0s3-.8 4.5 0 3 .8 4.5 0 3-.8 4.5 0"/>',
+  food: '<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16 21V3c-2.5 1-4 3.5-4 7h4"/>',
+  merci: '<path d="M3 15.5h18l-2.5 4H5.5z"/><rect x="6" y="9" width="5" height="6.5" rx=".6"/><rect x="12" y="11" width="5" height="4.5" rx=".6"/><path d="M8.5 9V7"/>',
+  barca: '<path d="M5 14.2h16.5l-3.4 4.8H6.6z"/><path d="M8 14.2l1.6-4.2h6.2l2.6 4.2"/><path d="M2.2 11.2h2.6v3.8H2.2z"/><path d="M3.5 15v3.2"/>',
+  cam: '<rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3"/>',
+  web: '<rect x="3" y="4.5" width="18" height="13" rx="2"/><path d="M3 8h18M8.5 21h7M12 17.5V21"/><path d="M9.5 11.5l-2 1.7 2 1.7M14.5 11.5l2 1.7-2 1.7"/>',
+  mic: '<rect x="9" y="3.5" width="6" height="10" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v3.5M8.5 20.5h7"/>',
+  plus: '<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/>' };
+const sxSvg = k => `<svg viewBox="0 0 24 24">${SX_IC[k]}</svg>`;
+function sxDa(cats, fall){   // prezzo di partenza vero (la tariffa più bassa dei professionisti attivi), altrimenti il testo di base
+  const A = srvAtt(), v = cats.map(c => A[c]).filter(a => a && a.tariffa != null);
+  if (!v.length) return fall; const m = v.reduce((x, y) => +y.tariffa < +x.tariffa ? y : x);
+  return "da " + shEur(+m.tariffa) + (m.unita === "ora" ? "/ora" : "");
+}
+function sxScegli(titolo, cats){   // quando una riga raccoglie più servizi
+  const A = srvAtt();
+  openSheet(`<h3>${titolo}</h3>${cats.map(c => `<button class="sxRow" data-sxc="${c}" style="border-radius:0"><i class="ic">${srvIco(c)}</i><span><b>${esc(SRV[c].s)}</b><small>${esc(SRV[c].d.replace(/ · (guarda|ascolta) .*$/, ""))}</small></span><em class="sxAct">${A[c] && A[c].tariffa != null ? "da " + shEur(+A[c].tariffa) + (A[c].unita === "ora" ? "/ora" : "") : "Richiedi"}</em></button>`).join("")}
+    <button class="btn ghost" style="margin-top:12px" onclick="closeSheet()">Chiudi</button>`, "light");
+  document.querySelectorAll("[data-sxc]").forEach(b => b.onclick = () => srvPros(b.dataset.sxc));
+}
+function sxSuMisura(){
+  const last = store.get("ln_ship_contatto", {}), oggi = new Date().toISOString().slice(0, 10);
+  openSheet(`<h3>Hai un'esigenza su misura?</h3><p class="muted" style="margin-top:-4px;line-height:1.45">Descrivi cosa ti serve a Venezia: ti rispondiamo con un preventivo rapido.</p>
+    <div class="field"><label>Cosa ti serve</label><textarea id="sxD" rows="4" maxlength="400" placeholder="es. portare 20 sedie da Cannaregio alla Giudecca sabato mattina"></textarea></div>
+    <div class="field"><label>Per quando</label><input id="sxG" type="date" value="${oggi}" min="${oggi}"></div>
+    <div class="row" style="gap:8px"><div class="field" style="flex:1"><label>Nome</label><input id="sxN" value="${esc(last.nome || "")}"></div><div class="field" style="flex:1"><label>Telefono</label><input id="sxT" type="tel" value="${esc(last.tel || "")}"></div></div>
+    <button class="btn" id="sxGo" style="background:#2563eb;color:#fff">Chiedi il preventivo</button><button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Annulla</button>`, "light");
+  $("#sxGo").onclick = async () => {
+    const d = $("#sxD").value.trim(), nome = $("#sxN").value.trim(), tel = $("#sxT").value.trim();
+    if (d.length < 8) return toast("Scrivi in due parole cosa ti serve."); if (nome.length < 2 || tel.replace(/\D/g, "").length < 8) return toast("Scrivi nome e telefono.");
+    const b = $("#sxGo"); b.disabled = true; b.textContent = "Invio…";
+    let r; try{ r = await rpc("pren_crea", { p_data: { categoria: "su_misura", note: d, giorno: $("#sxG").value || oggi, fascia: "flessibile", nome, tel, dettagli: {}, ritiro: {} } }); }catch(e){ r = null; }
+    if (!r || !r.codice){ b.disabled = false; b.textContent = "Chiedi il preventivo"; return toast(r && r.errore === "non_autorizzato" ? "Per chiedere un preventivo serve l'account." : r && r.errore === "troppe" ? "Hai inviato tante richieste oggi: riprova domani." : "Non inviata: controlla la connessione."); }
+    store.set("ln_ship_contatto", Object.assign({}, last, { nome, tel })); haptic(); closeSheet(); toast("Richiesta " + r.codice + " inviata ✓ · ti rispondiamo presto"); loadShipMine(); };
+}
+function paintSrv(){
+  const F = SX_F, show = g => F === "tutti" || F === g;
+  const feat = [
+    { g: "taxi", ic: "taxi", t: "Ordina un Taxi Acqueo", d: "Transfer rapidi in laguna, aeroporto e stazione", a: "Prenota", go: () => { setMode("nautica"); setTimeout(taxiFab, 250); } },
+    { g: "delivery", ic: "food", t: "Consegne & Food in Barca", d: "Cibo, spesa e pacchi consegnati dove sei", a: "Ordina ora", go: () => setMode("market") } ].filter(x => show(x.g));
+  const rows = [
+    { g: "taxi", ic: "merci", t: "Trasporti Merci & Traslochi", d: "Spostamenti in barca, facchinaggio e logistica", a: sxDa(["barca", "facchino", "fattorino"], "da 150 €"), go: () => sxScegli("Trasporti Merci & Traslochi", ["barca", "facchino", "fattorino"]) },
+    { g: "barche", ic: "barca", t: "Compra o Vendi Barca", tag: "Barketplace", d: "Annunci verificati e aste barche in laguna", a: "Esplora", go: () => setMode("shop") },
+    { g: "media", ic: "cam", t: "Video & Foto Pro", d: "Riprese per eventi, attività e matrimoni", l: "Guarda portfolio", a: sxDa(["videomaker"], "da 150 €"), go: () => srvPros("videomaker") },
+    { g: "media", ic: "web", t: "Siti Web & Servizi Digitali", d: "Siti veloci, prenotazioni online e Google Maps", a: "Richiedi", go: () => srvPros("sitiweb") },
+    { g: "media", ic: "mic", t: "Studio, Mix & Master", d: "Registrazione voce e suono pronto per Spotify", l: "Ascolta demo", a: sxDa(["studio", "mixmaster"], "da 15 €/ora"), go: () => sxScegli("Studio, Mix & Master", ["studio", "mixmaster"]) } ].filter(x => show(x.g));
+  const ALL = feat.concat(rows);
+  $("#shipTypes").innerHTML = `<div class="sx">
+    <div class="sxHead"><h2>Servizi su misura</h2><p>Prenota, ordina o richiedi un professionista a Venezia in un click.</p>
+      <div class="sxPills">${[["tutti", "Tutti"], ["taxi", "Trasporti & Taxi"], ["delivery", "Delivery"], ["barche", "Barche"], ["media", "Media & Web"]].map(([k, n]) => `<button data-sxf="${k}" class="${F === k ? "on" : ""}">${n}</button>`).join("")}</div></div>
+    ${feat.length ? `<div class="sxSec">In evidenza</div><div class="sxFeat"${feat.length === 1 ? ' style="grid-template-columns:1fr"' : ""}>${feat.map((x, i) => `<button data-sxi="${i}">${sxSvg(x.ic)}<b>${x.t}</b><small>${x.d}</small><em class="sxAct">${x.a}</em></button>`).join("")}</div>` : ""}
+    ${rows.length ? `<div class="sxSec">Servizi</div>` : ""}
+    <div class="sxList">${rows.map((x, i) => `<button class="sxRow" data-sxi="${feat.length + i}"><i class="ic">${sxSvg(x.ic)}</i><span><b>${x.t}${x.tag ? `<em class="tag">${x.tag}</em>` : ""}</b><small>${x.d}${x.l ? ` • <em class="lnk">${x.l}</em>` : ""}</small></span><em class="sxAct">${x.a}</em></button>`).join("")}
+      <button class="sxRow last" id="sxMis"><i class="ic">${sxSvg("plus")}</i><span><b>Hai un'esigenza su misura?</b><small>Descrivi cosa ti serve a Venezia e ricevi un preventivo rapido</small></span><em class="sxAct">Chiedi ora</em></button></div></div>`;
+  document.querySelectorAll("#shipTypes [data-sxf]").forEach(b => b.onclick = () => { if (SX_F === b.dataset.sxf) return; SX_F = b.dataset.sxf; haptic(); paintSrv(); });
+  document.querySelectorAll("#shipTypes [data-sxi]").forEach(b => b.onclick = () => { haptic(); ALL[+b.dataset.sxi].go(); });
+  $("#sxMis").onclick = () => { haptic(); sxSuMisura(); };
+}
 // titoli e sottotitoli della pagina Servizi (più diretti); il micro-link apre i lavori del professionista
 const SRV_TXT = {
   videomaker: ["Video & Foto Pro", "Riprese per eventi, brand e matrimoni", "Guarda portfolio"],
@@ -2587,7 +2669,7 @@ const SRV_TXT = {
   grafico: ["Brand & Social", "Loghi, identità visiva e gestione social"],
   sitiweb: ["Siti Web & App", "Siti veloci, prenotazioni e presenza su Google"] };
 let SV_F = "";
-function paintSrv(){
+function paintSrvOld(){
   const A = srvAtt(), on = Object.keys(SRV).filter(k => A[k] && (!SV_F || SRV[k].m === SV_F)), off = Object.keys(SRV).filter(k => !A[k] && (!SV_F || SRV[k].m === SV_F));
   const card = k => { const S = SRV[k], a = A[k], T = SRV_TXT[k] || [S.s, S.d.replace(/ · (guarda|ascolta) .*$/, "")];
     const prezzo = a && a.tariffa ? `da ${shEur(a.tariffa)}${a.unita === "ora" ? "/ora" : ""}` : "su preventivo";
