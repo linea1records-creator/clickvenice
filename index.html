@@ -1455,6 +1455,12 @@
   #mkPanel .stop b{color:var(--f-teal)}
   body.mode-market #mkPanel{border-top:4px solid var(--f-teal)}
   #mkOrder{background:var(--f-navy)!important}
+  /* Food: scheda più in alto e al centro, scritte e segnaposti nel rosso del logo */
+  body.mode-market #mkPanel{left:50%!important;right:auto!important;width:min(calc(100% - 24px),420px);transform:translateX(-50%);bottom:calc(96px + var(--safe-b, 0px))!important}
+  #mkPanel .mkh b{color:var(--f-red)!important;font-size:18px!important;font-weight:900}
+  #mkPanel .mkQ{margin:0 0 4px;font-size:15px;font-weight:800;color:var(--f-ink)}
+  body.mode-market #mkPanel{border-top-color:var(--f-red)!important}
+  #mkPanel .stop b{color:var(--f-red)!important}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1519,7 +1525,7 @@
 </style>
 <style id="modeColors">
   /* colore di ogni modalità: tasto premuto, banner e tasti principali del suo pannello */
-  :root{ --c-market:#d6551b; --f-navy:#d6551b; --f-ink:#501b17; --f-teal:#e69141; --f-gold:#f2b12c; --f-amber:#db8724; --f-steam:#f9b577; --f-deep:#ac3d21; --c-meet:#f2b738; --c-shop:#1d4e89; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#d96b43; --laguna:#13294b; --promo:#d96b43 }
+  :root{ --c-market:#ac3d21; --f-navy:#d6551b; --f-ink:#501b17; --f-teal:#e69141; --f-gold:#f2b12c; --f-amber:#db8724; --f-steam:#f9b577; --f-deep:#ac3d21; --f-red:#ac3d21; --c-meet:#f2b738; --c-shop:#1d4e89; --c-water:#8ec5e5; --c-land:#c97a63; --c-sport:#d96b43; --c-my:#d96b43; --c-ship:#d96b43; --laguna:#13294b; --promo:#d96b43 }
   #tabs [data-pm="market"].on{color:var(--c-market)!important}
   #tabs [data-pm="shop"].on{color:var(--c-shop)!important}
   #tabs [data-pm="sport"].on{color:var(--c-sport)!important}
@@ -1999,7 +2005,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.07</p>
+      <p class="sub">clickVenice · versione 4.08</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -8743,10 +8749,10 @@ function addPartnersLayer(){
   if (!map.hasImage("pin-food")) map.addImage("pin-food", partnerPin("food"), { pixelRatio: 2 });
   if (!map.hasImage("pin-conv")) map.addImage("pin-conv", partnerPin("conv"), { pixelRatio: 2 });
   map.addLayer({ id: "partners", type: "symbol", source: "partners", layout: { visibility: appMode === "market" ? "visible" : "none",
-    "icon-image": ["case", ["==", ["get", "c"], "food"], "pin-food", "pin-conv"], "icon-anchor": "bottom", "icon-size": ["interpolate", ["linear"], ["zoom"], 11, .75, 16, 1.05], "icon-allow-overlap": true, "icon-ignore-placement": true } });
+    "icon-image": ["case", ["==", ["get", "c"], "food"], "pin-food", "pin-conv"], "icon-anchor": "bottom", "icon-size": ["interpolate", ["linear"], ["zoom"], 11, .7, 16, 1], "icon-allow-overlap": true, "icon-ignore-placement": true } });
   if (map.getStyle().glyphs) map.addLayer({ id: "partners-lbl", type: "symbol", source: "partners", minzoom: 12.5, layout: { visibility: appMode === "market" ? "visible" : "none",
     "text-field": ["get", "n"], "text-size": 12.5, "text-offset": [0, .35], "text-anchor": "top", "text-font": ["Noto Sans Regular"], "text-allow-overlap": true },
-    paint: { "text-color": "#4a1410", "text-halo-color": "#fff", "text-halo-width": 1.8 } });
+    paint: { "text-color": "#ac3d21", "text-halo-color": "#fff", "text-halo-width": 1.8 } });
 }
 const mkShown = () => PARTNERS.filter(p => DLVSEL ? partnerInSel(p) : (!mkCat || p.category === mkCat));
 function drawPartners(){
@@ -8775,8 +8781,9 @@ function renderMk(){
   $("#mkOrder").classList.add("hidden");
   const list = mkShown().map(p => ({ p, d: hav(ref.lat, ref.lng, p.lat, p.lng) })).sort((a, b) => a.d - b.d);
   $("#mkCount").textContent = list.length ? list.length + (list.length === 1 ? " convenzionato" : " convenzionati") : "";
+  box.dataset.q = "1";
   if (!list.length){ box.innerHTML = `<p class="trnote">${DLVSEL === "conv" || DLVSEL === "food" ? "Ancora nessun convenzionato qui." : "Tocca un punto sulla mappa per vedere il negozio."}</p>`; return; }
-  box.innerHTML = list.slice(0, 4).map(x => `<div class="stop" data-mk="${x.p.id}"><span>${esc(x.p.name)}${+x.p.sconto_pct ? ` <b style="background:#f2b12c;color:#501b17;border-radius:99px;padding:1px 7px;font-size:11.5px">-${x.p.sconto_pct}%</b>` : ""}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
+  box.innerHTML = `<p class="mkQ">Da chi vuoi ordinare?</p>` + list.slice(0, 4).map(x => `<div class="stop" data-mk="${x.p.id}"><span>${esc(x.p.name)}${+x.p.sconto_pct ? ` <b style="background:#f2b12c;color:#501b17;border-radius:99px;padding:1px 7px;font-size:11.5px">-${x.p.sconto_pct}%</b>` : ""}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
   box.querySelectorAll("[data-mk]").forEach(el => el.onclick = () => { const p = PARTNERS.find(z => z.id === +el.dataset.mk); if (p) dlvSelectPartner(p); });
 }
 function openPartner(p){
@@ -8824,18 +8831,22 @@ function dlvSelectPartner(p){
   try{ map.easeTo({ center: [p.lng, p.lat], offset: [0, -Math.round(innerHeight * .12)], zoom: Math.max(map.getZoom(), 15.5), duration: 600 }); }catch(e){}
   renderMk();
 }
-// pin a goccia con forchetta e coltello (food) o stella (altri convenzionati), bordo bianco
+// pin dei convenzionati: food = goccia grande rossa con il logo delle patatine; altri = goccia con stella
+let FOOD_PIN_IMG = null;
 function partnerPin(kind){
-  const W = 72, H = 88, c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
-  g.shadowColor = "rgba(0,0,0,.3)"; g.shadowBlur = 6; g.shadowOffsetY = 2;
-  g.beginPath(); g.arc(36, 34, 28, Math.PI * .82, Math.PI * .18); g.lineTo(36, 84); g.closePath();
-  g.fillStyle = kind === "food" ? "#d6551b" : "#8c2d19"; g.fill(); g.shadowColor = "transparent"; g.lineWidth = 5; g.strokeStyle = "#fff"; g.stroke();
-  g.strokeStyle = "#fff"; g.fillStyle = "#fff"; g.lineWidth = 3.2; g.lineCap = "round"; g.lineJoin = "round";
-  if (kind === "food"){ g.beginPath(); g.moveTo(27, 20); g.lineTo(27, 30); g.moveTo(23, 20); g.lineTo(23, 27); g.quadraticCurveTo(23, 32, 27, 32); g.quadraticCurveTo(31, 32, 31, 27); g.lineTo(31, 20); g.moveTo(27, 32); g.lineTo(27, 48); g.stroke();
-    g.beginPath(); g.moveTo(45, 48); g.lineTo(45, 19); g.quadraticCurveTo(38, 23, 38, 33); g.lineTo(45, 33); g.stroke(); }
-  else { g.beginPath(); for (let i = 0; i < 10; i++){ const r = i % 2 ? 7 : 15, a = -Math.PI / 2 + i * Math.PI / 5; g.lineTo(36 + r * Math.cos(a), 34 + r * Math.sin(a)); } g.closePath(); g.fill(); }
+  const big = kind === "food", W = big ? 120 : 72, H = big ? 146 : 88, c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
+  const cx = W / 2, cy = big ? 56 : 34, R = big ? 50 : 28;
+  g.shadowColor = "rgba(0,0,0,.3)"; g.shadowBlur = 7; g.shadowOffsetY = 3;
+  g.beginPath(); g.arc(cx, cy, R, Math.PI * .8, Math.PI * .2); g.lineTo(cx, H - 4); g.closePath();
+  g.fillStyle = big ? "#ac3d21" : "#8c2d19"; g.fill(); g.shadowColor = "transparent"; g.lineWidth = big ? 6 : 5; g.strokeStyle = "#fff"; g.stroke();
+  if (big){
+    g.beginPath(); g.arc(cx, cy, R - 7, 0, Math.PI * 2); g.fillStyle = "#fff"; g.fill();
+    if (FOOD_PIN_IMG && FOOD_PIN_IMG.complete && FOOD_PIN_IMG.naturalWidth){ const s = (R - 9) * 2; g.drawImage(FOOD_PIN_IMG, cx - s / 2, cy - s / 2 - 1, s, s); }
+    else { g.strokeStyle = "#ac3d21"; g.lineWidth = 4; g.lineCap = "round"; g.beginPath(); g.moveTo(cx - 8, cy - 16); g.lineTo(cx - 8, cy + 18); g.moveTo(cx + 8, cy + 18); g.lineTo(cx + 8, cy - 16); g.stroke(); }
+  } else { g.fillStyle = "#fff"; g.beginPath(); for (let i = 0; i < 10; i++){ const r = i % 2 ? 7 : 15, a = -Math.PI / 2 + i * Math.PI / 5; g.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a)); } g.closePath(); g.fill(); }
   return { width: W, height: H, data: g.getImageData(0, 0, W, H).data };
 }
+(function(){ const im = new Image(); im.onload = () => { FOOD_PIN_IMG = im; try{ if (map && map.hasImage && map.hasImage("pin-food")) map.updateImage("pin-food", partnerPin("food")); }catch(e){} }; im.src = "food-logo.png"; })();
 /* ---------- Menu delivery interattivo (pagina a tutto schermo, stile locandina) ---------- */
 const DM_CAT = { primi: "Primi della tradizione", secondi: "Secondi & contorni caldi", pizze: "Pizze al forno", "": "Piatti del giorno" };
 const DM_TAB = [["tutto", "Tutto"], ["primi", "Primi"], ["secondi", "Secondi & Contorni"], ["pizze", "Pizze"]];
@@ -9032,7 +9043,7 @@ document.querySelectorAll("#mkCats [data-c]").forEach(b => b.onclick = () => {
 });
 $("#mkOrder").onclick = () => { showView("order"); };
 /* Delivery: tasti che mostrano o nascondono food, negozi, tabaccherie e farmacie sulla mappa */
-const DLV_C = { conv: ["Convenzionati", "#111111"], food: ["Food", "#db8724"], negozi: ["Negozi", "#8c2d19"], tabacchi: ["Tabaccheria", "#1d4e89"], farmacie: ["Farmacia", "#15a34a"] };
+const DLV_C = { conv: ["Convenzionati", "#111111"], food: ["Food", "#ac3d21"], negozi: ["Negozi", "#8c2d19"], tabacchi: ["Tabaccheria", "#1d4e89"], farmacie: ["Farmacia", "#15a34a"] };
 let DLV = Object.assign({ conv: true, food: true, negozi: true, tabacchi: true, farmacie: true }, store.get("ln_dlv", {})), NEGOZI = store.get("ln_negozi", null);
 async function loadNegozi(){
   if (NEGOZI && Date.now() - (NEGOZI.t || 0) < 3 * 864e5) return drawDlv();
