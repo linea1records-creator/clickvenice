@@ -2201,7 +2201,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.56</p>
+      <p class="sub">clickVenice · versione 4.57</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -8628,9 +8628,9 @@ document.querySelectorAll("#trPanel [data-tr]").forEach(b => b.onclick = () => {
 const ACTV = (q) => fetchT(CONFIG.SUPABASE_URL + "/functions/v1/actv?" + q, {}, 15000).then(r => r.json());
 /* ---------- dov'è l'aereo: posizione in tempo reale dal numero di volo (dati ADS-B aperti di adsb.lol) ---------- */
 let PT = null;
-// la mappa di clickVenice è solo Venezia: l'aereo si segue su una mappa leggera a parte (tutta l'Europa, tessere raster CARTO)
-const PT_STYLE = { version: 8, sources: { c: { type: "raster", tileSize: 256, maxzoom: 18, attribution: "© OpenStreetMap © CARTO",
-  tiles: ["a", "b", "c", "d"].map(x => `https://${x}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png`) } }, layers: [{ id: "c", type: "raster", source: "c" }] };
+// la mappa di clickVenice è solo Venezia: l'aereo si segue su una mappa leggera a parte (tutta l'Europa, tessere OpenStreetMap senza chiave)
+const PT_STYLE = { version: 8, sources: { c: { type: "raster", tileSize: 256, maxzoom: 19, attribution: "© OpenStreetMap",
+  tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"] } }, layers: [{ id: "c", type: "raster", source: "c" }] };
 const PT_URL = o => CONFIG.SUPABASE_URL + "/functions/v1/aereo?" + new URLSearchParams(Object.entries(o).filter(([, v]) => v != null && v !== "")).toString();
 async function planeTrack(fl, place, verso, alt, ora){
   haptic(); toast("Cerco l'aereo " + fl + "…", false, true);
