@@ -2177,7 +2177,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.45</p>
+      <p class="sub">clickVenice · versione 4.46</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -7580,48 +7580,108 @@ function trattesFrom(id){
 }
 function veloxTick(p, kmh){
   if (!VELOX.list.length) return;
-  // passaggio davanti a un velox
-  const hit = VELOX.list.find(v => hav(p.lat, p.lng, v.lat, v.lng) < 28);
-  if (hit && Date.now() - (vxLastHit[hit.id] || 0) > 90000){
-    vxLastHit[hit.id] = Date.now();
-    if (VX && VX.opts.some(o => o.ends.includes(hit.id))){
-      const sec = (p.t - VX.t0) / 1000, avg = sec > 0 ? VX.dist / sec * 3.6 : 0, lim = VX.opts.find(o => o.ends.includes(hit.id)).v;
-      vxResult = { avg, lim, at: Date.now(), name: hit.name };
-      say(avg > lim + 0.5 ? `Tratta finita, media ${avg.toFixed(1).replace(".", ",")}, sopra il limite` : "Tratta finita, media nel limite");
-      if (avg > lim + 0.5) buzz([300, 150, 300]);
+  const pass = vxPassed(p);
+  if (pass){
+    // fine tratta: sei passato davanti al velox che aspettavamo
+    if (VX && VX.to.id === pass.id){
+      const sec = Math.max(1, (p.t - VX.t0) / 1000), avg = VX.L / sec * 3.6;
+      vxResult = { avg, lim: VX.lim, at: Date.now(), name: pass.name };
+      say(avg > VX.lim + 0.5 ? `Velox ${pass.name}, media ${avg.toFixed(1).replace(".", ",")}, sopra il limite` : `Velox ${pass.name}, media nel limite`);
+      if (avg > VX.lim + 0.5) buzz([300, 150, 300]);
     }
-    const opts = trattesFrom(hit.id);
-    VX = opts.length ? { from: hit, t0: p.t, dist: 0, last: p, opts } : null;
-    if (VX) say("Velox " + hit.name + ", inizia la tratta");
+    VX = vxNext(pass, p);
+    if (VX){ say(`Velox ${pass.name}. Prossimo velox a ${Math.round(VX.L / 10) * 10} metri, limite ${VX.lim}`); haptic(); }
   } else if (VX){
-    const d = hav(VX.last.lat, VX.last.lng, p.lat, p.lng);
-    if (p.acc < 35 && d > 2){ VX.dist += d; VX.last = p; }
-    if ((p.t - VX.t0) > 20 * 60000) VX = null;   // misura troppo lunga: si è fermato o ha cambiato strada
+    vxAlong(p);
+    if (VX.off > 4 || (p.t - VX.t0) > 25 * 60000) VX = null;   // hai cambiato canale o ti sei fermato a lungo
   }
   paintVelox(p, kmh);
+}
+// passaggio davanti al velox: sei al traverso (perpendicolare al canale) o la distanza ha smesso di calare
+let vxNear = {};
+function vxPassed(p){
+  let out = null;
+  VELOX.list.forEach(v => {
+    const d = hav(p.lat, p.lng, v.lat, v.lng), s = vxNear[v.id];
+    if (d > 60){ if (s && s.min < 45 && !s.done) out = out || v; delete vxNear[v.id]; return; }
+    const n = s || (vxNear[v.id] = { min: d, done: false });
+    if (d < n.min) n.min = d;
+    if (n.done || Date.now() - (vxLastHit[v.id] || 0) < 60000) return;
+    const traverso = speedMs > 0.8 && Math.abs(Math.abs(angDiff(heading, bearing(p.lat, p.lng, v.lat, v.lng))) - 90) < 22 && d < 45;
+    if (traverso || (n.min < 45 && d > n.min + 6)) out = out || v;
+  });
+  if (out){ vxLastHit[out.id] = Date.now(); if (vxNear[out.id]) vxNear[out.id].done = true; }
+  return out;
+}
+// prossimo velox nella direzione della barca, con il percorso più breve in acqua (non in linea d'aria)
+function vxNext(from, p){
+  if (typeof G === "undefined" || !G.done) return null;
+  const src = gNear(p.lat, p.lng, 120); if (!src) return null;
+  const cand = VELOX.list.filter(v => v.id !== from.id && hav(p.lat, p.lng, v.lat, v.lng) < 3500).map(v => ({ v, nb: gNear(v.lat, v.lng, 120) })).filter(c => c.nb);
+  if (!cand.length) return null;
+  const want = new Set(cand.map(c => c.nb.n)), N = G.la.length, d = new Float64Array(N).fill(Infinity), prev = new Int32Array(N).fill(-1), h = [[0, src.n]];
+  d[src.n] = 0; let left = want.size;
+  const push = x => { h.push(x); let i = h.length - 1; while (i > 0){ const q = (i - 1) >> 1; if (h[q][0] <= h[i][0]) break; [h[q], h[i]] = [h[i], h[q]]; i = q; } };
+  const pop = () => { const top = h[0], last = h.pop(); if (h.length){ h[0] = last; let i = 0; for (;;){ const l = 2 * i + 1, r = l + 1; let m = i;
+    if (l < h.length && h[l][0] < h[m][0]) m = l; if (r < h.length && h[r][0] < h[m][0]) m = r; if (m === i) break; [h[m], h[i]] = [h[i], h[m]]; i = m; } } return top; };
+  while (h.length && left > 0){
+    const [du, u] = pop(); if (du > d[u] + 1e-6) continue; if (du > 6000) break;
+    if (want.has(u)){ want.delete(u); left--; }
+    for (const e of G.adj[u]){ if (e[3] === 2) continue; const nd = du + hav(G.la[u], G.lo[u], G.la[e[0]], G.lo[e[0]]); if (nd < d[e[0]]){ d[e[0]] = nd; prev[e[0]] = u; push([nd, e[0]]); } }
+  }
+  let best = null;
+  cand.forEach(c => { if (d[c.nb.n] === Infinity) return;
+    const path = []; for (let v = c.nb.n; v !== -1; v = prev[v]) path.push(v); path.reverse();
+    const pts = [[p.lat, p.lng]].concat(path.map(n => [G.la[n], G.lo[n]]), [[c.v.lat, c.v.lng]]);
+    // direzione: il percorso deve partire nel verso in cui sta andando la barca
+    let acc = 0, k = 1; for (; k < pts.length - 1; k++){ acc += hav(pts[k - 1][0], pts[k - 1][1], pts[k][0], pts[k][1]); if (acc > 40) break; }
+    if (Math.abs(angDiff(heading, bearing(p.lat, p.lng, pts[k][0], pts[k][1]))) > 75) return;
+    let L = 0; for (let i = 1; i < pts.length; i++) L += hav(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1]);
+    if (!best || L < best.L) best = { v: c.v, pts, L };
+  });
+  if (!best) return null;
+  const tr = VELOX.tratte.find(t => (t.A.includes(from.id) && t.B.includes(best.v.id)) || (t.B.includes(from.id) && t.A.includes(best.v.id)));
+  const lims = tr ? [tr.v] : trattesFrom(from.id).concat(trattesFrom(best.v.id)).map(o => o.v);
+  const lim = lims.length ? Math.min(...lims) : 11;
+  const cum = [0]; for (let i = 1; i < best.pts.length; i++) cum.push(cum[i - 1] + hav(best.pts[i - 1][0], best.pts[i - 1][1], best.pts[i][0], best.pts[i][1]));
+  return { from, to: best.v, pts: best.pts, cum, L: best.L, lim, t0: p.t, done: 0, R: best.L, off: 0, said: "" };
+}
+// dove sei lungo il percorso: metri fatti e metri che mancano (in acqua)
+function vxAlong(p){
+  const P = VX.pts, k = Math.cos(p.lat * Math.PI / 180) * 111320, from = VX.idx || 0;
+  let best = { d: Infinity, s: VX.done, i: from };
+  for (let i = from; i < P.length - 1 && i < from + 80; i++){
+    const ax = (P[i][1] - p.lng) * k, ay = (P[i][0] - p.lat) * 111320, bx = (P[i + 1][1] - p.lng) * k, by = (P[i + 1][0] - p.lat) * 111320;
+    const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy, t = l2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / l2)) : 0;
+    const d = Math.hypot(ax + dx * t, ay + dy * t);
+    if (d < best.d) best = { d, s: VX.cum[i] + (VX.cum[i + 1] - VX.cum[i]) * t, i };
+  }
+  VX.idx = Math.max(0, best.i - 1);
+  VX.done = Math.min(VX.L, Math.max(VX.done, best.s)); VX.R = Math.max(0, VX.L - VX.done);
+  VX.off = best.d > 90 ? VX.off + 1 : 0;
 }
 function paintVelox(p, kmh){
   if (!instOn("velox")) return;
   const card = $("#i-velox"); card.classList.remove("ok", "warn", "alarm");
   if (VX){
-    // tratta più probabile: l'estremità davanti a noi più vicina
-    let best = null;
-    VX.opts.forEach(o => o.ends.forEach(id => { const e = VELOX.byId[id]; if (!e) return;
-      const d = hav(p.lat, p.lng, e.lat, e.lng), ahead = Math.abs(angDiff(heading, bearing(p.lat, p.lng, e.lat, e.lng))) < 100;
-      const score = d * (ahead ? 1 : 3); if (!best || score < best.score) best = { score, d, e, v: o.v, note: o.note }; }));
-    const sec = Math.max(1, (p.t - VX.t0) / 1000), avg = VX.dist / sec * 3.6, lim = best ? best.v : Math.min(...VX.opts.map(o => o.v));
-    $("#vxTr").textContent = "· da " + VX.from.name;
-    $("#vxAvg").textContent = (VX.dist < 15 ? kmh : avg).toFixed(1).replace(".", ",");
-    $("#vxLim").textContent = "km/h di media · limite " + lim;
-    let info = best ? `Fine tratta: ${best.e.name} a ${fmtDist(best.d)}` : "";
-    if (best && VX.dist > 15){
-      const R = best.d * 1.1, tLeft = (VX.dist + R) / (lim / 3.6) - sec;      // secondi che restano per stare nel limite
-      const vReq = tLeft > 0 ? R / tLeft * 3.6 : 0;
-      info += vReq <= 0.5 ? " · sei già sopra: rallenta molto" : ` · da qui vai al massimo a ${Math.min(99, vReq).toFixed(1).replace(".", ",")} km/h`;
+    const sec = Math.max(0, (p.t - VX.t0) / 1000), vLim = VX.lim / 3.6, tMin = VX.L / vLim;   // tempo minimo per non superare la media
+    const allowed = sec * vLim, ahead = VX.done - allowed, tLeft = tMin - sec;
+    const vMax = tLeft > 1 ? Math.min(99, VX.R / tLeft * 3.6) : 0;   // velocità massima da qui per arrivare nel limite
+    let st, msg;
+    if (ahead > 8 || (tLeft <= 1 && VX.R > 5)){ st = "lento"; msg = tLeft <= 1 ? "Rallenta molto: sei in anticipo" : `Rallenta: sei ${Math.round(ahead)} m avanti`; }
+    else if (ahead < -30 && kmh < VX.lim){ st = "veloce"; msg = `Puoi andare più veloce: fino a ${vMax.toFixed(1).replace(".", ",")} km/h`; }
+    else { st = "giusto"; msg = "Velocità giusta"; }
+    $("#vxTr").textContent = "· " + VX.from.name + " → " + VX.to.name;
+    $("#vxAvg").textContent = vMax.toFixed(1).replace(".", ",");
+    $("#vxLim").textContent = "km/h max da qui · limite " + VX.lim;
+    const mm = Math.floor(Math.max(0, tLeft) / 60), ss = Math.round(Math.max(0, tLeft) % 60);
+    $("#vxInfo").textContent = `${msg} · ${VX.to.name} a ${fmtDist(VX.R)} in acqua · tempo minimo ancora ${mm}:${String(ss).padStart(2, "0")}` + (VX.to.col === "g" ? " (velox rotto)" : "");
+    card.classList.add(st === "lento" ? (ahead > 30 ? "alarm" : "warn") : "ok");
+    if (st !== VX.said && Date.now() - (VX.saidAt || 0) > 12000 && sec > 4){
+      VX.said = st; VX.saidAt = Date.now();
+      if (st === "lento"){ say("Rallenta, sei troppo veloce per il prossimo velox"); buzz([300]); }
+      else if (st === "veloce") say("Puoi andare più veloce, fino a " + Math.round(vMax) + " chilometri orari");
     }
-    $("#vxInfo").textContent = info;
-    card.classList.add(avg > lim + 0.5 && VX.dist > 30 ? "alarm" : avg > lim - 0.5 ? "warn" : "ok");
-    if (avg > lim + 0.5 && VX.dist > 60 && Date.now() - (VX.warned || 0) > 20000){ VX.warned = Date.now(); say("Rallenta, la media è sopra il limite"); buzz([300]); }
     return;
   }
   $("#vxTr").textContent = "";
@@ -7637,7 +7697,7 @@ function paintVelox(p, kmh){
     if (Math.abs(angDiff(heading, bearing(p.lat, p.lng, v.lat, v.lng))) < 60 && (!nx || d < nx.d)) nx = { v, d }; });
   $("#vxAvg").textContent = kmh.toFixed(1).replace(".", ",");
   if (nx){ const o = trattesFrom(nx.v.id); $("#vxLim").textContent = "km/h adesso" + (o.length ? " · limite " + Math.min(...o.map(x => x.v)) : "");
-    $("#vxInfo").textContent = `Prossimo velox: ${nx.v.name} a ${fmtDist(nx.d)}` + (nx.v.state === "ko" ? " (segnalato rotto)" : ""); }
+    $("#vxInfo").textContent = `Prossimo velox: ${nx.v.name} a ${fmtDist(nx.d)}` + (nx.v.col === "g" ? " (rotto)" : ""); }
   else { $("#vxLim").textContent = "km/h adesso"; $("#vxInfo").textContent = "Nessun velox davanti a te"; }
 }
 
@@ -8445,7 +8505,7 @@ function dashTick(){
   setT("ckS-brg", !nx ? "nessun ponte" : (free !== null && air !== null ? (free - air >= 0 ? "passi · " : "non passi · ") : "ponte a ") + fmtDist(nx.d));
   // riga sotto: velox, navigazione, ora
   const tx = id => ($("#" + id) || {}).textContent || "";
-  setT("ckVx", tx("vxAvg") || "–");
+  setT("ckVx", VX ? "max " + tx("vxAvg") : (tx("vxAvg") || "–"));
   setT("ckNavL", NAV ? "MANOVRA" : "VELOCITÀ MAX");
   setT("ckNav", NAV ? (tx("mIcon") + " " + tx("mDist")).trim() : TRIP.max.toFixed(1).replace(".", ",") + " km/h");
   setT("ckEta", NAV ? tx("eta") || "–" : "–");
