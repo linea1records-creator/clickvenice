@@ -2247,7 +2247,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.66</p>
+      <p class="sub">clickVenice · versione 4.67</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -13466,7 +13466,7 @@ function swPaint(){
     if (ch.nascosto) return "";
     return `<button class="swCh${on ? " on" : ""}" data-i="${i}" ${ok ? "" : 'aria-disabled="true"'}><span class="led"></span><span class="ico">${swSvg(ch.ico)}</span>${esc(ch.nome || "Canale " + (i + 1))}<small>${i + 1} · ${on ? "ACCESO" : "spento"}</small></button>`; }).join("");
   ["#swAllOn", "#swAllOff"].forEach(s => $(s).disabled = !ok);
-  $("#swConn").textContent = ok ? "Scollega" : "🔗 Collega";
+  $("#swConn").textContent = ok ? "Scollega" : store.get("ln_sw_id", "") ? "🔍 Cerca" : "🔗 Collega";
 }
 let swLock = Promise.resolve();
 function swSend(stati){
@@ -13516,6 +13516,9 @@ async function swConnect(){
   if (SWP.dev && SWP.dev.gatt.connected){ SWP.manualOff = true; SWP.dev.gatt.disconnect(); return; }
   if (!navigator.bluetooth) return toast("Questo browser non ha il Bluetooth web: usa Chrome su Android o computer");
   SWP.manualOff = false;
+  // pannello già autorizzato: mi collego direttamente, senza la finestra di Chrome
+  try{ if (navigator.bluetooth.getDevices){ const ds = await navigator.bluetooth.getDevices(), id = store.get("ln_sw_id", "");
+    const d = ds.find(x => x.id === id) || ds.find(x => /^MG-/.test(x.name || "")); if (d){ await swAttach(d); if (SWP.chr) return; } } }catch(e){}
   try{
     swStato("Scegli il pannello…", "wait");
     const dev = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: "MG-" }], optionalServices: [SW_MP[0], SW_CL[0]] });
