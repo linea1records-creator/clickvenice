@@ -1973,7 +1973,8 @@
       <div id="admSet" class="hidden"><div class="sh">MODIFICA MAPPA · SOLO TROPSS</div>
         <button class="srow" id="admEdit"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>Modifica un luogo<small>poi tocca il luogo sulla mappa</small></span><i class="sw"></i></button>
         <button class="srow" id="admList"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg><span>Luoghi modificati</span></button>
-        <button class="srow" id="admHid"><svg viewBox="0 0 24 24"><path d="M5 7h14l-1 13H6zM9 7V4h6v3"/></svg><span>Luoghi eliminati</span></button></div>
+        <button class="srow" id="admHid"><svg viewBox="0 0 24 24"><path d="M5 7h14l-1 13H6zM9 7V4h6v3"/></svg><span>Luoghi eliminati</span></button>
+        <button class="srow" id="admBle"><svg viewBox="0 0 24 24"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg><span>Pannello interruttori BLE<small>test e comandi del pannello 12/24V via Bluetooth</small></span></button></div>
     </div>
 
     <!-- tipo di mappa -->
@@ -2206,7 +2207,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.62</p>
+      <p class="sub">clickVenice · versione 4.63</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -11714,6 +11715,7 @@ async function admEditList(){
   const f = $("#fabSet"); if (f) f.addEventListener("click", show); show();
   if ($("#admEdit")) $("#admEdit").onclick = () => { haptic(); admEditToggle(); };
   if ($("#admList")) $("#admList").onclick = () => { $("#setPanel").classList.add("hidden"); admEditList(); };
+  if ($("#admBle")) $("#admBle").onclick = () => { haptic(); if (!isTropss()) return; window.open("strumenti-ble.html", "_blank"); };
   if ($("#admHid")) $("#admHid").onclick = () => { $("#setPanel").classList.add("hidden"); hiddenSheet(); }; })();
 // tocco in modalità nascondi: cosa c'è sotto il dito?
 let ADM_F = null;

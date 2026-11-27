@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pannello BLE · test interruttori 12/24V</title>
+<style>
+  :root{--bg:#0f1720;--card:#17212d;--line:#263445;--tx:#e6edf3;--mut:#8ba0b5;--blue:#3b82f6;--green:#16a34a;--red:#dc2626;--amber:#f59e0b}
+  *{box-sizing:border-box} body{margin:0;font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+  header{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);z-index:5}
+  header h1{font-size:17px;margin:0;flex:1}
+  #stato{font-size:13px;padding:4px 10px;border-radius:20px;background:#334155}
+  #stato.on{background:var(--green)} #stato.err{background:var(--red)}
+  main{max-width:980px;margin:0 auto;padding:12px;display:grid;gap:12px}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+  h2{font-size:15px;margin:0 0 10px;color:#cbd5e1;text-transform:uppercase;letter-spacing:.06em}
+  label{font-size:13px;color:var(--mut);display:block;margin:8px 0 4px}
+  input,select,textarea{width:100%;background:#0b121a;color:var(--tx);border:1px solid var(--line);border-radius:9px;padding:9px 10px;font:inherit}
+  textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  button{background:var(--blue);color:#fff;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.sec{background:#334155} button.ok{background:var(--green)} button.stop{background:var(--red)} button.warn{background:var(--amber);color:#111}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:end} .row>*{flex:1 1 140px}
+  .row>button{flex:0 0 auto}
+  .muted{color:var(--mut);font-size:13px}
+  #log{height:240px;overflow:auto;background:#05090e;border:1px solid var(--line);border-radius:10px;padding:8px;font:12.5px/1.45 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap}
+  #log .tx{color:#93c5fd} #log .rx{color:#86efac} #log .er{color:#fca5a5} #log .in{color:#cbd5e1}
+  #albero{font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:260px;overflow:auto;background:#05090e;border:1px solid var(--line);border-radius:10px;padding:8px}
+  #albero .srv{color:#fbbf24;margin-top:6px} #albero .dfu{color:#f87171} #albero .ch{padding-left:14px;cursor:pointer} #albero .ch:hover{background:#111c28}
+  #albero .w{color:#93c5fd} #albero .n{color:#86efac}
+  #scanVal{font:700 44px/1 ui-monospace,Menlo,Consolas,monospace;text-align:center;padding:10px;background:#05090e;border-radius:12px;border:1px solid var(--line)}
+  #storia{font:13px ui-monospace,Menlo,Consolas,monospace;color:var(--amber)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+  .ch-card{background:#0b121a;border:1px solid var(--line);border-radius:12px;padding:10px}
+  .ch-card .top{display:flex;align-items:center;gap:6px}
+  .ch-card .top input{flex:1;padding:6px 8px;font-weight:700}
+  .ch-card .led{width:12px;height:12px;border-radius:50%;background:#334155;flex:0 0 auto}
+  .ch-card.acceso .led{background:#22c55e;box-shadow:0 0 8px #22c55e}
+  .ch-card .bt{display:flex;gap:6px;margin-top:8px} .ch-card .bt button{flex:1;padding:12px 6px}
+  .ch-card details{margin-top:6px} .ch-card details input{font-size:12.5px;padding:6px 8px;margin-top:4px}
+  .avviso{background:#3b2a07;border:1px solid #92400e;color:#fde68a;border-radius:10px;padding:10px;font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" style="color:#93c5fd;text-decoration:none;font-size:22px" aria-label="Torna a clickVenice">‹</a><h1>⚡ Pannello BLE · test interruttori</h1>
+  <span id="stato">non connesso</span>
+  <button id="btnConn">🔗 Connetti</button>
+  <button id="btnDisc" class="sec" disabled>Disconnetti</button>
+</header>
+
+<main>
+  <div class="avviso" id="noBle" hidden>Questo browser non supporta Web Bluetooth. Usa Google Chrome (o Edge) su Android, Windows, macOS o ChromeOS, aprendo la pagina da https:// o da localhost.</div>
+
+  <!-- 1. CONNESSIONE -->
+  <section>
+    <h2>1 · Connessione</h2>
+    <div class="row">
+      <div style="flex:2 1 260px">
+        <label>Servizi da poter leggere (UUID separati da virgola) — Chrome mostra solo quelli elencati qui</label>
+        <input id="servizi" class="mono" placeholder="es. 0000ffe0-0000-1000-8000-00805f9b34fb, fff0">
+      </div>
+      <div>
+        <label>Filtro nome dispositivo (facoltativo)</label>
+        <input id="nomeFiltro" placeholder="es. MG, M-Group, Light">
+      </div>
+    </div>
+    <p class="muted">Già inclusi: FFE0, FFF0, FFE5, FFD0, FFC0, AE00/AE30, FEE7, Nordic UART (6E400001…), DFU Nordic (FE59) e 8EC9… (firmware). Copia qui gli UUID dei servizi che vedi in nRF Connect, poi premi <b>Connetti</b>.</p>
+  </section>
+
+  <!-- 2. SERVIZI E CARATTERISTICHE -->
+  <section>
+    <h2>2 · Servizi e caratteristiche</h2>
+    <div id="albero"><span class="muted">Connettiti per vedere servizi e caratteristiche.</span></div>
+    <label>Caratteristica in uso</label>
+    <div class="row">
+      <select id="selChar" disabled><option>—</option></select>
+      <button id="btnNotify" class="sec" disabled>🔔 Attiva notifiche</button>
+      <button id="btnRead" class="sec" disabled>📖 Leggi</button>
+    </div>
+    <label>…oppure scrivi l'UUID della caratteristica (Write / Write Without Response)</label>
+    <div class="row">
+      <input id="charManuale" class="mono" placeholder="es. 0000ffe1-0000-1000-8000-00805f9b34fb">
+      <button id="btnUsaManuale" class="sec" disabled>Usa</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>Modo di scrittura</label>
+        <select id="modo">
+          <option value="auto">Automatico (in base alla caratteristica)</option>
+          <option value="resp">Write (con risposta)</option>
+          <option value="noresp">Write Without Response</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. INVIO BYTE E SCANSIONE -->
+  <section>
+    <h2>3 · Invio byte</h2>
+    <div class="row">
+      <div style="flex:3 1 260px">
+        <label>Byte da inviare (hex): <span class="mono">01</span> · <span class="mono">0x01 0x00</span> · <span class="mono">0101</span> · <span class="mono">A5,01,FF</span></label>
+        <input id="hex" class="mono" placeholder="0x01">
+      </div>
+      <button id="btnSend" disabled>📤 Invia</button>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <button class="sec" data-q="00">00</button><button class="sec" data-q="01">01</button><button class="sec" data-q="0100">0100</button><button class="sec" data-q="0101">0101</button><button class="sec" data-q="FF">FF</button>
+    </div>
+
+    <h2 style="margin-top:18px">Scansione automatica</h2>
+    <p class="muted">Invia in sequenza <span class="mono">[prefisso] XX [suffisso]</span> con XX da inizio a fine. Appena senti scattare un relè premi <b>STOP</b>: sotto restano gli ultimi valori inviati (con il ritardo BLE di solito è quello mostrato o uno degli ultimi 2–3).</p>
+    <div class="row">
+      <div><label>Prefisso (hex, facoltativo)</label><input id="pre" class="mono" placeholder="es. A5 01"></div>
+      <div><label>Suffisso (hex, facoltativo)</label><input id="suf" class="mono" placeholder="es. 5A"></div>
+      <div><label>Da</label><input id="da" class="mono" value="00"></div>
+      <div><label>A</label><input id="a" class="mono" value="FF"></div>
+      <div><label>Intervallo (ms)</label><input id="ms" type="number" value="300" min="20"></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="btnScan" class="warn" disabled>▶ Avvia scansione</button>
+      <button id="btnStop" class="stop" disabled style="font-size:20px;padding:14px 28px">⏹ STOP</button>
+      <button id="btnRiprendi" class="sec" disabled>⏵ Riprendi</button>
+      <button id="btnPrec" class="sec" disabled>⟲ Reinvia precedente</button>
+    </div>
+    <div id="scanVal" style="margin-top:10px">—</div>
+    <p id="storia"></p>
+
+    <h2 style="margin-top:18px">Log</h2>
+    <div id="log"></div>
+    <div class="row" style="margin-top:8px"><button class="sec" id="btnClearLog">Pulisci log</button><button class="sec" id="btnCopyLog">Copia log</button></div>
+  </section>
+
+  <!-- 4. INTERRUTTORI -->
+  <section>
+    <h2>4 · Interruttori</h2>
+    <div class="row">
+      <div><label>Numero di canali</label>
+        <select id="nCanali"><option>4</option><option>6</option><option selected>8</option><option>10</option><option>12</option></select></div>
+      <button class="sec" id="btnEsporta">💾 Esporta configurazione</button>
+      <button class="sec" id="btnImporta">📂 Importa</button>
+    </div>
+    <p class="muted">Per ogni canale incolla il comando ON e OFF (hex). Se il pannello usa un solo comando che commuta, mettilo in ON e lascia OFF vuoto. Tutto resta salvato in questo browser.</p>
+    <div class="grid" id="canali"></div>
+  </section>
+</main>
+
+<script>
+"use strict";
+// ---------- utilità ----------
+const $ = s => document.querySelector(s);
+const STD = ["ffe0","ffe5","fff0","ffd0","ffc0","fee7","ae00","ae30","1800","1801","180a","180f","fe59",
+  "6e400001-b5a3-f393-e0a9-e50e24dcca9e",            // Nordic UART
+  "8ec90001-f315-4f60-9fb8-838830daea50",            // DFU (firmware)
+  "8ec90003-f315-4f60-9fb8-838830daea50",
+  "0000fe59-0000-1000-8000-00805f9b34fb"];
+const NOMI = { "1800": "Generic Access", "1801": "Generic Attribute", "180a": "Device Information", "180f": "Batteria", "fe59": "Nordic DFU", "ffe0": "Seriale (FFE0)", "fff0": "Seriale (FFF0)" };
+const isDfu = u => /^8ec9/i.test(u) || /^0000fe59/i.test(u);
+const corto = u => { const m = /^0000([0-9a-f]{4})-0000-1000-8000-00805f9b34fb$/i.exec(u); return m ? m[1].toUpperCase() : u; };
+function normUuid(x){
+  x = String(x).trim().toLowerCase().replace(/^0x/, ""); if (!x) return null;
+  if (/^[0-9a-f]{4}$/.test(x) || /^[0-9a-f]{8}$/.test(x)) return parseInt(x, 16);
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(x)) return x;
+  return null;
+}
+function parseHex(s){
+  s = String(s || "").trim(); if (!s) return new Uint8Array(0);
+  const parti = s.split(/[\s,;]+/).filter(Boolean), out = [];
+  for (let p of parti){
+    p = p.replace(/^0x/i, "");
+    if (!/^[0-9a-f]+$/i.test(p)) throw new Error("valore non esadecimale: " + p);
+    if (p.length % 2) p = "0" + p;
+    for (let i = 0; i < p.length; i += 2) out.push(parseInt(p.slice(i, i + 2), 16));
+  }
+  return new Uint8Array(out);
+}
+const toHex = b => Array.from(b instanceof DataView ? new Uint8Array(b.buffer, b.byteOffset, b.byteLength) : b).map(x => x.toString(16).padStart(2, "0").toUpperCase()).join(" ");
+const toAscii = b => Array.from(b instanceof DataView ? new Uint8Array(b.buffer, b.byteOffset, b.byteLength) : b).map(x => x >= 32 && x < 127 ? String.fromCharCode(x) : ".").join("");
+function log(msg, cls = "in"){
+  const el = $("#log"), t = new Date().toLocaleTimeString("it-IT", { hour12: false }) + "." + String(Date.now() % 1000).padStart(3, "0");
+  const d = document.createElement("div"); d.className = cls; d.textContent = `[${t}] ${msg}`; el.appendChild(d); el.scrollTop = el.scrollHeight;
+  while (el.childNodes.length > 1500) el.removeChild(el.firstChild);
+}
+const store = { get: (k, d) => { try{ const v = localStorage.getItem("blepanel_" + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+                set: (k, v) => { try{ localStorage.setItem("blepanel_" + k, JSON.stringify(v)); }catch(e){} } };
+
+// ---------- stato ----------
+let device = null, server = null, CHARS = [], cur = null, notifOn = new Set();
+
+function setStato(t, cls){ const s = $("#stato"); s.textContent = t; s.className = cls || ""; }
+function abilita(on){
+  ["#btnDisc", "#selChar", "#btnUsaManuale"].forEach(s => $(s).disabled = !on);
+  $("#btnConn").disabled = on;
+  aggiornaBottoni();
+}
+function aggiornaBottoni(){
+  const w = !!(cur && (cur.properties.write || cur.properties.writeWithoutResponse));
+  $("#btnSend").disabled = !w; $("#btnScan").disabled = !w || SCAN.attivo;
+  $("#btnNotify").disabled = !(cur && (cur.properties.notify || cur.properties.indicate));
+  $("#btnRead").disabled = !(cur && cur.properties.read);
+  $("#btnNotify").textContent = cur && notifOn.has(cur) ? "🔕 Ferma notifiche" : "🔔 Attiva notifiche";
+  document.querySelectorAll("[data-q]").forEach(b => b.disabled = !w);
+  document.querySelectorAll(".ch-card button").forEach(b => b.disabled = !w);
+}
+
+// ---------- 1. connessione ----------
+if (!navigator.bluetooth){ $("#noBle").hidden = false; $("#btnConn").disabled = true; }
+$("#servizi").value = store.get("servizi", "");
+$("#nomeFiltro").value = store.get("nome", "");
+
+$("#btnConn").onclick = async () => {
+  try{
+    store.set("servizi", $("#servizi").value); store.set("nome", $("#nomeFiltro").value);
+    const extra = $("#servizi").value.split(/[,\s]+/).map(normUuid).filter(x => x != null);
+    const optionalServices = [...new Set(STD.map(normUuid).concat(extra))];
+    const nome = $("#nomeFiltro").value.trim();
+    const opts = nome ? { filters: [{ namePrefix: nome }], optionalServices } : { acceptAllDevices: true, optionalServices };
+    log("Cerco dispositivi… (servizi consentiti: " + optionalServices.length + ")");
+    device = await navigator.bluetooth.requestDevice(opts);
+    device.addEventListener("gattserverdisconnected", () => { setStato("disconnesso", "err"); log("Dispositivo disconnesso", "er"); fermaScan(); abilita(false); });
+    setStato("connessione…"); log("Connessione a " + (device.name || device.id) + "…");
+    server = await device.gatt.connect();
+    setStato("connesso: " + (device.name || "senza nome"), "on"); log("Connesso al GATT server ✓", "rx");
+    abilita(true);
+    await esplora();
+  }catch(e){ log("Errore: " + e.message, "er"); setStato(device && device.gatt.connected ? "connesso" : "non connesso", device && device.gatt.connected ? "on" : "err"); }
+};
+$("#btnDisc").onclick = () => { fermaScan(); if (device && device.gatt.connected) device.gatt.disconnect(); };
+
+// ---------- 2. servizi e caratteristiche ----------
+async function esplora(){
+  CHARS = []; const box = $("#albero"); box.innerHTML = "";
+  let servizi = [];
+  try{ servizi = await server.getPrimaryServices(); }catch(e){ log("Nessun servizio leggibile: aggiungi gli UUID dei servizi nel campo in alto e riconnetti (" + e.message + ")", "er"); }
+  if (!servizi.length) box.innerHTML = `<span class="muted">Nessun servizio visibile. Chrome mostra solo i servizi elencati prima della connessione: copia gli UUID da nRF Connect nel campo "Servizi" e riconnetti.</span>`;
+  for (const s of servizi){
+    const dfu = isDfu(s.uuid), sd = document.createElement("div");
+    sd.className = "srv" + (dfu ? " dfu" : "");
+    sd.textContent = `▸ Servizio ${corto(s.uuid)}${NOMI[corto(s.uuid).toLowerCase()] ? " · " + NOMI[corto(s.uuid).toLowerCase()] : ""}${dfu ? "  ⚠ FIRMWARE/DFU — non scrivere qui" : ""}`;
+    box.appendChild(sd);
+    let cs = []; try{ cs = await s.getCharacteristics(); }catch(e){ log("Caratteristiche di " + corto(s.uuid) + ": " + e.message, "er"); }
+    for (const c of cs){
+      const p = c.properties, flags = [p.read && "read", p.write && "write", p.writeWithoutResponse && "writeNoResp", p.notify && "notify", p.indicate && "indicate"].filter(Boolean);
+      CHARS.push({ c, srv: s.uuid, dfu });
+      const cd = document.createElement("div"); cd.className = "ch" + (dfu ? " dfu" : p.write || p.writeWithoutResponse ? " w" : p.notify || p.indicate ? " n" : "");
+      cd.textContent = `   • ${corto(c.uuid)}  [${flags.join(", ")}]`; cd.title = "Tocca per usarla"; cd.onclick = () => scegli(CHARS.findIndex(x => x.c === c));
+      box.appendChild(cd);
+    }
+  }
+  const sel = $("#selChar"); sel.innerHTML = "";
+  CHARS.forEach((x, i) => { const p = x.c.properties, o = document.createElement("option"); o.value = i;
+    o.textContent = `${x.dfu ? "⚠ DFU · " : ""}${corto(x.c.uuid)}  (serv. ${corto(x.srv)})  ${[p.write && "W", p.writeWithoutResponse && "WnR", p.notify && "N", p.indicate && "I", p.read && "R"].filter(Boolean).join(" ")}`;
+    sel.appendChild(o); });
+  log(`Trovati ${servizi.length} servizi e ${CHARS.length} caratteristiche`, "rx");
+  // scelta automatica: l'ultima usata, altrimenti la prima scrivibile non DFU
+  const prima = store.get("char", ""), iPrima = CHARS.findIndex(x => x.c.uuid === prima);
+  const iW = CHARS.findIndex(x => !x.dfu && (x.c.properties.write || x.c.properties.writeWithoutResponse));
+  if (iPrima >= 0) scegli(iPrima); else if (iW >= 0) scegli(iW); else aggiornaBottoni();
+  // notifiche su tutte le caratteristiche notify non DFU: si vede subito se il pannello risponde
+  for (const x of CHARS) if (!x.dfu && (x.c.properties.notify || x.c.properties.indicate)) await attivaNotifiche(x.c, true);
+}
+function scegli(i){
+  if (i < 0 || !CHARS[i]) return; const x = CHARS[i];
+  if (x.dfu && !confirm("Questa caratteristica è del firmware (DFU). Scrivere qui può bloccare il pannello. Usarla comunque?")) return;
+  cur = x.c; $("#selChar").value = i; $("#charManuale").value = cur.uuid; store.set("char", cur.uuid);
+  log("Caratteristica in uso: " + corto(cur.uuid) + "  [" + Object.entries({ write: cur.properties.write, writeNoResp: cur.properties.writeWithoutResponse, notify: cur.properties.notify, read: cur.properties.read }).filter(e => e[1]).map(e => e[0]).join(", ") + "]");
+  aggiornaBottoni();
+}
+$("#selChar").onchange = e => scegli(+e.target.value);
+$("#btnUsaManuale").onclick = () => {
+  const u = normUuid($("#charManuale").value); if (u == null) return log("UUID non valido", "er");
+  const full = typeof u === "number" ? BluetoothUUID.getCharacteristic(u) : u, i = CHARS.findIndex(x => x.c.uuid === full);
+  if (i < 0) return log("Caratteristica non trovata tra quelle visibili: aggiungi il suo servizio nel campo Servizi e riconnetti", "er");
+  scegli(i);
+};
+
+async function attivaNotifiche(c, silenzioso){
+  try{
+    if (notifOn.has(c)){ await c.stopNotifications(); notifOn.delete(c); log("Notifiche fermate su " + corto(c.uuid)); aggiornaBottoni(); return; }
+    c.addEventListener("characteristicvaluechanged", e => log(`◀ ${corto(c.uuid)}: ${toHex(e.target.value)}   |${toAscii(e.target.value)}|`, "rx"));
+    await c.startNotifications(); notifOn.add(c); log("Notifiche attive su " + corto(c.uuid), "rx");
+  }catch(e){ if (!silenzioso) log("Notifiche: " + e.message, "er"); }
+  aggiornaBottoni();
+}
+$("#btnNotify").onclick = () => cur && attivaNotifiche(cur);
+$("#btnRead").onclick = async () => { try{ const v = await cur.readValue(); log(`📖 ${corto(cur.uuid)}: ${toHex(v)}   |${toAscii(v)}|`, "rx"); }catch(e){ log("Lettura: " + e.message, "er"); } };
+
+// ---------- 3. invio ----------
+let coda = Promise.resolve();
+function invia(bytes, nota){
+  if (!cur) return Promise.reject(new Error("nessuna caratteristica scelta"));
+  const p = cur.properties, m = $("#modo").value;
+  const noResp = m === "noresp" || (m === "auto" && p.writeWithoutResponse && !p.write);
+  // le scritture GATT non possono sovrapporsi: le metto in fila
+  coda = coda.catch(() => {}).then(async () => {
+    if (noResp && cur.writeValueWithoutResponse) await cur.writeValueWithoutResponse(bytes);
+    else if (!noResp && cur.writeValueWithResponse) await cur.writeValueWithResponse(bytes);
+    else await cur.writeValue(bytes);
+    log(`▶ ${toHex(bytes)}${nota ? "   " + nota : ""}`, "tx");
+  });
+  return coda.catch(e => { log("Invio fallito: " + e.message, "er"); throw e; });
+}
+$("#btnSend").onclick = () => { try{ const b = parseHex($("#hex").value); if (!b.length) return log("Scrivi almeno un byte", "er"); store.set("hex", $("#hex").value); invia(b); }catch(e){ log(e.message, "er"); } };
+$("#hex").value = store.get("hex", "0x01");
+$("#hex").addEventListener("keydown", e => { if (e.key === "Enter") $("#btnSend").click(); });
+document.querySelectorAll("[data-q]").forEach(b => b.onclick = () => { $("#hex").value = b.dataset.q; $("#btnSend").click(); });
+
+// scansione temporizzata
+const SCAN = { attivo: false, v: 0, fine: 255, timer: null, storia: [] };
+["pre", "suf", "da", "a", "ms"].forEach(id => { const v = store.get("scan_" + id, null); if (v != null) $("#" + id).value = v; $("#" + id).onchange = e => store.set("scan_" + id, e.target.value); });
+function pacchetto(v){ return new Uint8Array([...parseHex($("#pre").value), v, ...parseHex($("#suf").value)]); }
+async function passo(){
+  if (!SCAN.attivo) return;
+  if (SCAN.v > SCAN.fine){ fermaScan(); log("Scansione finita", "rx"); return; }
+  const v = SCAN.v++, b = pacchetto(v);
+  $("#scanVal").textContent = "0x" + v.toString(16).padStart(2, "0").toUpperCase();
+  SCAN.storia.unshift({ v, hex: toHex(b) }); SCAN.storia.length = Math.min(SCAN.storia.length, 6);
+  try{ await invia(b, "(scan)"); }catch(e){ fermaScan(); return; }
+  if (SCAN.attivo) SCAN.timer = setTimeout(passo, Math.max(20, +$("#ms").value || 300));
+}
+function avviaScan(daCapo){
+  try{ parseHex($("#pre").value); parseHex($("#suf").value); }catch(e){ return log(e.message, "er"); }
+  if (daCapo){ SCAN.v = parseInt($("#da").value.replace(/^0x/i, ""), 16) || 0; SCAN.storia = []; }
+  SCAN.fine = Math.min(255, parseInt($("#a").value.replace(/^0x/i, ""), 16)); if (isNaN(SCAN.fine)) SCAN.fine = 255;
+  SCAN.attivo = true; $("#btnStop").disabled = false; $("#btnRiprendi").disabled = true; $("#btnPrec").disabled = true; aggiornaBottoni();
+  log(`Scansione ${daCapo ? "avviata" : "ripresa"} da 0x${SCAN.v.toString(16).padStart(2, "0").toUpperCase()} a 0x${SCAN.fine.toString(16).padStart(2, "0").toUpperCase()}`);
+  passo();
+}
+function fermaScan(){
+  if (!SCAN.attivo) return; SCAN.attivo = false; clearTimeout(SCAN.timer);
+  $("#btnStop").disabled = true; $("#btnRiprendi").disabled = SCAN.v > SCAN.fine; $("#btnPrec").disabled = !SCAN.storia.length; aggiornaBottoni();
+  const s = SCAN.storia.map((x, i) => (i ? "" : "ultimo → ") + x.hex).join("   ·   ");
+  $("#storia").textContent = "Inviati per ultimi: " + s;
+  log("⏹ STOP · ultimi inviati: " + s, "er");
+}
+let precIdx = 0;
+$("#btnScan").onclick = () => avviaScan(true);
+$("#btnStop").onclick = fermaScan;
+$("#btnRiprendi").onclick = () => avviaScan(false);
+$("#btnPrec").onclick = () => { if (!SCAN.storia.length) return; const x = SCAN.storia[precIdx % SCAN.storia.length]; precIdx++;
+  $("#hex").value = x.hex; invia(parseHex(x.hex), "(riprova " + precIdx + "° dagli ultimi)"); };
+document.addEventListener("keydown", e => { if ((e.key === " " || e.key === "Escape") && SCAN.attivo){ e.preventDefault(); fermaScan(); } });
+$("#btnClearLog").onclick = () => $("#log").innerHTML = "";
+$("#btnCopyLog").onclick = () => navigator.clipboard.writeText($("#log").innerText).then(() => log("Log copiato"));
+
+// ---------- 4. interruttori ----------
+let CFG = store.get("canali", null) || { n: 8, ch: [] };
+function salvaCfg(){ store.set("canali", CFG); }
+function disegnaCanali(){
+  $("#nCanali").value = CFG.n; const g = $("#canali"); g.innerHTML = "";
+  for (let i = 0; i < CFG.n; i++){
+    const c = CFG.ch[i] = Object.assign({ nome: "Canale " + (i + 1), on: "", off: "", stato: false }, CFG.ch[i] || {});
+    const d = document.createElement("div"); d.className = "ch-card" + (c.stato ? " acceso" : "");
+    d.innerHTML = `<div class="top"><span class="led"></span><input value="${c.nome.replace(/"/g, "&quot;")}" aria-label="Nome canale"></div>
+      <div class="bt"><button class="ok">ON</button><button class="sec">OFF</button></div>
+      <details><summary class="muted">Comandi</summary>
+        <input class="mono on" placeholder="ON  es. A0 01 01 A2" value="${c.on}">
+        <input class="mono off" placeholder="OFF es. A0 01 00 A1 (vuoto = stesso di ON)" value="${c.off}">
+        <button class="sec usa" style="margin-top:6px;width:100%;padding:7px">⬇ Usa il valore del campo Invio</button></details>`;
+    const [bOn, bOff] = d.querySelectorAll(".bt button");
+    d.querySelector(".top input").onchange = e => { c.nome = e.target.value; salvaCfg(); };
+    d.querySelector(".on").onchange = e => { c.on = e.target.value.trim(); salvaCfg(); };
+    d.querySelector(".off").onchange = e => { c.off = e.target.value.trim(); salvaCfg(); };
+    d.querySelector(".usa").onclick = () => { const v = $("#hex").value.trim(); if (!c.on){ c.on = v; d.querySelector(".on").value = v; } else { c.off = v; d.querySelector(".off").value = v; } salvaCfg(); };
+    const manda = async acceso => { const h = acceso ? c.on : (c.off || c.on); if (!h) return log(`${c.nome}: manca il comando ${acceso ? "ON" : "OFF"}`, "er");
+      try{ await invia(parseHex(h), `(${c.nome} ${acceso ? "ON" : "OFF"})`); c.stato = acceso; d.classList.toggle("acceso", acceso); salvaCfg(); }catch(e){ log(e.message, "er"); } };
+    bOn.onclick = () => manda(true); bOff.onclick = () => manda(false);
+    g.appendChild(d);
+  }
+  aggiornaBottoni();
+}
+$("#nCanali").onchange = e => { CFG.n = +e.target.value; salvaCfg(); disegnaCanali(); };
+$("#btnEsporta").onclick = () => {
+  const dati = { versione: 1, servizi: $("#servizi").value, caratteristica: cur ? cur.uuid : store.get("char", ""), modo: $("#modo").value, scansione: { pre: $("#pre").value, suf: $("#suf").value }, canali: CFG };
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(dati, null, 2)], { type: "application/json" }));
+  a.download = "pannello-ble.json"; a.click();
+};
+$("#btnImporta").onclick = () => { const i = document.createElement("input"); i.type = "file"; i.accept = ".json,application/json";
+  i.onchange = async () => { try{ const d = JSON.parse(await i.files[0].text());
+    if (d.canali) CFG = d.canali; if (d.servizi != null){ $("#servizi").value = d.servizi; store.set("servizi", d.servizi); }
+    if (d.caratteristica) store.set("char", d.caratteristica); if (d.modo) $("#modo").value = d.modo;
+    if (d.scansione){ $("#pre").value = d.scansione.pre || ""; $("#suf").value = d.scansione.suf || ""; }
+    salvaCfg(); disegnaCanali(); log("Configurazione importata ✓", "rx"); }catch(e){ log("File non valido: " + e.message, "er"); } };
+  i.click(); };
+$("#modo").value = store.get("modo", "auto"); $("#modo").onchange = e => store.set("modo", e.target.value);
+disegnaCanali();
+log("Pronto. 1) Metti in 'Servizi' gli UUID visti in nRF Connect  2) Connetti  3) Scegli la caratteristica Write  4) Prova i byte o avvia la scansione.");
+</script>
+</body>
+</html>
