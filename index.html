@@ -438,6 +438,27 @@
   #mkPanel .stop{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #eee;font-size:14px;cursor:pointer}
   #mkPanel .btn{margin-top:8px;background:#d95f26;color:#fff;width:100%}
   #mkPanel .trnote{color:#666;font-size:13px;line-height:1.4;margin:6px 0}
+  /* pannello interruttori Bluetooth (3 tocchi su Naviga) */
+  #swp{position:fixed;inset:0;z-index:3200;background:#0f1720;color:#e6edf3;display:flex;flex-direction:column;padding:calc(12px + var(--safe-t)) 14px calc(14px + var(--safe-b))}
+  #swp.hidden{display:none}
+  #swp .swTop{display:flex;align-items:center;gap:10px}
+  #swp .swTop b{flex:1;font-size:18px}
+  #swp .swX{width:36px;height:36px;border-radius:50%;border:0;background:#1f2b38;color:#e6edf3;font-size:16px}
+  #swp .swSt{margin:10px 0;display:flex;align-items:center;gap:8px;font-size:13.5px;color:#9fb3c8}
+  #swp .swSt i{width:10px;height:10px;border-radius:50%;background:#64748b}
+  #swp .swSt.on i{background:#22c55e;box-shadow:0 0 8px #22c55e} #swp .swSt.wait i{background:#f59e0b}
+  #swp .swBtns{display:flex;gap:8px;margin-bottom:12px}
+  #swp .swBtns button{flex:1;border:0;border-radius:12px;padding:12px 8px;font:inherit;font-weight:700;background:#1f2b38;color:#e6edf3}
+  #swp .swBtns .pri{background:#1d4e89}
+  #swp .swGrid{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+  #swp .swCh{border:1.5px solid #263445;border-radius:16px;background:#17212d;color:#e6edf3;padding:16px 10px;font:inherit;font-weight:800;font-size:15px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:background .2s,border-color .2s}
+  #swp .swCh .led{width:14px;height:14px;border-radius:50%;background:#334155}
+  #swp .swCh.on{background:#123222;border-color:#22c55e} #swp .swCh.on .led{background:#22c55e;box-shadow:0 0 10px #22c55e}
+  #swp .swCh small{font-weight:600;font-size:11px;color:#8ba0b5}
+  #swp .swCh:disabled{opacity:.45}
+  #swp .swFoot{display:flex;gap:8px;margin-top:10px;align-items:center;font-size:12.5px;color:#8ba0b5}
+  #swp .swFoot select{background:#17212d;color:#e6edf3;border:1px solid #263445;border-radius:8px;padding:6px}
+  #swp .swFoot a{color:#93c5fd;margin-left:auto}
   #dash{position:fixed;inset:0;z-index:3000;background:radial-gradient(ellipse at 50% 35%,#0b2240 0%,#050d18 60%,#02060c 100%);color:#dff6ff;padding:calc(12px + var(--safe-t)) 12px calc(12px + var(--safe-b));display:flex;flex-direction:column}
   #dash .ckTop{display:flex;align-items:center;gap:10px;margin-bottom:6px}
   #dash .ckTitle{font-size:13px;letter-spacing:.14em;color:#9fc6e6;font-weight:700}
@@ -2000,7 +2021,15 @@
   </section>
 
   <!-- cruscotto a schermo intero -->
-  <div id="dash" class="hidden">
+  <div id="swp" class="hidden" role="dialog" aria-label="Pannello interruttori">
+  <div class="swTop"><b>⚡ Pannello interruttori</b><button class="swX" id="swX" aria-label="Chiudi">✕</button></div>
+  <div class="swSt" id="swSt"><i></i><span>Non collegato</span></div>
+  <div class="swBtns"><button class="pri" id="swConn">🔗 Collega</button><button id="swAllOn">Tutti ON</button><button id="swAllOff">Tutti OFF</button></div>
+  <div class="swGrid" id="swGrid"></div>
+  <div class="swFoot">Canali <select id="swN"><option>4</option><option>6</option><option>8</option><option>10</option><option>12</option></select>
+    <span>· tieni premuto un canale per rinominarlo</span><a href="strumenti-ble.html" target="_blank">Avanzate</a></div>
+</div>
+<div id="dash" class="hidden">
     <div class="ckTop"><b class="ckTitle">BUSSOLA <span id="ckHead">–</span></b><span class="ckGps" id="ckGps">GPS in attesa…</span><button class="ckX" id="dashClose" aria-label="Chiudi">✕</button></div>
     <div class="ckPanel"><div id="ckBox"></div>
       <div class="ckRow"><div><small>VELOX</small><b id="ckVx">–</b></div><div><small id="ckNavL">VELOCITÀ MAX</small><b id="ckNav">–</b></div><div><small>ARRIVO</small><b id="ckEta">–</b></div><div><small>ORA</small><b id="ckClock">--:--</b></div></div></div>
@@ -2207,7 +2236,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.64</p>
+      <p class="sub">clickVenice · versione 4.65</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -13406,6 +13435,88 @@ setTimeout(() => { const c = navigator.connection, wifi = c && (c.type === "wifi
     $("#offGo").onclick = () => { offStart(true); $("#offTxt").textContent = "Scarico…"; };
     $("#offDel").onclick = async () => { const reg = await navigator.serviceWorker.ready; reg.active && reg.active.postMessage({ t: "svuota" }); closeSheet(); };
   };
+})();
+
+/* ---------- pannello interruttori Bluetooth M-Group: si apre toccando 3 volte Naviga ----------
+   protocollo ricavato dall'app Mgroup Switch: MP = 5A 01 20 0E 01 [12 stati] 08 [somma]; classico = F5 [12 mezzi byte]
+   stato: 0 spento · 1 acceso · 8 non toccare */
+const SWP = { dev: null, chr: null, proto: null, stati: [] };
+const SW_MP = ["0003cbbb-0000-1000-8000-00805f9bfff0", "0003cbbb-0000-1000-8000-00805f9bfffa"], SW_CL = ["0003cbbb-0000-1000-8000-00805f9beff0", "0003cbbb-0000-1000-8000-00805f9beffa"];
+const swCfg = () => { try{ return JSON.parse(localStorage.getItem("blepanel_canali")) || { n: 8, ch: [] }; }catch(e){ return { n: 8, ch: [] }; } };
+const swSave = c => { try{ localStorage.setItem("blepanel_canali", JSON.stringify(c)); }catch(e){} };
+function swCmd(stati){
+  if (SWP.proto === "mp"){ const b = [0x5A, 0x01, 0x20, 0x0E, 0x01, ...stati, 0x08]; b.push(b.reduce((a, x) => a + x, 0) & 0xFF); return new Uint8Array(b); }
+  const h = "F5" + stati.map(x => x.toString(16)).join(""); return new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
+}
+function swStato(t, cls){ const e = $("#swSt"); e.className = "swSt " + (cls || ""); e.querySelector("span").textContent = t; }
+function swPaint(){
+  const c = swCfg(), g = $("#swGrid"); $("#swN").value = c.n; const ok = !!SWP.chr;
+  g.innerHTML = Array.from({ length: c.n }, (_, i) => { const ch = c.ch[i] || {}, on = SWP.stati[i] != null ? SWP.stati[i] : !!ch.stato;
+    return `<button class="swCh${on ? " on" : ""}" data-i="${i}" ${ok ? "" : "disabled"}><span class="led"></span>${esc(ch.nome || "Canale " + (i + 1))}<small>${on ? "ACCESO" : "spento"}</small></button>`; }).join("");
+  ["#swAllOn", "#swAllOff"].forEach(s => $(s).disabled = !ok);
+  $("#swConn").textContent = ok ? "Scollega" : "🔗 Collega";
+}
+let swLock = Promise.resolve();
+function swSend(stati){
+  if (!SWP.chr) return Promise.reject(new Error("non collegato"));
+  const b = swCmd(stati), c = SWP.chr;
+  swLock = swLock.catch(() => {}).then(() => c.properties.write ? c.writeValueWithResponse(b) : c.writeValueWithoutResponse(b));
+  return swLock;
+}
+async function swToggle(i){
+  const c = swCfg(), on = !(SWP.stati[i] != null ? SWP.stati[i] : (c.ch[i] || {}).stato);
+  haptic();
+  try{ await swSend(Array.from({ length: 12 }, (_, k) => k === i ? (on ? 1 : 0) : 8));
+    SWP.stati[i] = on; c.ch[i] = Object.assign({ nome: "Canale " + (i + 1) }, c.ch[i] || {}, { stato: on }); swSave(c); swPaint();
+  }catch(e){ toast("Comando non inviato: " + e.message); }
+}
+async function swTutti(on){
+  const c = swCfg(); haptic();
+  try{ await swSend(Array.from({ length: 12 }, (_, k) => k < c.n ? (on ? 1 : 0) : 8));
+    for (let k = 0; k < c.n; k++){ SWP.stati[k] = on; c.ch[k] = Object.assign({ nome: "Canale " + (k + 1) }, c.ch[k] || {}, { stato: on }); }
+    swSave(c); swPaint(); }catch(e){ toast("Comando non inviato: " + e.message); }
+}
+function swNotify(ev){   // protocollo classico: F8/F9 + 12 stati
+  const v = new Uint8Array(ev.target.value.buffer), h = Array.from(v).map(x => x.toString(16).padStart(2, "0")).join("").toUpperCase();
+  if (!/^F[89]/.test(h) || h.length < 14) return;
+  for (let i = 0; i < 12; i++){ const st = parseInt(h[2 + i], 16); SWP.stati[i] = st < 8 && st % 2 === 1; }
+  swPaint();
+}
+async function swConnect(){
+  if (SWP.dev && SWP.dev.gatt.connected){ SWP.dev.gatt.disconnect(); return; }
+  if (!navigator.bluetooth) return toast("Questo browser non ha il Bluetooth web: usa Chrome su Android o computer");
+  try{
+    swStato("Scegli il pannello…", "wait");
+    const dev = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [SW_MP[0], SW_CL[0]] });
+    SWP.dev = dev; store.set("ln_sw_dev", dev.name || "");
+    dev.addEventListener("gattserverdisconnected", () => { SWP.chr = null; swStato("Scollegato"); swPaint(); });
+    swStato("Collego " + (dev.name || "pannello") + "…", "wait");
+    const srv = await dev.gatt.connect();
+    let s = null; try{ s = await srv.getPrimaryService(SW_MP[0]); SWP.proto = "mp"; SWP.chr = await s.getCharacteristic(SW_MP[1]); }catch(e){
+      s = await srv.getPrimaryService(SW_CL[0]); SWP.proto = "cl"; SWP.chr = await s.getCharacteristic(SW_CL[1]); }
+    try{ if (SWP.chr.properties.notify){ SWP.chr.addEventListener("characteristicvaluechanged", swNotify); await SWP.chr.startNotifications(); } }catch(e){}
+    swStato("Collegato · " + (dev.name || "pannello") + (SWP.proto === "mp" ? " · MP" : " · classico"), "on"); swPaint();
+    if (SWP.proto === "cl") setTimeout(() => SWP.chr && SWP.chr.writeValueWithResponse(new Uint8Array([0xF8, 0x00])).catch(() => {}), 500);
+  }catch(e){ SWP.chr = null; swStato(/cancel|chooser/i.test(e.message) ? "Non collegato" : "Non riesco a collegarmi: " + e.message); swPaint(); }
+}
+function swOpen(){ $("#swp").classList.remove("hidden"); haptic(); try{ $("#modeHint").classList.add("hidden"); clearTimeout(toast._t); }catch(e){} swPaint(); if (!SWP.chr) swStato(store.get("ln_sw_dev", "") ? "Non collegato · ultimo pannello: " + store.get("ln_sw_dev", "") : "Non collegato"); }
+(function(){
+  $("#swX").onclick = () => $("#swp").classList.add("hidden");
+  $("#swConn").onclick = swConnect;
+  $("#swAllOn").onclick = () => swTutti(true); $("#swAllOff").onclick = () => swTutti(false);
+  $("#swN").onchange = e => { const c = swCfg(); c.n = +e.target.value; swSave(c); swPaint(); };
+  let hold = null, held = false;
+  const G = $("#swGrid");
+  G.addEventListener("pointerdown", e => { const b = e.target.closest(".swCh"); if (!b) return; held = false;
+    hold = setTimeout(() => { held = true; const i = +b.dataset.i, c = swCfg(), n = prompt("Nome del canale " + (i + 1), (c.ch[i] || {}).nome || "Canale " + (i + 1));
+      if (n != null){ c.ch[i] = Object.assign(c.ch[i] || {}, { nome: n.trim() || "Canale " + (i + 1) }); swSave(c); swPaint(); } }, 650); });
+  ["pointerup", "pointercancel", "pointerleave"].forEach(ev => G.addEventListener(ev, () => clearTimeout(hold)));
+  G.addEventListener("click", e => { const b = e.target.closest(".swCh"); if (!b || b.disabled) return; if (held){ held = false; return; } swToggle(+b.dataset.i); });
+  // 3 tocchi su Naviga in meno di un secondo
+  let taps = [];
+  $("#tabs").addEventListener("click", e => { const b = e.target.closest('[data-pm="nautica"]'); if (!b){ taps = []; return; }
+    const now = Date.now(); taps = taps.filter(t => now - t < 900); taps.push(now);
+    if (taps.length >= 3){ taps = []; swOpen(); } });
 })();
 (function(){ const N = { auto: "Automatica", on: "Sempre", off: "Mai" }, nx = { auto: "on", on: "off", off: "auto" };
   const paint = () => { const v = $("#pfNightV"); if (v) v.textContent = N[store.get("ln_night", "auto")] || "Automatica"; };
