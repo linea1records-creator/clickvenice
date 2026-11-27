@@ -1600,6 +1600,16 @@
   #ptBox{position:fixed;left:12px;right:12px;top:calc(76px + var(--safe-t));z-index:40;background:#0f172a;color:#fff;border-radius:16px;padding:10px 12px 10px 52px;box-shadow:0 8px 24px rgba(0,0,0,.3);cursor:pointer}
   #ptBox .ptX{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff}
   #ptBox b{display:block;font-size:16px} #ptBox b small{font-weight:600;opacity:.7;font-size:12px} #ptBox small{display:block;opacity:.8;font-size:12.5px} #ptBox span{display:block;font-size:13px;margin-top:2px;color:#f2b738;font-weight:700}
+  #admSet .srow span small{display:block;font-size:11.5px;color:#64748b;font-weight:600} #admSet .srow.on .sw{background:#111}
+  #admEdit .sw{display:inline-block} #admEdit.on{background:#fff4d6}
+  body.editmode #map{outline:4px solid #f2b738;outline-offset:-4px}
+  .aeCol{display:flex;gap:8px} .aeCol button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid #e2e8f0;background:#fff;border-radius:12px;padding:10px 6px;font-weight:800}
+  .aeCol button i{width:14px;height:14px;border-radius:50%;background:var(--c)} .aeCol button.on{border-color:var(--c);background:#f8fafc}
+  .dlvSt{font-style:normal;font-size:11px;font-weight:800;border-radius:99px;padding:2px 8px;vertical-align:2px;white-space:nowrap}
+  .dlvSt.sm{font-size:10px;padding:1px 6px} .dlvSt.disponibile{background:#dcfce7;color:#166534} .dlvSt.coming_soon{background:#fef3c7;color:#92400e} .dlvSt.non_disponibile{background:#fee2e2;color:#991b1b}
+  #mkPanel .pcard .go.off{background:#94a3b8!important;box-shadow:none;opacity:.9}
+  .dlvAdm{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 2px;padding:8px;border:1.5px dashed #f2b738;border-radius:12px} .dlvAdm small{width:100%;font-weight:700;color:#64748b}
+  .dlvAdm button{flex:1;border:1.5px solid #e2e8f0;background:#fff;border-radius:10px;padding:6px 4px;font-size:12.5px;font-weight:800} .dlvAdm button.on{border-color:#111;background:#111;color:#fff}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1914,6 +1924,10 @@
       <div class="sh">DIMENSIONI</div>
       <label class="srng"><span>Avatar <b id="szManV">100%</b></span><input type="range" id="szMan" min="0.4" max="3" step="0.1" value="1"></label>
       <label class="srng"><span>Barca <b id="szBoatV">100%</b></span><input type="range" id="szBoat" min="0.4" max="3" step="0.1" value="1"></label>
+      <div id="admSet" class="hidden"><div class="sh">MODIFICA MAPPA · SOLO TROPSS</div>
+        <button class="srow" id="admEdit"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>Modifica un luogo<small>poi tocca il luogo sulla mappa</small></span><i class="sw"></i></button>
+        <button class="srow" id="admList"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg><span>Luoghi modificati</span></button>
+        <button class="srow" id="admHid"><svg viewBox="0 0 24 24"><path d="M5 7h14l-1 13H6zM9 7V4h6v3"/></svg><span>Luoghi eliminati</span></button></div>
     </div>
 
     <!-- tipo di mappa -->
@@ -2147,7 +2161,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.36</p>
+      <p class="sub">clickVenice · versione 4.37</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -4566,6 +4580,7 @@ function initMap(){
     if (addMode === "pick2"){ if (window._pk2Click) window._pk2Click(e.lngLat); return; }   // scelta di ritiro e consegna di un servizio
     if ($("#sheet") && !$("#sheet").classList.contains("hidden")) return;   // appena dopo il tocco lungo si apre la scheda: il rilascio non conta
     if (HIDEMODE && isTropss()) return hideAtPoint(e);
+    if (EDITMODE && isTropss()) return admEditAt(e);
     ADM_F = isTropss() ? hideFeatAt(e.point) : null; if (ADM_F) ADM_F.t = Date.now();   // la scheda che si apre avrà il tasto Elimina
     if (GM){ const ap = map.project([GM.lng, GM.lat]); if (Math.hypot(e.point.x - ap.x, e.point.y - ap.y) < 60){ haptic(); return zainoOpen(); } }
     else if (lastPos && map.getZoom() > 15){ const ap = map.project([lastPos.lng, lastPos.lat]); if (Math.hypot(e.point.x - ap.x, e.point.y - ap.y) < 34){ haptic(); return zainoOpen(); } }
@@ -9201,7 +9216,7 @@ const MK_CATS = { food: ["🍝", "Food", "#d95f26"], shop: ["🛍️", "Shopping
 let PARTNERS = store.get("ln_partners", []), mkCat = "", partnersAt = 0;
 async function loadPartners(){
   if (Date.now() - partnersAt < 5 * 60000) { drawPartners(); return; }
-  try{ const r = await api("partners?select=id,name,category,descr,address,phone,lat,lng,order_rest,sconto_pct&limit=1000"); if (Array.isArray(r)){ PARTNERS = r; store.set("ln_partners", r); partnersAt = Date.now(); } }catch(e){}
+  try{ const r = await api("partners?select=id,name,category,descr,address,phone,lat,lng,order_rest,sconto_pct,stato&limit=1000"); if (Array.isArray(r)){ PARTNERS = r; store.set("ln_partners", r); partnersAt = Date.now(); try{ editsApply(); }catch(e){} } }catch(e){}
   drawPartners(); renderMk();
 }
 function addPartnersLayer(){
@@ -9230,11 +9245,15 @@ function renderMk(){
   if (DLVPART){
     const p = DLVPART, d = hav(ref.lat, ref.lng, p.lat, p.lng), min = Math.max(1, Math.round(d * 1.35 / 80)), sc = +p.sconto_pct || 0;
     $("#mkCount").textContent = "";
-    box.innerHTML = `<div class="pcard"><h4>${esc(p.name)}</h4><div class="d">${fmtDist(d * 1.35)} · ${fmtMin(min)} a piedi${p.address ? " · " + esc(p.address) : ""}</div>
+    const ST = p.stato || "disponibile", apri = ST === "disponibile";
+    box.innerHTML = `<div class="pcard"><h4>${esc(p.name)} ${dlvStBadge(ST)}</h4><div class="d">${fmtDist(d * 1.35)} · ${fmtMin(min)} a piedi${p.address ? " · " + esc(p.address) : ""}</div>
       ${p.order_rest ? `<span class="bdg">${sc ? "-" + sc + "% Sconto" + (p.order_rest === "dogal" ? " · Consegna a domicilio" : " + Posate Omaggio") : p.order_rest === "dogal" ? "Consegna a domicilio" : "Posate Omaggio"}</span>` : ""}
-      ${p.order_rest ? `<button class="go" id="mkMenu">🍴 Apri Menu e Ordina</button>` : ""}
+      ${p.order_rest ? (apri ? `<button class="go" id="mkMenu">🍴 Apri Menu e Ordina</button>` : `<button class="go off" disabled>${ST === "coming_soon" ? "⏳ Presto disponibile" : "⛔ Al momento non disponibile"}</button>`) : ""}
+      ${isTropss() ? `<div class="dlvAdm"><small>Stato (lo vedi solo tu):</small>${[["disponibile", "Disponibile"], ["coming_soon", "Coming soon"], ["non_disponibile", "Non disponibile"]].map(([k, n]) => `<button data-dst="${k}" class="${ST === k ? "on" : ""}">${n}</button>`).join("")}</div>` : ""}
       <div class="row2"><button id="mkVai">Portami qui</button>${p.phone ? `<button id="mkTel">Chiama</button>` : ""}<button id="mkAltri">Altri locali</button></div></div>`;
     if ($("#mkMenu")) $("#mkMenu").onclick = () => deliveryMenu(p);
+    box.querySelectorAll("[data-dst]").forEach(b => b.onclick = async () => { const v = b.dataset.dst; const j = await rpc("partner_stato", { p_id: p.id, p_stato: v }).catch(() => null);
+      if (!j || !j.ok) return toast("Stato non salvato, riprova."); p.stato = v; store.set("ln_partners", PARTNERS); haptic(); toast("Stato: " + dlvStNome(v)); renderMk(); });
     $("#mkVai").onclick = () => { setMode("nautica"); openPlan({ name: p.name, lat: p.lat, lng: p.lng }); };
     if ($("#mkTel")) $("#mkTel").onclick = () => { location.href = "tel:" + String(p.phone).replace(/[^+\d]/g, ""); };
     $("#mkAltri").onclick = () => { DLVPART = null; renderMk(); };
@@ -9245,14 +9264,17 @@ function renderMk(){
   $("#mkCount").textContent = list.length ? list.length + (list.length === 1 ? " convenzionato" : " convenzionati") : "";
   box.dataset.q = "1";
   if (!list.length){ box.innerHTML = `<p class="trnote">${DLVSEL === "conv" || DLVSEL === "food" ? "Ancora nessun convenzionato qui." : "Tocca un punto sulla mappa per vedere il negozio."}</p>`; return; }
-  box.innerHTML = `<p class="mkQ">Da chi vuoi ordinare?</p>` + list.slice(0, 4).map(x => `<div class="stop" data-mk="${x.p.id}"><span>${esc(x.p.name)}${+x.p.sconto_pct ? ` <b style="background:#f2b12c;color:#501b17;border-radius:99px;padding:1px 7px;font-size:11.5px">-${x.p.sconto_pct}%</b>` : ""}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
+  box.innerHTML = `<p class="mkQ">Da chi vuoi ordinare?</p>` + list.slice(0, 4).map(x => `<div class="stop" data-mk="${x.p.id}"><span>${esc(x.p.name)} ${dlvStBadge(x.p.stato || "disponibile", true)}${+x.p.sconto_pct ? ` <b style="background:#f2b12c;color:#501b17;border-radius:99px;padding:1px 7px;font-size:11.5px">-${x.p.sconto_pct}%</b>` : ""}</span><b>${fmtDist(x.d)} ›</b></div>`).join("");
   box.querySelectorAll("[data-mk]").forEach(el => el.onclick = () => { const p = PARTNERS.find(z => z.id === +el.dataset.mk); if (p) dlvSelectPartner(p); });
 }
+const dlvStNome = k => k === "coming_soon" ? "Coming soon" : k === "non_disponibile" ? "Non disponibile" : "Disponibile";
+const dlvStBadge = (k, small) => `<i class="dlvSt ${k}${small ? " sm" : ""}">${dlvStNome(k)}</i>`;
 function openPartner(p){
   const c = MK_CATS[p.category] || ["", ""];
   openSheet(`<h3>${c[0]} ${esc(p.name)}</h3><p class="muted" style="margin-top:-4px">${esc(c[1])}${p.address ? " · " + esc(p.address) : ""}</p>
     ${p.descr ? `<p style="line-height:1.45">${esc(p.descr)}</p>` : ""}
-    ${p.order_rest ? `<button class="btn" id="pOrder">🛒 Apri il menu delivery${+p.sconto_pct ? " · -" + p.sconto_pct + "%" : ""}</button>` : ""}
+    ${p.order_rest && (p.stato || "disponibile") !== "disponibile" ? `<p style="font-weight:800;color:#ac3d21">${(p.stato === "coming_soon" ? "⏳ Presto disponibile" : "⛔ Al momento non disponibile")}</p>` : ""}
+    ${p.order_rest && (p.stato || "disponibile") === "disponibile" ? `<button class="btn" id="pOrder">🛒 Apri il menu delivery${+p.sconto_pct ? " · -" + p.sconto_pct + "%" : ""}</button>` : ""}
     <button class="btn ghost" id="pGo" style="margin-top:10px">⚓ Portami qui in barca</button>
     ${p.phone ? `<a class="btn ghost" style="margin-top:10px;display:block;text-align:center;text-decoration:none" href="tel:${esc(p.phone.replace(/[^+\d]/g, ""))}">📞 Chiama</a>` : ""}
     <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`);
@@ -11366,6 +11388,83 @@ async function hideAsk(layer, val, label){
   if (!j || !j.ok) return toast("Non nascosto, riprova.");
   if (!HIDDEN.has(layer)) HIDDEN.set(layer, new Set()); HIDDEN.get(layer).add(val); hideApply(); haptic(); toast("Eliminato dalla mappa: lo ritrovi in myClick ⚙️ → Cose eliminate");
 }
+/* ---------- modifiche di tropss ai luoghi della mappa: sposta, rinomina, colore dei velox, elimina ---------- */
+let EDITMODE = false, MOVE_F = null, EDITS = new Map();   // chiave "layer|prop=val" → { lat, lng, n, c }
+const EDIT_LAYERS = ["velox", "benzinai", "cantieri", "fermate", "partners", "poi", "aero", "rive", "bricole", "dlv", "ponti"];
+async function editsLoad(){
+  let L; try{ L = await rpc("map_edit_list", {}); }catch(e){ return; } if (!Array.isArray(L)) return;
+  EDITS = new Map(L.map(x => [x.l + "|" + x.v, x])); editsLoad.L = L; editsApply();
+}
+setTimeout(editsLoad, 2200); setInterval(() => { if (!document.hidden) editsLoad(); }, 300000);
+// ogni setData delle sorgenti della mappa passa di qui: si applicano posizione, nome e colore decisi da tropss
+function editsPatch(){
+  if (!map || editsPatch.ok) return; const s0 = map.getSource("velox"); if (!s0) return setTimeout(editsPatch, 1500);
+  const P = Object.getPrototypeOf(s0), orig = P.setData; editsPatch.ok = true;
+  P.setData = function(d){ this._cvRaw = d; return orig.call(this, editsOn(this.id, d)); };
+  editsApply();
+}
+setTimeout(editsPatch, 3000);
+function srcLayers(srcId){ try{ return map.getStyle().layers.filter(l => l.source === srcId).map(l => l.id); }catch(e){ return [srcId]; } }
+function editsOn(srcId, d){
+  if (!EDITS.size || !d || typeof d !== "object" || !Array.isArray(d.features)) return d;
+  const ls = srcLayers(srcId).filter(l => EDIT_LAYERS.includes(l)); if (!ls.length) return d;
+  const keys = ["hk", "k", "gk", "id", "n", "name", "nome"];
+  return Object.assign({}, d, { features: d.features.map(f => { const P = f.properties || {};
+    for (const l of ls) for (const k of keys){ if (P[k] === undefined || P[k] === "") continue; const e = EDITS.get(l + "|" + k + "=" + P[k]); if (!e) continue;
+      const q = Object.assign({}, P); if (e.n){ ["n", "name", "nome"].forEach(x => { if (q[x] !== undefined) q[x] = e.n; }); if (q.n === undefined && q.name === undefined && q.nome === undefined) q.name = e.n; }
+      if (e.c && l === "velox") q.c = e.c;
+      const g = e.lat != null && e.lng != null && f.geometry && f.geometry.type === "Point" ? { type: "Point", coordinates: [e.lng, e.lat] } : f.geometry;
+      return Object.assign({}, f, { properties: q, geometry: g }); }
+    return f; }) });
+}
+function editsApply(){
+  if (!map) return;
+  EDIT_LAYERS.forEach(l => { const ly = map.getLayer(l); if (!ly) return; const src = map.getSource(ly.source); if (src && src._cvRaw) try{ src.setData(src._cvRaw); }catch(e){} });
+  // anche le schede dei convenzionati usano nome e posizione nuovi
+  (typeof PARTNERS !== "undefined" ? PARTNERS : []).forEach(p => { const e = EDITS.get("partners|id=" + p.id); if (!e) return; if (e.n) p.name = e.n; if (e.lat != null){ p.lat = e.lat; p.lng = e.lng; } });
+}
+function admEditToggle(on){
+  EDITMODE = on == null ? !EDITMODE : on; MOVE_F = null; const b = $("#admEdit"); if (b) b.classList.toggle("on", EDITMODE);
+  document.body.classList.toggle("editmode", EDITMODE);
+  if (EDITMODE){ $("#setPanel").classList.add("hidden"); $("#fabSet").classList.remove("on"); toast("✏️ Tocca il luogo da modificare sulla mappa", false, true); }
+}
+function admEditAt(e){
+  if (MOVE_F){ const F = MOVE_F; MOVE_F = null; return admSave(F, { lat: +e.lngLat.lat.toFixed(6), lng: +e.lngLat.lng.toFixed(6) }, "Spostato ✓"); }
+  const F = hideFeatAt(e.point); if (!F) return toast("Qui non c'è un luogo da modificare: tocca proprio sul simbolo");
+  if (!EDIT_LAYERS.includes(F.layer)) return toast("Questo si può solo eliminare (tocca e usa 🗑)");
+  const E = EDITS.get(F.layer + "|" + F.val) || {}, nome = E.n || F.label, VX = F.layer === "velox";
+  openSheet(`<h3>✏️ ${esc(nome)}</h3><p class="muted" style="margin-top:-4px">${esc(ADM_NOMI[F.layer] || F.layer)} · le modifiche valgono per tutti</p>
+    <button class="btn" id="aeMove">📍 Sposta sulla mappa</button>
+    <div class="field" style="margin-top:12px"><label>Nome del posto</label><div class="row" style="gap:6px"><input id="aeName" value="${esc(nome)}" maxlength="80" style="flex:1"><button class="btn small" id="aeNameOk">Salva</button></div></div>
+    ${VX ? `<div class="field"><label>Colore del velox</label><div class="aeCol">${[["r", "#d32f2f", "Rosso"], ["o", "#f57c00", "Arancione"], ["g", "#2e7d32", "Verde"]].map(([k, c, n]) => `<button data-aec="${k}" style="--c:${c}" class="${E.c === k ? "on" : ""}"><i></i>${n}</button>`).join("")}</div></div>` : ""}
+    ${EDITS.has(F.layer + "|" + F.val) ? `<button class="btn ghost" id="aeReset" style="margin-top:4px">↩️ Torna com'era</button>` : ""}
+    <button class="btn danger" id="aeDel" style="margin-top:8px">🗑 Elimina dalla mappa</button>
+    <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`, "light");
+  $("#aeMove").onclick = () => { closeSheet(); MOVE_F = F; toast("📍 Ora tocca il punto nuovo sulla mappa", false, true); };
+  $("#aeNameOk").onclick = () => { const v = $("#aeName").value.trim(); if (v.length < 2) return toast("Scrivi il nome"); admSave(F, { nome: v }, "Nome cambiato ✓"); };
+  document.querySelectorAll("[data-aec]").forEach(b => b.onclick = () => admSave(F, { colore: b.dataset.aec }, "Colore cambiato ✓"));
+  if ($("#aeReset")) $("#aeReset").onclick = () => admSave(F, { reset: true }, "Tornato com'era ✓");
+  $("#aeDel").onclick = () => { closeSheet(); hideAsk(F.layer, F.val, nome); };
+}
+const ADM_NOMI = { velox: "Velox", benzinai: "Benzinaio", cantieri: "Cantiere", fermate: "Fermata", partners: "Attività convenzionata", poi: "Luogo", aero: "Aeroporto", rive: "Riva", bricole: "Bricola", dlv: "Negozio", ponti: "Ponte" };
+async function admSave(F, data, msg){
+  const j = await rpc("map_edit_set", { p_layer: F.layer, p_val: F.val, p_data: data }).catch(() => null);
+  if (!j || !j.ok) return toast("Non salvato, riprova.");
+  const k = F.layer + "|" + F.val;
+  if (data.reset) EDITS.delete(k); else { const e = EDITS.get(k) || { l: F.layer, v: F.val }; if (data.lat != null){ e.lat = data.lat; e.lng = data.lng; } if (data.nome) e.n = data.nome; if (data.colore) e.c = data.colore; EDITS.set(k, e); }
+  editsApply(); try{ renderMk(); drawPartners(); }catch(e){} haptic(); closeSheet(); toast(msg);
+}
+async function admEditList(){
+  await editsLoad(); const L = editsLoad.L || [];
+  openSheet(`<h3>✏️ Luoghi modificati</h3>${L.length ? L.map((x, i) => `<div class="card rowbtn" style="width:100%">${esc(x.n || x.v)} <small class="muted">${esc(ADM_NOMI[x.l] || x.l)}${x.lat != null ? " · spostato" : ""}${x.c ? " · colore" : ""}</small> <span><a href="#" data-aer="${i}">annulla</a></span></div>`).join("") : `<p class="muted">Nessuna modifica.</p>`}
+    <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`, "light");
+  document.querySelectorAll("[data-aer]").forEach(a => a.onclick = async ev => { ev.preventDefault(); const x = L[+a.dataset.aer]; await admSave({ layer: x.l, val: x.v }, { reset: true }, "Annullato ✓"); admEditList(); });
+}
+(function(){ const show = () => { const b = $("#admSet"); if (b) b.classList.toggle("hidden", !isTropss()); };
+  const f = $("#fabSet"); if (f) f.addEventListener("click", show); show();
+  if ($("#admEdit")) $("#admEdit").onclick = () => { haptic(); admEditToggle(); };
+  if ($("#admList")) $("#admList").onclick = () => { $("#setPanel").classList.add("hidden"); admEditList(); };
+  if ($("#admHid")) $("#admHid").onclick = () => { $("#setPanel").classList.add("hidden"); hiddenSheet(); }; })();
 // tocco in modalità nascondi: cosa c'è sotto il dito?
 let ADM_F = null;
 function hideFeatAt(pt){
