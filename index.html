@@ -2185,7 +2185,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.50</p>
+      <p class="sub">clickVenice · versione 4.51</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -5853,7 +5853,26 @@ async function nominatim(q){
   return j.map(x => { const parts = (x.display_name || "").split(",").map(s => s.trim());
     return { name: x.name || parts[0], sub: parts.slice(1, 4).join(", "), lat: +x.lat, lng: +x.lon }; });
 }
-/* ---------- ricerca di Naviga: solo posti da raggiungere in barca (niente bar, negozi, alberghi) ---------- */
+// attività di Venezia: convenzionati clickVenice, locali e negozi (anche nella ricerca di Naviga)
+const BIZ_SHOP = { supermarket: "Supermercato", convenience: "Alimentari", bakery: "Panificio", butcher: "Macelleria", greengrocer: "Frutta e verdura", clothes: "Abbigliamento", shoes: "Scarpe",
+  jewelry: "Gioielleria", gift: "Regali", books: "Libreria", hairdresser: "Parrucchiere", beauty: "Estetista", optician: "Ottico", hardware: "Ferramenta", doityourself: "Bricolage",
+  boat: "Nautica", wine: "Enoteca", alcohol: "Enoteca", tobacco: "Tabacchi", pharmacy: "Farmacia", art: "Arte", glass: "Vetro", mask: "Maschere", florist: "Fiorista", kiosk: "Edicola",
+  newsagent: "Edicola", stationery: "Cartoleria", pastry: "Pasticceria", confectionery: "Dolciumi", deli: "Gastronomia", seafood: "Pescheria", electronics: "Elettronica", mobile_phone: "Telefonia", laundry: "Lavanderia" };
+function bizSearch(q){
+  const w = norm(q).split(" ").filter(Boolean).map(x => x.replace(/s$/, "")); if (!w.length) return [];
+  if (!NEGOZI && typeof loadNegozi === "function" && !bizSearch.l){ bizSearch.l = 1; loadNegozi().catch(() => {}); }
+  const ref = refPoint(), L = [], nq = norm(q);
+  (PARTNERS || []).forEach(x => { if (x.lat && x.name && w.every(t => norm(x.name + " " + (x.category || "") + " " + (x.descr || "") + " convenzionato").includes(t))) L.push({ name: x.name, k: "Convenzionato clickVenice" + (x.category ? " · " + x.category : ""), lat: x.lat, lng: x.lng, pr: 0 }); });
+  (POI || []).forEach(x => { if (w.every(t => x.s.includes(t))) L.push({ name: x.n, k: poiLabel(x), lat: x.lat, lng: x.lng, pr: 1 }); });
+  ((NEGOZI && NEGOZI.p) || []).forEach(a => { if (!a[0]) return; const lab = BIZ_SHOP[a[4]] || (a[1] === "farmacie" ? "Farmacia" : a[1] === "tabacchi" ? "Tabacchi" : "Negozio");
+    if (w.every(t => norm(a[0] + " " + lab + " " + a[4] + " negozio").includes(t))) L.push({ name: a[0], k: lab, lat: a[2], lng: a[3], pr: 2 }); });
+  const seen = [];
+  return L.map(x => ({ ...x, m: hav(ref.lat, ref.lng, x.lat, x.lng), sc: (norm(x.name).startsWith(nq) ? 0 : 1) * 3 + x.pr }))
+    .sort((a, b) => a.sc - b.sc || a.m - b.m)
+    .filter(x => { if (seen.some(s => s[0] === norm(x.name) && hav(s[1], s[2], x.lat, x.lng) < 60)) return false; seen.push([norm(x.name), x.lat, x.lng]); return true; })
+    .slice(0, 8).map(x => ({ name: x.name, sub: x.k + " · " + fmtDist(x.m), lat: x.lat, lng: x.lng }));
+}
+/* ---------- ricerca di Naviga: posti da raggiungere in barca e attività di Venezia ---------- */
 const SMB_STOPS = { "Convitto": [45.4276, 12.3658], "Caritas": [45.4357, 12.3487], "Seminario": [45.4308, 12.3353], "Giustinian": [45.4360, 12.3182],
   "Cristo Re": [45.4381, 12.3491], "Miracoli": [45.4394, 12.3392], "Ponte Storto": [45.4382, 12.3318], "Cavanis": [45.4302, 12.3282], "Sant'Alvise": [45.4348, 12.3579],
   "Santa Marta": [45.4341, 12.3166], "Zattere": [45.4297, 12.3240], "Ca' Bernardo": [45.4335, 12.3253], "Santa Margherita": [45.4339, 12.3234],
@@ -5891,14 +5910,15 @@ function navLocal(q){
 }
 // dai motori di ricerca tengo solo calli, fondamenta, campi, canali, isole e posti d'acqua
 const NAV_OK_KEY = /^(highway|place|waterway|natural|bridge)$/, NAV_OK_VAL = /^(marina|slipway|pier|ferry_terminal|boatyard|dock|shipyard)$/;
-const navKeep = (k, v) => (NAV_OK_KEY.test(k || "") && !/^(bus_stop|platform|motorway|trunk|primary|secondary|tertiary|traffic_signals|crossing|street_lamp)$/.test(v || "")) || NAV_OK_VAL.test(v || "");
+const BIZ_KEY = /^(amenity|shop|tourism|craft|office|leisure|healthcare)$/;
+const navKeep = (k, v) => BIZ_KEY.test(k || "") || (NAV_OK_KEY.test(k || "") && !/^(bus_stop|platform|motorway|trunk|primary|secondary|tertiary|traffic_signals|crossing|street_lamp)$/.test(v || "")) || NAV_OK_VAL.test(v || "");
 async function photonNav(q){
   const ref = refPoint();
   const r = await fetch(`https://photon.komoot.io/api/?limit=15&lat=${ref.lat}&lon=${ref.lng}&bbox=12.15,45.18,12.62,45.56&q=` + encodeURIComponent(q)); if (!r.ok) return [];
   const j = await r.json();
   return (j.features || []).filter(f => navKeep((f.properties || {}).osm_key, (f.properties || {}).osm_value)).map(f => {
     const pr = f.properties || {}, [lo, la] = f.geometry.coordinates;
-    const kind = pr.osm_key === "place" ? (/island|islet/.test(pr.osm_value) ? "Isola" : "Luogo") : pr.osm_key === "waterway" ? "Canale" : pr.osm_key === "highway" ? "Calle" : "Approdo";
+    const kind = BIZ_KEY.test(pr.osm_key || "") ? (BIZ_SHOP[pr.osm_value] || POI_TYPES[pr.osm_value] || "Attività") : pr.osm_key === "place" ? (/island|islet/.test(pr.osm_value) ? "Isola" : "Luogo") : pr.osm_key === "waterway" ? "Canale" : pr.osm_key === "highway" ? "Calle" : "Approdo";
     return { name: pr.name || pr.street || q, sub: [kind, pr.district || pr.locality || pr.city].filter(Boolean).join(" · ") + " · " + fmtDist(hav(ref.lat, ref.lng, la, lo)), lat: la, lng: lo };
   });
 }
@@ -5906,13 +5926,14 @@ async function nominatimNav(q){
   const u = "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=12&accept-language=it&countrycodes=it&bounded=1&viewbox=12.15,45.56,12.62,45.18&q=" + encodeURIComponent(q);
   const r = await fetch(u, { headers: { "Accept": "application/json" } }); if (!r.ok) return [];
   return (await r.json()).filter(x => navKeep(x.category, x.type)).map(x => { const parts = (x.display_name || "").split(",").map(s => s.trim());
-    return { name: x.name || parts[0], sub: parts.slice(1, 3).join(", "), lat: +x.lat, lng: +x.lon }; });
+    const lab = BIZ_KEY.test(x.category || "") ? (BIZ_SHOP[x.type] || POI_TYPES[x.type] || "Attività") : "";
+    return { name: x.name || parts[0], sub: [lab].concat(parts.slice(1, 3)).filter(Boolean).join(", "), lat: +x.lat, lng: +x.lon }; });
 }
 async function search(){
   const q = qIn.value.trim(); if (q.length < 2){ if (!q) showRecents(); return; }
   if (appMode === "nautica") return searchNav(q);
   const my = ++qSeq;
-  const local = peopleSearch(q).concat(localSearch(q), objectSearch(q), pontiliSearch(q));
+  const local = peopleSearch(q).concat(bizSearch(q), objectSearch(q), pontiliSearch(q));
   if (local.length) renderResults(local);
   else { resBox.innerHTML = `<div class="res info">Cerco…</div>`; resBox.classList.remove("hidden"); }
   const [a, b, cv] = await Promise.all([photon(q).catch(() => []), nominatim(q).catch(() => []), civicoSearch(q).catch(() => [])]);
@@ -5955,7 +5976,7 @@ async function civicoSearch(q){
 async function searchNav(q){
   const my = ++qSeq;
   if (!PONTILI_ACTV) loadPontiliActv().then(() => { NAV_IDX = null; });
-  const local = peopleSearch(q).concat(navLocal(q), objectSearch(q), pontiliSearch(q));
+  const local = peopleSearch(q).concat(navLocal(q), bizSearch(q), objectSearch(q), pontiliSearch(q));
   if (local.length) renderResults(local);
   else { resBox.innerHTML = `<div class="res info">Cerco…</div>`; resBox.classList.remove("hidden"); }
   const civ = parseCivico(q);
@@ -5965,7 +5986,7 @@ async function searchNav(q){
   const all = cv.concat(local), seen = all.filter(r => r.lat).map(r => [r.lat, r.lng, norm(r.name)]);
   a.concat(b).forEach(r => { if (!seen.some(s => hav(s[0], s[1], r.lat, r.lng) < 40 || (s[2] === norm(r.name) && hav(s[0], s[1], r.lat, r.lng) < 400))){ all.push(r); seen.push([r.lat, r.lng, norm(r.name)]); } });
   if (!all.length){ resBox.innerHTML = `<div class="res info">Nessun posto in laguna per “${esc(q)}”.</div>`; return; }
-  renderResults(all.slice(0, 14));
+  renderResults(all.slice(0, 18));
 }
 
 /* =========================================================
