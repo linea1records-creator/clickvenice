@@ -47,6 +47,30 @@ async function treni(verso: string) {
   });
 }
 
+
+/* ---------- treni Italo (ViaggiaTreno non li ha): tabellone di Italo in viaggio, stazione VSL ---------- */
+const ITALO_API = 'https://italoinviaggio.italotreno.com/api/RicercaStazioneService?&CodiceStazione=VSL&NomeStazione=Venezia%20SLucia';
+let ITALO: any = null;
+const pick = (o: any, re: RegExp) => { for (const k of Object.keys(o || {})) if (re.test(k) && o[k] != null && o[k] !== '') return o[k]; return null; };
+async function italoRaw() {
+  if (ITALO && Date.now() - ITALO.at < 60e3) return ITALO.j;
+  const r = await fetch(ITALO_API, { headers: { 'User-Agent': UA, 'Accept': 'application/json, text/plain, */*', 'Referer': 'https://italoinviaggio.italotreno.com/it/stazione/venezia-santa-lucia' }, signal: AbortSignal.timeout(12000) });
+  const t = await r.text(); let j: any = null; try { j = JSON.parse(t); } catch (_) { throw new Error('italo ' + r.status + ' ' + t.slice(0, 120)); }
+  ITALO = { at: Date.now(), j }; return j;
+}
+async function italo(verso: string) {
+  const j = await italoRaw(), arr = verso === 'arrivi';
+  const L: any[] = (Object.entries(j || {}).find(([k, v]) => Array.isArray(v) && (arr ? /arriv/i : /partenz|depart/i).test(k)) || [null, []])[1] as any[];
+  return L.map((t: any) => {
+    const num = String(pick(t, /^(numero|numerotreno|trainnumber|number)$/i) ?? pick(t, /numero|number/i) ?? '').trim();
+    const luogo = String(pick(t, arr ? /(partenza|origin|provenienza).*(descr|nome|name)|^(descr|nome).*(partenza|origin)/i : /(arrivo|destin).*(descr|nome|name)|^(descr|nome).*(arrivo|destin)/i) ?? pick(t, /descrizione|localita|station/i) ?? '').trim();
+    const ora = String(pick(t, /^(orapassaggio|ora|orario|time|newtime)$/i) ?? pick(t, /ora|time/i) ?? '').match(/\d{1,2}:\d\d/)?.[0] || '';
+    const rit = parseInt(String(pick(t, /ritardo|delay|distruption|disruption/i) ?? '0'), 10) || 0;
+    const bin = String(pick(t, /binario|platform|track/i) ?? '').trim();
+    return { ora: ora.padStart(5, '0'), treno: 'ITA ' + num, luogo, ritardo: rit, binario: bin, cambio_binario: false, soppresso: /soppress|cancel/i.test(JSON.stringify(t)), in_stazione: false, italo: true };
+  }).filter((x) => /^\d\d:\d\d$/.test(x.ora) && x.treno !== 'ITA ');
+}
+
 /* ---------- bus ACTV ai capolinea (Piazzale Roma, Lido S.M.E.): orari GTFS, solo le corse che passano di lì ---------- */
 const BUS: Record<string, any> = {};
 // capolinea dei bus: centro, raggio, nomi delle fermate e come si riconosce una corsa diretta lì
@@ -208,7 +232,17 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   const q = new URL(req.url).searchParams, tipo = q.get('tipo') || 'treni', verso = q.get('verso') === 'arrivi' ? 'arrivi' : 'partenze';
   try {
-    if (tipo === 'treni') return json({ stazione: 'Venezia Santa Lucia', verso, adesso: hhmm(romeNow().min), corse: await treni(verso) });
+    if (tipo === 'italo') return json(await italoRaw());
+    if (tipo === 'treni') {
+      // RFI (Trenitalia) + Italo, in ordine di orario a partire da adesso
+      const [a, b] = await Promise.allSettled([treni(verso), italo(verso)]);
+      const rfi = a.status === 'fulfilled' ? a.value : [], ita = b.status === 'fulfilled' ? b.value : [];
+      if (a.status === 'rejected' && !ita.length) throw a.reason;
+      const now = romeNow().min, k = (x: any) => { let m = +x.ora.slice(0, 2) * 60 + +x.ora.slice(3); if (m - now > 720) m -= 1440; if (now - m > 720) m += 1440; return m; };
+      const fino = rfi.length ? Math.max(...rfi.map(k)) : Infinity;   // Italo solo fin dove arriva l'elenco RFI, così non restano buchi
+      const all = rfi.filter((x: any) => !/^ITA/i.test(x.treno)).concat(ita.filter((x: any) => k(x) + (x.ritardo || 0) >= now - 2 && k(x) <= fino)).sort((x: any, y: any) => k(x) - k(y)).slice(0, 30);
+      return json({ stazione: 'Venezia Santa Lucia', verso, adesso: hhmm(now), corse: all, italo: b.status === 'fulfilled' ? ita.length : String((b as any).reason) });
+    }
     if (tipo === 'cerca'){ const L = LUOGHI[q.get('luogo') || 'proma'] || LUOGHI.proma; const Z = await loadZip(); const S = rows(await readText(Z['stops.txt'])); const k = (q.get('q') || 'roma').toLowerCase();
       return json({ file: Object.keys(Z), fermate: S.rows.filter((x) => (x[S.col('stop_name')] || '').toLowerCase().includes(k) || Math.hypot((+x[S.col('stop_lat')] - L.lat) * 111000, (+x[S.col('stop_lon')] - L.lng) * 78000) < 600).map((x) => [x[S.col('stop_id')], x[S.col('stop_name')], x[S.col('stop_lat')], x[S.col('stop_lon')]]).slice(0, 80) }); }
     if (tipo === 'bus'){ const k = LUOGHI[q.get('luogo') || ''] ? q.get('luogo')! : 'proma';

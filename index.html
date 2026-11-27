@@ -2205,7 +2205,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.60</p>
+      <p class="sub">clickVenice · versione 4.61</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -10386,7 +10386,7 @@ async function openStation(st, verso){
         <span class="c-d">${c.ritardo > 0 && !c.soppresso ? c.ritardo + "'" : ""}</span><span class="c-b${c.cambio_binario ? " chg" : ""}${c.in_stazione ? " blink" : ""}">${up(c.binario)}</span><span class="c-i">${info(c) ? `<b>${info(c)}</b>` : ""}</span></div>`).join("")
     : j.corse.map(c => { const lg = verso === "arrivi" ? ((c.luogo || "").split(/\s+-\s+/).filter(x => !/venezia|roma|elisabetta|s\.?m\.?e/i.test(x)).join(" - ") || c.luogo || "") : (c.luogo || "");
         return `<div class="bdr bus"><span class="c-tr">${up(c.linea)}</span><span class="c-to">${up(lg)}</span><span class="c-h">${esc(c.ora)}</span><span class="c-d">${c.tra_min <= 0 ? "ORA" : c.tra_min + "'"}</span><span class="c-i"></span></div>`; }).join("");
-  $("#bdNote").textContent = tren ? "Dati RFI · ViaggiaTreno · si aggiorna ogni 30 secondi" : "Orari programmati ACTV · si aggiorna ogni 30 secondi";
+  $("#bdNote").textContent = tren ? "Dati RFI · ViaggiaTreno e Italo · si aggiorna ogni 30 secondi" : "Orari programmati ACTV · si aggiorna ogni 30 secondi";
 }
 function closeBoard(){ $("#board").classList.add("hidden"); clearInterval(stzTimer); }
 setInterval(() => { const c = $("#bdClock"); if (c && !$("#board").classList.contains("hidden")) c.textContent = new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }); }, 1000);
