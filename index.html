@@ -2195,7 +2195,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.54</p>
+      <p class="sub">clickVenice · versione 4.55</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -5068,8 +5068,9 @@ function addLayers(){
   map.addLayer({ id: "benzinai", type: "symbol", source: "benzinai", minzoom: 11, layout: { visibility: LY.benzinai !== false ? "visible" : "none",
     "icon-image": ["get", "img"], "icon-size": ["interpolate", ["linear"], ["zoom"], 11, 0.7, 15, 1], "icon-anchor": "bottom", "icon-allow-overlap": true, "icon-pitch-alignment": "viewport" } });
   drawFuel(); loadFuel();
-  drawZones(); drawDepths(); drawRoute(); drawPOI(); drawVelox(); drawBridges(); drawChart(); drawBricole(); applyMapMode();
-  addFermateLayer(); if (FERMATE.length) drawFermate();
+  try{ addStations(); }catch(e){}   // prima di tutto il resto: un errore più avanti non deve nasconderle
+  [drawZones, drawDepths, drawRoute, drawPOI, drawVelox, drawBridges, drawChart, drawBricole, applyMapMode].forEach(f => { try{ f(); }catch(e){ console.warn("addLayers", f.name, e); } });
+  try{ addFermateLayer(); if (FERMATE.length) drawFermate(); }catch(e){}
   addStations();
   layerVis();
 }
@@ -10272,6 +10273,11 @@ const STZ = [
     ic: '<ellipse cx="12" cy="12" rx="9" ry="6.5"/><ellipse cx="12" cy="12" rx="5" ry="3"/><path d="M12 5.5v13M3 12h4M17 12h4"/>' }
 ];
 let STZ_MK = [], stzTimer = null;
+// controllo: le stazioni devono essere sulla mappa in Naviga (se un marcatore è sparito lo rimetto)
+setInterval(() => { if (!map || typeof STZ_MK === "undefined") return;
+  if (!STZ_MK.length || STZ_MK.some(m => !m.getElement().isConnected)){ STZ_MK.forEach(m => { try{ m.remove(); }catch(e){} }); STZ_MK = []; try{ addStations(); }catch(e){} }
+  if (appMode === "nautica" && !document.body.classList.contains("picking")) STZ_MK.forEach(m => { const el = m.getElement(); if (el.style.display === "none") fadeEl(el, true); });
+}, 4000);
 function addStations(){
   if (STZ_MK.length || !map) return;
   STZ.forEach(st => { const el = document.createElement("div"); el.className = "stz";
@@ -10312,7 +10318,7 @@ async function openStation(st, verso){
   if (B.classList.contains("hidden") || B.dataset.k !== st.k + (st.luogo || "") || B.dataset.v !== verso) return;
   const box = $("#bdRows");
   if (!j || j.errore || !Array.isArray(j.corse)){ box.innerHTML = `<div class="bdmsg">TABELLONE NON DISPONIBILE · CONTROLLA LA CONNESSIONE</div>`; return; }
-  if (!j.corse.length){ box.innerHTML = `<div class="bdmsg">${st.k === "porto" ? "NESSUNA NAVE PREVISTA" : `NESSUN ${tren ? "TRENO" : "BUS"} NELLE PROSSIME ORE`}</div>`; return; }
+  if (!j.corse.length){ box.innerHTML = `<div class="bdmsg">${st.k === "porto" ? "NESSUNA NAVE DA CROCIERA PREVISTA AL TERMINAL" : `NESSUN ${tren ? "TRENO" : "BUS"} NELLE PROSSIME ORE`}</div>`; return; }
   const up = t => esc(String(t || "").toUpperCase());
   // categoria e gestore come sui tabelloni (Frecciarossa = AV, Regionale = R, ...)
   const CAT = { FR: ["Frecciarossa", "AV"], FA: ["Frecciargento", "AV"], FB: ["Frecciabianca", "AV"], ITA: ["italo", "AV"], REG: ["Trenitalia", "R"], RV: ["Trenitalia", "RV"], IC: ["Intercity", "IC"], ICN: ["Intercity", "ICN"], EC: ["Trenitalia", "EC"], EN: ["Trenitalia", "EN"], NJ: ["ÖBB", "NJ"] };
@@ -10320,7 +10326,7 @@ async function openStation(st, verso){
   const info = c => c.soppresso ? "TRENO SOPPRESSO" : c.cambio_binario ? "ATTENZIONE: CAMBIO BINARIO, PARTE DAL BINARIO " + up(c.binario) : c.in_stazione ? "IN STAZIONE" : c.ritardo > 0 ? "RITARDO " + c.ritardo + " MINUTI" : "";
   if (st.k === "porto"){
     box.innerHTML = j.corse.map(c => `<div class="bdr bus porto"><span class="c-tr">${up(c.nave)}</span><span class="c-to">${up(c.luogo)}</span><span class="c-h">${esc(c.ora)}</span><span class="c-d">${c.giorno === "oggi" ? "OGGI" : esc(c.giorno)}</span><span class="c-i">${up(c.agenzia)}</span></div>`).join("");
-    $("#bdNote").textContent = "Autorità di Sistema Portuale · navi previste nel porto di Venezia · si aggiorna ogni 30 secondi"; return;
+    $("#bdNote").textContent = "Autorità di Sistema Portuale · solo navi da crociera e passeggeri (niente merci di Marghera) · si aggiorna ogni 30 secondi"; return;
   }
   box.innerHTML = tren
     ? j.corse.map(c => `<div class="bdr${c.soppresso ? " sop" : ""}"><span class="c-tr">${trn(c.treno)}</span><span class="c-to">${up(c.luogo)}</span><span class="c-h">${esc(c.ora || "")}</span>

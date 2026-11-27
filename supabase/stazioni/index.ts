@@ -170,6 +170,15 @@ async function bus(k: string, verso: string) {
 /* ---------- porto: navi previste in arrivo e partenza (riepilogo dell'Autorità Portuale) ---------- */
 const PORTO_SRC = 'https://venezia.ilogis.it/riepiloghi/pages/riepilogoNavi/layout_riepilogoNavi.zul';
 let PORTO: any = null;
+// navi da crociera e passeggeri: marchi delle compagnie all'inizio del nome, o finali tipici (of the Seas, Princess)
+const CROCIERA = new RegExp('^(' + [
+  'viking ', 'msc ', 'costa ', 'celebrity ', 'seabourn ', 'silver ', 'oceania ', 'insignia$', 'nautica$', 'sirena$', 'regatta$', 'allura$', 'seven seas ', 'windstar', 'wind (star|spirit|surf)',
+  'star (pride|breeze|legend|clipper|flyer)', 'royal clipper', 'sea cloud', 'seadream', 'sea dream', 'le ', 'ponant', 'azamara ', 'crystal (serenity|symphony)', 'emerald (azzurra|sakara)',
+  'scenic (eclipse|ruby|opal|jasper)', 'variety voyager', 'explora ', 'evrima$', 'ilma$', 'luminara$', 'aman ', 'island sky$', 'hebridean ', 'norwegian ', 'celestyal ', 'mein schiff',
+  'aida', 'marella ', 'queen (mary|anne|victoria|elizabeth)', 'saga ', 'spirit of (discovery|adventure)', 'vasco da gama$', 'the world$', 'national geographic', 'hanseatic ',
+  'europa 2$', 'sh (diana|minerva|vega)', 'greg mortimer', 'sylvia earle', 'seaventure', 'zuiderdam', 'oosterdam', 'volendam', 'rotterdam$', 'eurodam', 'nieuw ', 'koningsdam', 'westerdam', 'noordam', 'zaandam',
+  'lirica$', 'musica$', 'poesia$', 'fantasia$', 'opera$', 'armonia$', 'sinfonia$', 'prince of venice', 'san frangisk', 'princess of dubrovnik', 'venezia lines'
+].join('|') + ')|( of the seas| princess)$', 'i');
 async function porto(verso: string) {
   if (!PORTO || Date.now() - PORTO.at > 300e3) {
     const r = await fetch(PORTO_SRC, { headers: { 'User-Agent': UA } }); if (!r.ok) throw new Error('porto ' + r.status);
@@ -186,7 +195,9 @@ async function porto(verso: string) {
     const a = tk.indexOf('ARRIVI'), p = tk.indexOf('PARTENZE');
     PORTO = { at: Date.now(), arrivi: a >= 0 ? block(a) : [], partenze: p >= 0 ? block(p) : [] };
   }
-  const now = romeNow(), list = verso === 'arrivi' ? PORTO.arrivi : PORTO.partenze;
+  // il riepilogo comprende tutto il porto (anche Marghera: container, cisterne, rinfuse): al terminal passeggeri
+  // di San Basilio / Marittima restano solo le navi da crociera, riconosciute dal nome
+  const now = romeNow(), list = (verso === 'arrivi' ? PORTO.arrivi : PORTO.partenze).filter((x: any) => CROCIERA.test(x.nave));
   const nowKey = now.ymd + hhmm(now.min).replace(':', '');
   return list.map((x: any) => { const [d, m, y] = x.data.split('/'); return { ...x, k: y + m + d + x.ora.replace(':', ''), ymd: y + m + d }; })
     .filter((x: any) => x.k >= nowKey).sort((a: any, b: any) => a.k < b.k ? -1 : 1).slice(0, 10)
