@@ -1579,6 +1579,21 @@
   .espMk{width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px #c9a24a,0 2px 8px rgba(0,0,0,.35);display:grid;place-items:center;font-size:19px;cursor:pointer}
   body.hide-esp .espMk, body.mode-market .espMk, body.mode-incontra .espMk, body.mode-trasporti .espMk{display:none!important}
   body.hide-esp .gonMk.tour{display:none!important}
+  .camMk{position:relative;width:30px;height:30px;border-radius:50%;background:#1d4e89;box-shadow:0 0 0 2.5px #fff,0 2px 7px rgba(0,0,0,.35);display:grid;place-items:center;cursor:pointer}
+  .camMk svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linejoin:round} .camMk i{position:absolute;top:-2px;right:-2px;width:9px;height:9px;border-radius:50%;background:#e11d48;box-shadow:0 0 0 2px #fff;animation:camBlink 1.6s ease-in-out infinite}
+  @keyframes camBlink{50%{opacity:.35}}
+  body.hide-cam .camMk, body.mode-market .camMk, body.mode-incontra .camMk, body.mode-trasporti .camMk{display:none!important}
+  #camFull{position:fixed;inset:0;z-index:9000;background:#000;opacity:0;transition:opacity .25s;overflow:hidden} #camFull.on{opacity:1}
+  #camFull .camV{position:absolute;inset:0;overflow:hidden}
+  #camFull iframe{position:absolute;left:50%;top:50%;border:0;width:max(100vw,177.78vh);height:max(100vh,56.25vw);transform:translate(-50%,-50%);pointer-events:none}
+  #camFull .camTop,#camFull .camBot{position:absolute;left:0;right:0;display:flex;align-items:center;gap:10px;padding:calc(10px + var(--safe-t)) 14px 10px;color:#fff;opacity:0;transition:opacity .3s;pointer-events:none}
+  #camFull .camTop{top:0;background:linear-gradient(rgba(0,0,0,.55),transparent)} #camFull .camBot{bottom:0;justify-content:space-between;padding:10px 14px calc(14px + var(--safe-b,0px));background:linear-gradient(transparent,rgba(0,0,0,.55))}
+  #camFull.ui .camTop,#camFull.ui .camBot{opacity:1;pointer-events:auto}
+  #camFull .camX{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.2);color:#fff;font-size:18px;backdrop-filter:blur(6px)}
+  #camFull .camTop b{display:block;font-size:16px} #camFull .camTop small{opacity:.85;font-size:12.5px}
+  #camFull .camLive{font-style:normal;background:#e11d48;border-radius:5px;padding:1px 6px;font-size:11px;margin-right:4px;vertical-align:2px}
+  #camFull .camOth{border:0;background:rgba(255,255,255,.2);color:#fff;font-weight:800;border-radius:99px;padding:9px 14px;backdrop-filter:blur(6px)} #camFull .camYt{color:#fff;opacity:.85;font-size:12.5px}
+  [data-cam] .ic svg{stroke:#fff!important;fill:none}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1885,6 +1900,7 @@
       <button class="srow" data-set="sat"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.8 5.4 3.8 8.5s-1.3 5.9-3.8 8.5c-2.5-2.6-3.8-5.4-3.8-8.5S9.5 6.1 12 3.5z"/></svg><span>Satellitare</span><i class="sw"></i></button>
       <label class="srow hidden" id="waterColRow"><svg viewBox="0 0 24 24"><path d="M3 15c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/><path d="M3 19c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/><path d="M12 3.5c2.4 3 4 5.2 4 7a4 4 0 0 1-8 0c0-1.8 1.6-4 4-7z"/></svg><span>Colore dell'acqua</span><input type="color" id="waterCol" value="#3dc991"><button type="button" id="waterColReset" title="Colore di default">↺</button></label>
       <button class="srow" data-set="tesori"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9 9.5h6M9 14.5h6M12 7v10"/></svg><span>Tesori</span><i class="sw"></i></button>
+      <button class="srow" data-set="webcam"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3"/></svg><span>Webcam live</span><i class="sw"></i></button>
       <button class="srow" data-set="esperienze"><svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.4.6-4 3.8 1.1 5.4L12 15.1l-4.9 2.7 1.1-5.4-4-3.8 5.4-.6z"/></svg><span>Esperienze</span><i class="sw"></i></button>
       <button class="srow" data-set="gondole"><svg viewBox="0 0 24 24"><path d="M3 15c4 3 14 3 18-3M6 14l2-7M10 14.5V9"/></svg><span>Gondole e traghetti</span><i class="sw"></i></button>
       <button class="srow" data-set="segnal"><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg><span>Segnalazioni</span><i class="sw"></i></button>
@@ -2125,7 +2141,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.30</p>
+      <p class="sub">clickVenice · versione 4.31</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -7035,7 +7051,7 @@ let INST = Object.assign({ speed: true, depth: false, tide: false, head: false, 
 Object.assign(INST, { speed: true, velox: true, tide: true, depth: true }); INST.bridge = false; INST.head = false;
 // cosa si vede sulla mappa in Nautica (finestrella delle impostazioni)
 // impostazioni di chi apre il sito la prima volta (poi valgono le sue scelte)
-let LY = Object.assign({ bricole: true, velox: true, boat: true, d3: true, cantieri: true, canali: true, benzinai: true, tesori: true, actv: false, alilaguna: false, rive: false, esperienze: false, gondole: false, segnal: false }, store.get("ln_layers", {}));
+let LY = Object.assign({ bricole: true, velox: true, boat: true, d3: true, cantieri: true, canali: true, benzinai: true, tesori: true, webcam: true, actv: false, alilaguna: false, rive: false, esperienze: false, gondole: false, segnal: false }, store.get("ln_layers", {}));
 function paintInst(){
   document.querySelectorAll("#toggles button[data-inst]").forEach(b => b.classList.toggle("on", !!INST[b.dataset.inst]));
   $("#i-speed").classList.toggle("hidden", !INST.speed);
@@ -8035,7 +8051,7 @@ document.querySelectorAll("#setPanel [data-set]").forEach(b => b.onclick = () =>
   paintSet(); try{ haptic(); }catch(e){}
 });
 paintSet();
-function mkVis(){ document.body.classList.toggle("hide-tesori", LY.tesori === false); document.body.classList.toggle("hide-segnal", LY.segnal === false); try{ gondVis(); }catch(e){} document.body.classList.toggle("hide-esp", LY.esperienze === false); }
+function mkVis(){ document.body.classList.toggle("hide-tesori", LY.tesori === false); document.body.classList.toggle("hide-segnal", LY.segnal === false); try{ gondVis(); }catch(e){} document.body.classList.toggle("hide-esp", LY.esperienze === false); document.body.classList.toggle("hide-cam", LY.webcam === false); }
 mkVis();
 // ogni tocco cambia mappa: semplice ⇄ satellite
 $("#fabSat").onclick = e => { e.stopPropagation(); mapMode = mapMode === "sat" ? "simple" : "sat";
@@ -11520,6 +11536,49 @@ function espList(){
     ${ESP.map((x, i) => `<button class="sxRow" data-esp="${i}" style="border-radius:0"><i class="ic" style="font-size:22px;background:#fff8e6">${x.ic}</i><span><b>${esc(x.n)}</b><small>${esc(x.luogo)}</small></span><em class="sxAct">Prenota</em></button>`).join("")}
     <button class="btn ghost" style="margin-top:12px" onclick="closeSheet()">Chiudi</button>`, "light");
   document.querySelectorAll("[data-esp]").forEach(b => b.onclick = () => espOpen(ESP[+b.dataset.esp]));
+}
+/* ---------- Webcam live su Naviga: dirette YouTube (canale I Love You Venice), si aprono a schermo intero ---------- */
+const CAMS = [
+  { n: "Ponte di Rialto", d: "Canal Grande da Palazzo Bembo", y: "nviU2HYj-Jc", lat: 45.43772, lng: 12.33585 },
+  { n: "Bacino di San Marco", d: "Verso San Giorgio Maggiore, da Riva degli Schiavoni", y: "7-XBRpKSv4Q", lat: 45.43405, lng: 12.34430 },
+  { n: "Bacino di San Marco · Riva San Biasio", d: "San Giorgio a sinistra, il campanile di San Marco a destra", y: "ASqGNET31VY", lat: 45.43425, lng: 12.35060 },
+  { n: "Bacino di San Marco · Via Garibaldi", d: "Vista dall'Hotel Ca' Formenta", y: "V7YQ_vYyz38", lat: 45.43350, lng: 12.35330 },
+  { n: "Laguna Nord da Murano", d: "Cantieri Biasin, telecamera 4K", y: "Ts4cAVmJrWE", lat: 45.45560, lng: 12.34850 },
+  { n: "Ponte degli Scalzi", d: "Canal Grande e stazione Santa Lucia", y: "9r4CJfpflmA", lat: 45.44130, lng: 12.32250 },
+  { n: "Ponte delle Guglie", d: "Canale di Cannaregio e Strada Nova", y: "mt7uE-n0YPI", lat: 45.44430, lng: 12.32610 },
+  { n: "Canal Grande · San Tomà", d: "Vista da Ca' Angeli", y: "aaJT8y3zfWs", lat: 45.43570, lng: 12.32900 },
+  { n: "Dorsoduro · San Vio", d: "Vista dall'Hotel American Dinesen", y: "gzgrofStPJ0", lat: 45.43080, lng: 12.32880 },
+  { n: "Teatro La Fenice", d: "Campo San Fantin", y: "C9EKnYzYt9o", lat: 45.43370, lng: 12.33360 },
+  { n: "Campo Santa Maria Formosa", d: "Vista dal Ruzzini Palace Hotel", y: "CJLrYIS7NFg", lat: 45.43780, lng: 12.34110 },
+  { n: "Chioggia · Sottomarina", d: "Vista dall'Hotel Park", y: "IByOruhl2ik", lat: 45.21200, lng: 12.29700 } ];
+let CAM_MK = [];
+function camDraw(){
+  if (!map || !window.maplibregl) return setTimeout(camDraw, 3000);
+  CAM_MK.forEach(m => m.remove()); CAM_MK = [];
+  CAMS.forEach(c => { const el = document.createElement("div"); el.className = "camMk"; el.setAttribute("data-noico", "");
+    el.innerHTML = `<svg viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 11l5-3v8l-5-3"/></svg><i></i>`;
+    el.onclick = ev => { ev.stopPropagation(); camOpen(c); }; CAM_MK.push(new maplibregl.Marker({ element: el, anchor: "center" }).setLngLat([c.lng, c.lat]).addTo(map)); });
+}
+setTimeout(camDraw, 4800);
+function camOpen(c){
+  haptic(); let o = $("#camFull"); if (o) o.remove();
+  o = document.createElement("div"); o.id = "camFull";
+  o.innerHTML = `<div class="camV"><iframe src="https://www.youtube-nocookie.com/embed/${c.y}?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="${esc(c.n)}"></iframe></div>
+    <div class="camTop"><button class="camX" aria-label="Chiudi">✕</button><div><b><i class="camLive">LIVE</i> ${esc(c.n)}</b><small>${esc(c.d)}</small></div></div>
+    <div class="camBot"><button class="camOth">📹 Altre webcam</button><a class="camYt" href="https://www.youtube.com/watch?v=${c.y}" target="_blank" rel="noopener">Non si vede? Apri su YouTube</a></div>`;
+  document.body.appendChild(o); requestAnimationFrame(() => o.classList.add("on"));
+  try{ const el = document.documentElement; if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); if (screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(() => {}); }catch(e){}
+  const chiudi = () => { o.classList.remove("on"); setTimeout(() => o.remove(), 250); try{ if (document.fullscreenElement) document.exitFullscreen(); if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){} };
+  o.querySelector(".camX").onclick = chiudi;
+  o.querySelector(".camOth").onclick = () => { chiudi(); setTimeout(camList, 260); };
+  let t = null; const mostra = () => { o.classList.add("ui"); clearTimeout(t); t = setTimeout(() => o.classList.remove("ui"), 3500); };
+  o.addEventListener("pointerdown", mostra); mostra();
+}
+function camList(){
+  openSheet(`<h3>📹 Webcam live di Venezia</h3><p class="muted" style="margin-top:-4px">Dirette 24 ore su 24: tocca per guardarla a schermo intero.</p>
+    ${CAMS.map((c, i) => `<button class="sxRow" data-cam="${i}" style="border-radius:0"><i class="ic" style="background:#1d4e89">${sxSvg("cam")}</i><span><b>${esc(c.n)}</b><small>${esc(c.d)}</small></span><em class="sxAct">Guarda</em></button>`).join("")}
+    <button class="btn ghost" style="margin-top:12px" onclick="closeSheet()">Chiudi</button>`, "light");
+  document.querySelectorAll("[data-cam]").forEach(b => b.onclick = () => { closeSheet(); camOpen(CAMS[+b.dataset.cam]); });
 }
 function gondTraghetto(t, p){
   const other = p === t.a ? t.b : t.a;
