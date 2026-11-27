@@ -451,11 +451,11 @@
   #swp .taLogo{height:54px;max-width:72%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.9))}
   #swp .swX{position:absolute;right:6px;top:6px;width:46px;height:46px;border-radius:50%;border:0;color:#e5e7eb;font-size:20px;font-weight:700;
     background:radial-gradient(circle at 35% 30%,#5a6067,#1c1f22 70%);box-shadow:0 0 0 3px #3a3e43,0 0 0 5px #121315,0 4px 8px rgba(0,0,0,.7)}
-  #swp .taBody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:4px 4px 2px;scrollbar-width:none}
+  #swp .taBody{flex:1;min-height:0;overflow:hidden;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:4px 4px 2px;scrollbar-width:none}
   #swp .taBody::-webkit-scrollbar{display:none}
   #swp .taGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 4px}
-  #swp .swGrid{flex:4 1 0;grid-auto-rows:minmax(66px,1fr)}
-  #swp #taInst{flex:4.6 1 0;grid-template-rows:repeat(4,minmax(74px,1fr))}
+  #swp .swGrid{flex:4 1 0;min-height:0;grid-auto-rows:minmax(0,1fr)}
+  #swp #taInst{flex:3.3 1 0;min-height:0;grid-template-rows:repeat(3,minmax(0,1fr))}
   /* carta / tasto: cornice in metallo, tacca con LED, barra rossa */
   #swp .taCard,#swp .swCh{position:relative;border-radius:20px;padding:7px;min-height:0;font:inherit;color:#eef1f4;
     background:linear-gradient(155deg,#5d6268,#2a2d31 30%,#17191b 60%,#3c4046);border:2px solid #4b5056;
@@ -489,7 +489,7 @@
   /* animazioni degli strumenti */
   #swp .taVal.bump{animation:taBump .35s ease} @keyframes taBump{40%{transform:scale(1.06)}}
   /* stato del collegamento e tasto Cerca (pagina comandi) */
-  #swp .swSt{margin:2px 6px 6px;display:flex;align-items:center;gap:10px;font-size:14px;color:#c4cad1}
+  #swp .swSt{flex:0 0 auto;margin:2px 6px 0;display:flex;align-items:center;gap:10px;font-size:14px;color:#c4cad1}
   #swp .swSt i{width:11px;height:11px;border-radius:50%;background:var(--tc);box-shadow:0 0 8px var(--tc);flex:0 0 auto;animation:taLed 1.4s ease-in-out infinite}
   #swp .swSt.on i{background:#22c55e;box-shadow:0 0 8px #22c55e}
   #swp .swBtns{display:flex;gap:10px;margin:0 4px 6px}
@@ -514,7 +514,11 @@
   @keyframes taFl{50%{transform:translateY(-3px)}}
   #swp .taMetT{font-size:clamp(11px,3.2vw,13px);font-weight:700;color:#c9d0d7;margin-top:1px;line-height:1.1;max-width:100%}
   #swp .swCh .taBar,#swp .taDisp .taBar{display:none}
-  #swp .swCh .taIn{padding:16px 4px 6px}
+  #swp .swCh .taIn{padding:6px;container-type:size}
+  #swp .swCh .taIco{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+  #swp .swCh .taIco svg{height:min(78cqh,62cqw);width:auto;max-width:100%}
+  #swp .taScr{container-type:size;padding:4px 6px}
+  #swp .taDisp .taVal{font-size:min(58cqh,27cqw);max-width:100%;overflow:hidden}
   #swEd .swEdBox>*{flex-shrink:0}
   #swp #taSet{cursor:pointer}
   #swp #taSet:active{transform:translateY(3px) scale(.965)}
@@ -2104,20 +2108,18 @@
   <!-- cruscotto a schermo intero -->
   <div id="swp" class="hidden" role="dialog" aria-label="Tullio Abbate">
   <i class="taScrew a"></i><i class="taScrew b"></i><i class="taScrew c"></i><i class="taScrew d"></i>
-  <div class="swTop"><img class="taLogo" src="ta-logo.webp" alt="Tullio Abbate" draggable="false"><button class="swX" id="swX" aria-label="Chiudi">✕</button></div>
+  <div class="swTop"><img class="taLogo" src="ta-logo.webp" alt="Tullio Abbate" title="Tieni premuto per le impostazioni" draggable="false"><button class="swX" id="swX" aria-label="Chiudi">✕</button></div>
   <div class="taBody" id="taBody">
     <div class="swSt" id="swSt"><i></i><span>Non collegato</span></div>
     <div class="swBtns"><button class="pri" id="swConn">Collega</button></div>
     <div class="taGrid swGrid" id="swGrid"></div>
     <div class="taGrid" id="taInst">
-      <div class="taDisp" id="taSpd"><div class="taScr"><b class="taVal"><span id="taSpdV">–</span><em>km/h</em></b><span class="taLab">VELOCITÀ</span></div><span class="taBar"></span></div>
-      <div class="taDisp" id="taMax"><div class="taScr"><b class="taVal"><span id="taMaxV">–</span><em>km/h</em></b><span class="taLab">VELOCITÀ MASSIMA</span></div><span class="taBar"></span></div>
-      <div class="taDisp" id="taTmp"><div class="taScr"><b class="taVal"><span id="taTmpV">–</span><em>°C</em></b><span class="taLab">TEMPERATURA</span></div><span class="taBar"></span></div>
-      <div class="taDisp" id="taHum"><div class="taScr"><b class="taVal"><span id="taHumV">–</span><em>%</em></b><span class="taLab">UMIDITÀ</span></div><span class="taBar"></span></div>
-      <div class="taDisp" id="taTide"><div class="taScr"><b class="taVal"><span id="taTideV">–</span><em>cm</em><i class="taTr" id="taTideTr"></i></b><span class="taLab">MAREA</span></div><span class="taBar"></span></div>
-      <div class="taDisp" id="taEco"><div class="taScr"><b class="taVal"><span id="taEcoV">–</span><em>m</em></b><span class="taLab">ECOSCANDAGLIO</span></div><span class="taBar"></span></div>
-      <div class="taDisp" id="taMet"><div class="taScr"><span class="taMet" id="taMetI">–</span><span class="taMetT" id="taMetT"></span><span class="taLab">METEO</span></div><span class="taBar"></span></div>
-      <button class="taDisp on" id="taSet" aria-label="Impostazioni"><div class="taScr"><svg viewBox="0 0 64 64"><path fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.2" d="M28 4h8l1.6 7.4a21 21 0 0 1 5.6 2.3l6.4-4.1 5.7 5.7-4.1 6.4a21 21 0 0 1 2.3 5.6L60 28v8l-7.4 1.6a21 21 0 0 1-2.3 5.6l4.1 6.4-5.7 5.7-6.4-4.1a21 21 0 0 1-5.6 2.3L36 60h-8l-1.6-7.4a21 21 0 0 1-5.6-2.3l-6.4 4.1-5.7-5.7 4.1-6.4a21 21 0 0 1-2.3-5.6L4 36v-8l7.4-1.6a21 21 0 0 1 2.3-5.6l-4.1-6.4 5.7-5.7 6.4 4.1a21 21 0 0 1 5.6-2.3z"/><circle cx="32" cy="32" r="9" fill="#1a1c1f" stroke="url(#swMet)" stroke-width="3"/></svg><span class="taLab">IMPOSTAZIONI</span></div><span class="taBar"></span></button>
+      <div class="taDisp" id="taSpd" role="img" aria-label="Velocità" title="Velocità"><div class="taScr"><b class="taVal"><span id="taSpdV">–</span><em>km/h</em></b></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taMax" role="img" aria-label="Velocità massima" title="Velocità massima"><div class="taScr"><b class="taVal"><span id="taMaxV">–</span><em>km/h</em></b></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taTmp" role="img" aria-label="Temperatura" title="Temperatura"><div class="taScr"><b class="taVal"><span id="taTmpV">–</span><em>°C</em></b></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taHum" role="img" aria-label="Umidità" title="Umidità"><div class="taScr"><b class="taVal"><span id="taHumV">–</span><em>%</em></b></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taTide" role="img" aria-label="Marea" title="Marea"><div class="taScr"><b class="taVal"><span id="taTideV">–</span><em>cm</em><i class="taTr" id="taTideTr"></i></b></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taEco" role="img" aria-label="Ecoscandaglio" title="Ecoscandaglio"><div class="taScr"><b class="taVal"><span id="taEcoV">–</span><em>m</em></b></div><span class="taBar"></span></div>
     </div>
   </div>
   <select id="swN" hidden><option>12</option></select>
@@ -2336,7 +2338,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.71</p>
+      <p class="sub">clickVenice · versione 4.72</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -13558,7 +13560,7 @@ function swPaint(){
   g.innerHTML = ordine.map(i => { const ch = c.ch[i] || {}; if (ch.nascosto) return "";
     const on = isOn(i), bloccato = ch.serve != null && !isOn(ch.serve);
     const stato = bloccato ? (((c.ch[ch.serve] || {}).nome || "").toLowerCase() + " spento") : ch.mom ? (on ? "ATTIVO" : "tieni premuto") : (on ? "ACCESO" : "spento");
-    return `<button class="swCh${on ? " on" : ""}${bloccato ? " off" : ""}" data-i="${i}" ${ok ? "" : 'aria-disabled="true"'}><span class="taNotch"><i class="taLed"></i></span><span class="taIn"><span class="taIco">${swSvg(ch.ico)}</span><span class="taLab">${esc(ch.nome || "Canale " + (i + 1))}</span></span><span class="taBar"></span></button>`; }).join("");
+    return `<button class="swCh${on ? " on" : ""}${bloccato ? " off" : ""}" data-i="${i}" aria-label="${esc(ch.nome || "Canale " + (i + 1))}" title="${esc(ch.nome || "Canale " + (i + 1))}" ${ok ? "" : 'aria-disabled="true"'}><span class="taIn"><span class="taIco">${swSvg(ch.ico)}</span></span></button>`; }).join("");
   $("#swConn").innerHTML = ok ? "Scollega" : store.get("ln_sw_id", "") ? "🔍 Cerca" : "🔗 Collega";
 }
 let swLock = Promise.resolve();
@@ -13721,13 +13723,10 @@ function taTick(){
   try{ if (fresh && kmh < 120) TRIP.max = Math.max(TRIP.max || 0, kmh); }catch(e){}
   const vmax = (typeof TRIP !== "undefined" && TRIP.max) || 0;
   taSet("taMaxV", vmax ? String(Math.round(vmax)) : "–"); taOn("taMax", vmax > 0);
-  // meteo del punto in cui sei
+  // meteo del punto in cui sei: temperatura e umidità
   const M = typeof METEO !== "undefined" && METEO;
   taSet("taTmpV", M && M.t != null ? String(Math.round(M.t)) : "–"); taOn("taTmp", M && M.t != null);
   taSet("taHumV", M && M.h != null ? String(Math.round(M.h)) : "–"); taOn("taHum", M && M.h != null);
-  if (M){ let [ic, nm] = WMO(M.c); if (M.mmh >= .1 && !(M.c >= 51 && M.c <= 82 || M.c >= 95) && !M.neve) [ic, nm] = ["🌧️", "pioggia"];
-    $("#taMetI").textContent = ic; const tx = nm + (M.w != null ? " · " + Math.round(M.w) + " km/h" : ""); if ($("#taMetT").textContent !== tx) $("#taMetT").textContent = tx; }
-  taOn("taMet", !!M);
   // marea adesso (dato o stima) e tendenza nella prossima mezz'ora
   let td = null; try{ td = tideNow(); if (td == null){ const e = tideAt(Date.now()); if (e != null) td = Math.round(e); } }catch(e){}
   taSet("taTideV", td == null ? "–" : (td > 0 ? "+" : "") + td);
@@ -13760,7 +13759,11 @@ function taImpost(){
   $("#swEdNo").onclick = () => m.remove();
   const sc = $("#taScol"); if (sc) sc.onclick = () => { m.remove(); swConnect(); };
 }
-$("#taSet").onclick = () => { haptic(); taImpost(); };
+// impostazioni (colore luci, ordine tasti): tieni premuto il logo
+(function(){ const L = $("#swp .taLogo"); let t = null;
+  L.addEventListener("pointerdown", () => { t = setTimeout(() => { haptic(); taImpost(); }, 700); });
+  ["pointerup", "pointerleave", "pointercancel"].forEach(e => L.addEventListener(e, () => clearTimeout(t)));
+  L.addEventListener("contextmenu", e => e.preventDefault()); })();
 (function(){
   $("#swX").onclick = closeTA;
   $("#swConn").onclick = swConnect;
