@@ -2171,7 +2171,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.39</p>
+      <p class="sub">clickVenice · versione 4.40</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -8956,7 +8956,7 @@ function paintStrikes(){
 // due dita sulla mappa: spariscono tutti i tasti di Naviga (resta solo la leggenda della secca, se accesa); tornano finito il gesto
 (function(){ const el = document.getElementById("map"); if (!el) return; let t = null;
   el.addEventListener("touchstart", e => { if (e.touches.length >= 2 && appMode === "nautica" && !GM){ clearTimeout(t); document.body.classList.add("zen"); } }, { passive: true });
-  const fine = e => { if (e.touches.length === 0 && document.body.classList.contains("zen")){ clearTimeout(t); t = setTimeout(() => document.body.classList.remove("zen"), 500); } };
+  const fine = e => { if (e.touches.length === 0 && document.body.classList.contains("zen")){ clearTimeout(t); t = setTimeout(() => document.body.classList.remove("zen"), 150); } };
   el.addEventListener("touchend", fine, { passive: true }); el.addEventListener("touchcancel", fine, { passive: true }); })();
 // banner degli avvisi appena sopra il cruscotto in basso a sinistra
 function strikePos(){ const b = $("#strikeBar"), m = $("#miniW"); if (!b) return; const on = m && m.offsetParent, h = on ? m.offsetHeight : 0; b.style.setProperty("--mwh", h + "px"); b.style.width = on ? m.offsetWidth + "px" : "170px"; }
