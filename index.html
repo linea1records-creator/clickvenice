@@ -69,14 +69,14 @@
   .maplibregl-popup-tip{border-top-color:#111!important;border-bottom-color:#111!important}
   .maplibregl-popup-close-button{color:#aaa;font-size:18px}
   #searchBox{position:absolute;z-index:20;left:10px;right:10px;top:calc(10px + var(--safe-t))}
-  #strikeBar{position:absolute;z-index:19;left:10px;bottom:calc(16px + var(--mwh, 0px) + 8px);top:auto;transform:none;width:auto;max-width:min(240px,calc(100% - 100px));padding:4px 10px;border-radius:999px;border:0;
-    background:#d95f26;color:#fff;font-weight:800;font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.3);text-align:left}
+  #strikeBar{position:absolute;z-index:19;left:10px;bottom:calc(16px + var(--mwh, 0px) + 6px);top:auto;transform:none;width:170px;max-width:calc(100% - 100px);padding:5px 9px;border-radius:12px;border:0;box-sizing:border-box;
+    background:rgba(5,7,6,.93);color:#fff;font-weight:800;font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.3);text-align:left}
   #strikeBar .sbT{display:block;overflow:hidden} #strikeBar .sbT i{font-style:normal;display:inline-block}
   #strikeBar.scroll .sbT{-webkit-mask-image:linear-gradient(90deg,transparent,#000 8px,#000 calc(100% - 8px),transparent);mask-image:linear-gradient(90deg,transparent,#000 8px,#000 calc(100% - 8px),transparent)}
   #strikeBar.scroll .sbT i{animation:sbScroll 10s linear infinite} #strikeBar .sbT b{padding:0 10px;opacity:.7}
   @keyframes sbScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   body.nav #strikeBar{bottom:calc(92px + var(--mwh, 0px) + 8px)}
-  #strikeBar.oggi{background:#c0392b}
+  #strikeBar.oggi{background:rgba(5,7,6,.93);box-shadow:inset 3px 0 0 #e11d48,0 2px 8px rgba(0,0,0,.3)}
   body.mode-market #strikeBar, body.mode-incontra #strikeBar, body.mode-sport #strikeBar, body.mode-trasporti #strikeBar, body.nav #strikeBar{display:none}
   .sbar{display:flex;align-items:center;background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.35);padding:0 6px 0 12px}
   .sbar .sic{font-size:16px;opacity:.6}
@@ -1619,7 +1619,7 @@
   #v-map > *:not(#map), #tabs, #dock{transition:opacity .35s ease, transform .35s ease}
   body.zen #v-map > *:not(#map):not(#depthLegend){opacity:0!important;pointer-events:none!important}
   body.zen #v-map > #searchBox{transform:translateY(-14px)} body.zen #v-map > .fabs{transform:translateX(14px)}
-  body.zen #tabs{opacity:0;transform:translateY(16px);pointer-events:none}
+  #depthLegend{touch-action:none;cursor:grab;user-select:none} #depthLegend.drag{cursor:grabbing;box-shadow:0 10px 26px rgba(0,0,0,.35);transform:scale(1.03);transition:none}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2171,7 +2171,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.38</p>
+      <p class="sub">clickVenice · versione 4.39</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -8942,13 +8942,24 @@ function paintStrikes(){
     if (over){ i.innerHTML = `${esc(t)}<b>·</b>${esc(t)}<b>·</b>`; i.style.animationDuration = Math.max(6, t.length * 0.28) + "s"; } });
   strikePos();
 }
+// leggenda della secca: si trascina dove si preferisce (la posizione resta salvata)
+(function(){ const L = document.getElementById("depthLegend"); if (!L) return;
+  const put = (x, y) => { const W = innerWidth, H = innerHeight, w = L.offsetWidth || 180, h = L.offsetHeight || 80;
+    x = Math.max(4, Math.min(W - w - 4, x)); y = Math.max(4, Math.min(H - h - 70, y)); L.style.left = x + "px"; L.style.top = y + "px"; L.style.right = "auto"; return { x, y }; };
+  const sp = store.get("ln_lgpos", null); if (sp) setTimeout(() => put(sp.x, sp.y), 300);
+  let d = null;
+  L.addEventListener("pointerdown", e => { const r = L.getBoundingClientRect(); d = { dx: e.clientX - r.left, dy: e.clientY - r.top, mosso: false }; L.setPointerCapture(e.pointerId); e.stopPropagation(); });
+  L.addEventListener("pointermove", e => { if (!d) return; d.mosso = true; L.classList.add("drag"); d.p = put(e.clientX - d.dx, e.clientY - d.dy); e.preventDefault(); });
+  const up = () => { if (!d) return; L.classList.remove("drag"); if (d.mosso && d.p) store.set("ln_lgpos", d.p); d = null; };
+  L.addEventListener("pointerup", up); L.addEventListener("pointercancel", up);
+  addEventListener("resize", () => { const p = store.get("ln_lgpos", null); if (p) put(p.x, p.y); }); })();
 // due dita sulla mappa: spariscono tutti i tasti di Naviga (resta solo la leggenda della secca, se accesa); tornano finito il gesto
 (function(){ const el = document.getElementById("map"); if (!el) return; let t = null;
   el.addEventListener("touchstart", e => { if (e.touches.length >= 2 && appMode === "nautica" && !GM){ clearTimeout(t); document.body.classList.add("zen"); } }, { passive: true });
-  const fine = e => { if (e.touches.length === 0 && document.body.classList.contains("zen")){ clearTimeout(t); t = setTimeout(() => document.body.classList.remove("zen"), 1400); } };
+  const fine = e => { if (e.touches.length === 0 && document.body.classList.contains("zen")){ clearTimeout(t); t = setTimeout(() => document.body.classList.remove("zen"), 500); } };
   el.addEventListener("touchend", fine, { passive: true }); el.addEventListener("touchcancel", fine, { passive: true }); })();
 // banner degli avvisi appena sopra il cruscotto in basso a sinistra
-function strikePos(){ const b = $("#strikeBar"), m = $("#miniW"); if (!b) return; const h = m && m.offsetParent ? m.offsetHeight : 0; b.style.setProperty("--mwh", h + "px"); }
+function strikePos(){ const b = $("#strikeBar"), m = $("#miniW"); if (!b) return; const on = m && m.offsetParent, h = on ? m.offsetHeight : 0; b.style.setProperty("--mwh", h + "px"); b.style.width = on ? m.offsetWidth + "px" : "170px"; }
 try{ new ResizeObserver(strikePos).observe($("#miniW")); }catch(e){} setInterval(strikePos, 3000);
 function openStrikes(){
   const L = strikesSoon(45);
