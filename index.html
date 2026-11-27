@@ -77,7 +77,14 @@
   @keyframes sbScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   body.nav #strikeBar{bottom:calc(92px + var(--mwh, 0px) + 8px)}
   #strikeBar.oggi{background:rgba(5,7,6,.93);box-shadow:inset 3px 0 0 #e11d48,0 2px 8px rgba(0,0,0,.3)}
-  body.mode-market #strikeBar, body.mode-incontra #strikeBar, body.mode-sport #strikeBar, body.mode-trasporti #strikeBar, body.nav #strikeBar{display:none}
+  body.mode-market #strikeBar, body.mode-incontra #strikeBar, body.mode-sport #strikeBar, body.mode-trasporti #strikeBar, body.nav #strikeBar:not(.vx){display:none}
+  /* velox: lo stesso banner, colorato in base al messaggio */
+  #strikeBar.vx{color:#fff;transition:background .3s}
+  #strikeBar.vx.lento{background:rgba(220,38,38,.95);box-shadow:0 2px 10px rgba(220,38,38,.45);animation:vxPulse 1.2s ease-in-out infinite}
+  #strikeBar.vx.veloce{background:rgba(22,163,74,.95);box-shadow:0 2px 10px rgba(22,163,74,.4)}
+  #strikeBar.vx.giusto{background:rgba(37,99,235,.95);box-shadow:0 2px 10px rgba(37,99,235,.4)}
+  #strikeBar.vx.fuori{background:rgba(220,38,38,.95)} #strikeBar.vx.dentro{background:rgba(22,163,74,.95)}
+  @keyframes vxPulse{50%{filter:brightness(1.25)}}
   .sbar{display:flex;align-items:center;background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.35);padding:0 6px 0 12px}
   .sbar .sic{font-size:16px;opacity:.6}
   .sbar input{background:none;border:0;color:#111;font-size:17px;padding:14px 8px;outline:none}
@@ -2177,7 +2184,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.47</p>
+      <p class="sub">clickVenice · versione 4.48</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -7582,7 +7589,7 @@ function veloxTick(p, kmh){
   if (!VELOX.list.length) return;
   const pass = vxPassed(p);
   // un velox con limite diverso da quello della tratta in corso non la chiude: è di un'altra tratta
-  if (pass && VX && VX.to.id !== pass.id && !vxLims(pass.id).has(VX.lim)) { vxAlong(p); paintVelox(p, kmh); return; }
+  if (pass && VX && VX.to.id !== pass.id && !vxLims(pass.id).has(VX.lim)) { vxAlong(p); paintVelox(p, kmh); vxBanner(p, kmh); return; }
   if (pass){
     // fine tratta: sei passato davanti al velox che aspettavamo (o a un altro con lo stesso limite)
     if (VX){
@@ -7597,7 +7604,22 @@ function veloxTick(p, kmh){
     vxAlong(p);
     if (VX.off > 4 || (p.t - VX.t0) > 25 * 60000) VX = null;   // hai cambiato canale o ti sei fermato a lungo
   }
-  paintVelox(p, kmh);
+  paintVelox(p, kmh); vxBanner(p, kmh);
+}
+function vxBanner(p, kmh){
+  let nb = null;
+  if (VX){
+    const sec = Math.max(0, (p.t - VX.t0) / 1000), vLim = VX.lim / 3.6, tLeft = VX.L / vLim - sec, ahead = VX.done - sec * vLim;
+    const vMax = tLeft > 1 ? Math.min(99, VX.R / tLeft * 3.6) : 0, f = n => n.toFixed(1).replace(".", ","), dove = `${VX.to.name} a ${fmtDist(VX.R)}`;
+    if (ahead > 8 || (tLeft <= 1 && VX.R > 5)) nb = { st: "lento", t: `Rallenta · sei ${Math.max(1, Math.round(ahead))} m avanti · max ${f(vMax)} km/h · ${dove}` };
+    else if (ahead < -30 && kmh < VX.lim) nb = { st: "veloce", t: `Puoi andare più veloce · fino a ${f(vMax)} km/h · ${dove}` };
+    else nb = { st: "giusto", t: `Velocità giusta · max ${f(vMax)} km/h · limite ${VX.lim} · ${dove}` };
+  } else if (vxResult && Date.now() - vxResult.at < 30000){
+    const fuori = vxResult.avg > vxResult.lim + 0.5;
+    nb = { st: fuori ? "fuori" : "dentro", t: `Velox ${vxResult.name} · media ${vxResult.avg.toFixed(1).replace(".", ",")} km/h · ${fuori ? "sopra il limite" : "nel limite ✓"}` };
+  }
+  const prima = VXBAN ? VXBAN.st + VXBAN.t : "", dopo = nb ? nb.st + nb.t : "";
+  VXBAN = nb; if (prima !== dopo) paintStrikes();
 }
 // velocità di un velox: quelle delle tratte di cui fa parte
 const vxLims = id => new Set(VELOX.tratte.filter(t => t.A.includes(id) || t.B.includes(id)).map(t => t.v));
@@ -9024,15 +9046,24 @@ async function loadStrikes(){
 }
 const strikesSoon = days => { const t = romeYmd(), lim = romeYmd(new Date(Date.now() + days * 864e5)); return (STRIKES || []).filter(x => x.giorno >= t && x.giorno <= lim); };
 const strikeToday = () => (STRIKES || []).find(x => x.giorno === romeYmd());
+let VXBAN = null;   // messaggio dei velox: occupa il banner degli scioperi finché c'è
 function paintStrikes(){
-  const b = $("#strikeBar"); if (!b) return; const L = strikesSoon(7);
+  const b = $("#strikeBar"); if (!b) return;
+  b.classList.remove("vx", "lento", "veloce", "giusto", "fuori", "dentro");
+  if (VXBAN){ b.classList.remove("hidden", "oggi"); b.classList.add("vx", VXBAN.st); return bannerText(b, VXBAN.t); }
+  const L = strikesSoon(7);
   b.classList.toggle("hidden", !L.length); if (!L.length) return;
   const x = L[0]; b.classList.toggle("oggi", x.giorno === romeYmd());
-  const t = `${strikeName(x)} ${strikeDay(x.giorno)}${L.length > 1 ? " · +" + (L.length - 1) : ""}`;
-  b.innerHTML = `<span class="sbT"><i>${esc(t)}</i></span>`; b.title = t;
-  requestAnimationFrame(() => { const w = b.querySelector(".sbT"), i = w && w.firstElementChild; if (!i) return;   // testo lungo: scorre dentro il banner
-    const over = i.scrollWidth > w.clientWidth + 2; b.classList.toggle("scroll", over);
-    if (over){ i.innerHTML = `${esc(t)}<b>·</b>${esc(t)}<b>·</b>`; i.style.animationDuration = Math.max(6, t.length * 0.28) + "s"; } });
+  bannerText(b, `${strikeName(x)} ${strikeDay(x.giorno)}${L.length > 1 ? " · +" + (L.length - 1) : ""}`);
+}
+function bannerText(b, t){
+  if (b.dataset.t === t) return; b.dataset.t = t;
+  // il testo cambia senza ricreare il banner: lo scorrimento non riparte da capo a ogni aggiornamento
+  let i = b.querySelector(".sbT i"); if (!i){ b.innerHTML = `<span class="sbT"><i></i></span>`; i = b.querySelector(".sbT i"); }
+  i.textContent = t; b.title = t;
+  requestAnimationFrame(() => { const w = b.querySelector(".sbT"); if (!w) return;   // testo lungo: scorre dentro il banner
+    const over = i.scrollWidth > w.clientWidth + 2, was = b.classList.contains("scroll"); b.classList.toggle("scroll", over);
+    if (over){ i.innerHTML = `${esc(t)}<b>·</b>${esc(t)}<b>·</b>`; if (!was) i.style.animationDuration = Math.max(6, t.length * 0.28) + "s"; } });
   strikePos();
 }
 // leggenda della secca: si trascina dove si preferisce (la posizione resta salvata)
@@ -9062,7 +9093,7 @@ function openStrikes(){
     <p class="muted" style="font-size:12px;line-height:1.4">Dal calendario del Ministero dei Trasporti. Durante gli scioperi ACTV garantisce comunque alcune fasce di servizio: controlla gli avvisi ACTV per gli orari precisi.</p>
     <button class="btn ghost" onclick="closeSheet()">Chiudi</button>`);
 }
-$("#strikeBar").onclick = openStrikes;
+$("#strikeBar").onclick = () => { if (!VXBAN) openStrikes(); };
 setTimeout(loadStrikes, 4000); setInterval(() => { if (!document.hidden) loadStrikes(); }, 30 * 60000);
 /* scheda dell'imbarcadero: subito le prossime partenze, col tasto per arrivarci (niente taxi qui) */
 let fmTimer = null;
