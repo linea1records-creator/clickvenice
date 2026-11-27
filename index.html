@@ -245,6 +245,10 @@
   .rb-btns{display:flex;gap:8px}
   .rb-btns .btn{flex:1}
   .rb-btns .btn.ghost{flex:0 0 56px;color:#111;background:#f1f3f6;border:0}
+  .rb-btns .actvMini{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px 10px;border-radius:12px;border:0;background:#16a34a;color:#fff;font:inherit;font-size:10.5px;font-weight:800;cursor:pointer}
+  .rb-btns .actvMini svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.7;stroke-linejoin:round}
+  .tripFull .tfLeg{display:flex;gap:14px;font-size:11.5px;color:#555;margin:3px 0 4px} .tripFull .tfLeg span{display:flex;align-items:center;gap:5px}
+  .tripFull .tfLeg i.lw{width:22px;height:0;border-top:3px dotted #111} .tripFull .tfLeg i.lb{width:22px;height:5px;border-radius:3px;box-shadow:0 0 0 1.5px #050706}
   .startpin{width:18px;height:18px;border-radius:50%;background:#2ecc71;border:3px solid #fff;box-shadow:0 0 0 2px #2ecc71,0 2px 6px rgba(0,0,0,.5)}
   /* emergenza */
   .fab.sosfab{background:#d32f2f;color:#fff;font-weight:900;font-size:14px;letter-spacing:.04em;border:2px solid #fff}
@@ -2201,7 +2205,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.58</p>
+      <p class="sub">clickVenice · versione 4.59</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -6826,7 +6830,7 @@ async function tripPreview(j, from, to){
   const pt = n => { const x = P.find(y => y[0] === n); return x ? { lat: x[1], lng: x[2] } : null; };
   const F = [], line = (pts, props) => { if (pts.length > 1) F.push({ type: "Feature", properties: props, geometry: { type: "LineString", coordinates: pts.map(q => [q[1], q[0]]) } }); };
   const walkLeg = async (a, b, last) => { if (!a || !b || hav(a.lat, a.lng, b.lat, b.lng) < 15) return; let W = null; try{ W = await walkRoute(a, b); }catch(e){}
-    if (W && W.src !== "aria") line(W.pts, { k: "w", last: !!last }); };
+    line(W && W.src !== "aria" && W.pts && W.pts.length > 1 ? W.pts : [[a.lat, a.lng], [b.lat, b.lng]], { k: "w", last: !!last }); };
   let cur = from;
   for (const t of o.tappe){
     if (t.tipo === "piedi"){ const b = pt(t.a); await walkLeg(cur, b); cur = b || cur; continue; }
@@ -6852,7 +6856,8 @@ async function tripPreview(j, from, to){
 function fitFeats(F){
   if (!map || !F || !F.length) return; const b = new maplibregl.LngLatBounds();
   F.forEach(f => { const c = f.geometry.coordinates; if (f.geometry.type === "Point") b.extend(c); else c.forEach(x => b.extend(x)); });
-  setFollow(false); map.fitBounds(b, { padding: { top: 290, bottom: 120, left: 50, right: 50 }, duration: 700, bearing: 0, pitch: 0, maxZoom: 17 }); droneStart();
+  const rb = $("#routeBox"), top = rb && !rb.classList.contains("hidden") ? Math.min(innerHeight * 0.6, rb.getBoundingClientRect().bottom + 24) : 120;
+  setFollow(false); map.fitBounds(b, { padding: { top, bottom: 120, left: 50, right: 50 }, duration: 700, bearing: 0, pitch: 0, maxZoom: 17 }); droneStart();
 }
 /* Kiwitaxi: taxi in auto su ogni tragitto che tocca la terraferma o l'aeroporto (non dentro Venezia).
    Se l'altro capo è a Venezia, l'auto arriva a Piazzale Roma o al Tronchetto, quello più vicino al punto di Venezia. */
@@ -6953,7 +6958,14 @@ function effMode(p){
   if (p.mode === "auto") return s === "guida" ? "autoguida" : "autotaxi";
   return "piedi";
 }
+function actvBtn(on){
+  let b = $("#actvBuy"); const box = document.querySelector("#routeBox .rb-btns");
+  if (!on){ if (b) b.remove(); return; }
+  if (!b && box){ box.insertAdjacentHTML("afterbegin", `<button class="actvMini" id="actvBuy" title="Compra il biglietto ACTV online (ordinario 75 minuti, Venezia Unica)"><svg viewBox="0 0 24 24"><path d="M3 8.5V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2.5a2.5 2.5 0 0 0 0 5V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4.5a2.5 2.5 0 0 0 0-5z"/><path d="M14 5v14" stroke-dasharray="1.6 1.8"/></svg><span>Biglietto</span></button>`);
+    b = $("#actvBuy"); b.onclick = () => extOpen(ACTV_BIGLIETTO, "Biglietto ACTV"); }
+}
 function paintTravel(fit){
+  actvBtn(false);
   if (!PLAN) return;
   if (!PLAN.sub) PLAN.sub = Object.assign({ barca: activeBoat() ? "mia" : "vapo", auto: "taxi" }, store.get("ln_sub", {}));
   if (PLAN.mode === "auto" && !PLAN.kw) PLAN.mode = "piedi";
@@ -7024,13 +7036,13 @@ function paintTravel(fit){
       const o = j.opzioni[0]; info.textContent = `Arrivo ${o.arrivo}${j.endWalk ? " + " + j.endWalk + " min a piedi" : ""} · ${o.durata_min} min in vaporetto`;
       more.innerHTML = `<p class="trnote" style="margin-top:0">Da <b>${esc(j.da)}</b> a <b>${esc(j.a)}</b></p>` + j.opzioni.map((op, k) => tripOptHtml(op, k) .replace(/<\/div>$/, ((op.fine_min ?? j.endWalk) ? `<div class="leg">🚶 poi a piedi fino a ${esc(PLAN.to.name)} · ${op.fine_min ?? j.endWalk} min</div>` : "") + "</div>")).join("") + orarioNote(j.orario_del);
       // vaporetto ACTV nel tragitto: tasto per comprare il biglietto online su Venezia Unica
-      if ((o.tappe || []).some(t => t.tipo !== "piedi" && !(t.azienda === "Alilaguna" || /^Alilaguna /.test(t.linea || "")))){
-        more.insertAdjacentHTML("afterbegin", `<button class="btn actvBuy" id="actvBuy">🎫 Compra il biglietto ACTV online<small>Biglietto ordinario 75 minuti · Venezia Unica</small></button>`);
-        $("#actvBuy").onclick = () => extOpen(ACTV_BIGLIETTO, "Biglietto ACTV"); }
+      if ((o.tappe || []).some(t => t.tipo !== "piedi" && !(t.azienda === "Alilaguna" || /^Alilaguna /.test(t.linea || "")))) actvBtn(true);
       more.classList.remove("hidden");
       // primo tocco: calcola il percorso completo (a piedi fino alla fermata + battello + a piedi fino all'arrivo); secondo tocco: avvia
       if (PLAN.full && PLAN.full.trip === j){ const F = PLAN.full;
+        more.innerHTML = "";   // sulla mappa si vede il tragitto: qui resta solo il riepilogo
         more.insertAdjacentHTML("afterbegin", `<div class="tripFull"><b>Percorso completo · arrivo ${esc(F.arrivo)}</b>
+          <div class="tfLeg"><span><i class="lw"></i>a piedi</span><span><i class="lb" style="background:${esc(F.col || "#1d4e89")}"></i>in battello</span></div>
           <div class="tfL"><i>🚶</i><span>${F.w1} min a piedi fino alla fermata <b>${esc(F.da)}</b></span></div>
           <div class="tfL"><i>⛴</i><span>${esc(F.linea)} alle <b>${esc(F.parte)}</b> · scendi a <b>${esc(F.a)}</b> · ${F.bt} min</span></div>
           <div class="tfL"><i>🚶</i><span>${F.w2} min a piedi fino a <b>${esc(PLAN.to.name)}</b></span></div>
@@ -7094,7 +7106,8 @@ async function planFull(p, o){
   const hm = s => { const [h, m] = String(s || "0:0").split(":").map(Number); return h * 60 + m; }, f = m => String(Math.floor(m / 60) % 24).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
   const bt = Math.max(1, +o.durata_min || (hm(t2.arriva || o.arrivo) - hm(t1.parte)) || 1), arrBoat = hm(o.arrivo) || hm(t1.parte) + bt;
   const now = new Date(), nm = now.getHours() * 60 + now.getMinutes(), tot = Math.max(hm(t1.parte) - nm, w1) + bt + w2;
-  p.full = { trip: p.trip, da: t1.da, a: t2.a, linea: B.map(x => x.linea).filter((x, i, a) => a.indexOf(x) === i).join(" + "), parte: t1.parte, bt, w1, w2, tot: tot > 0 && tot < 600 ? tot : w1 + bt + w2, arrivo: f(arrBoat + w2) };
+  const col0 = (p.tripGeo || []).find(f => f.properties.k === "b");
+  p.full = { col: col0 && col0.properties.c, trip: p.trip, da: t1.da, a: t2.a, linea: B.map(x => x.linea).filter((x, i, a) => a.indexOf(x) === i).join(" + "), parte: t1.parte, bt, w1, w2, tot: tot > 0 && tot < 600 ? tot : w1 + bt + w2, arrivo: f(arrBoat + w2) };
   go.disabled = false; haptic(); paintTravel(false);
   if (p.tripGeo){ drawRoute(); fitFeats(p.tripGeo); }
 }
