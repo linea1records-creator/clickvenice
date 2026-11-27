@@ -2125,7 +2125,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.29</p>
+      <p class="sub">clickVenice · versione 4.30</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -5292,7 +5292,7 @@ function clipBand(P, y0, y1){
   return cut(cut(P, q => q[1] >= y0, y0), q => q[1] <= y1, y1);
 }
 // dimensioni scelte nelle impostazioni della mappa (1 = normale)
-let AV_SIZE = Object.assign({ man: 1, boat: 1 }, store.get("ln_avsize", {}));
+let AV_SIZE = Object.assign({ man: .4, boat: .4 }, store.get("ln_avsize", {}));   // prima apertura: avatar e barca al 40%
 function avSizes(){ return GM ? { man: AV_SIZE.man * GM_K, boat: AV_SIZE.boat * GM_K } : AV_SIZE; }
 // planata: sopra i 10 km/h la prua sale e scende una volta al secondo
 function planeTilt(){ if (speedMs * 3.6 <= 10 || !manWat) return 0; const a = (5 + 3 * Math.sin(Date.now() / 1000 * 2 * Math.PI)) * Math.PI / 180; return Math.tan(a); }
@@ -7030,11 +7030,12 @@ $("#rbGo").onclick = () => {
    ========================================================= */
 let dashOpen = false;
 const instOn = k => !!INST[k] || dashOpen;
-let INST = Object.assign({ speed: true, depth: false, tide: false, head: false, velox: true, water: false }, store.get("ln_inst", {}));
+let INST = Object.assign({ speed: true, depth: false, tide: false, head: false, velox: true, water: true }, store.get("ln_inst", {}));   // prima apertura: secca accesa
 // velocità, velox, marea ed ecoscandaglio ora lavorano sempre e si vedono tutti insieme nel mini widget
 Object.assign(INST, { speed: true, velox: true, tide: true, depth: true }); INST.bridge = false; INST.head = false;
 // cosa si vede sulla mappa in Nautica (finestrella delle impostazioni)
-let LY = Object.assign({ bricole: true, velox: true, boat: true, d3: true, cantieri: true, canali: true, actv: true, alilaguna: true, rive: false }, store.get("ln_layers", {}));
+// impostazioni di chi apre il sito la prima volta (poi valgono le sue scelte)
+let LY = Object.assign({ bricole: true, velox: true, boat: true, d3: true, cantieri: true, canali: true, benzinai: true, tesori: true, actv: false, alilaguna: false, rive: false, esperienze: false, gondole: false, segnal: false }, store.get("ln_layers", {}));
 function paintInst(){
   document.querySelectorAll("#toggles button[data-inst]").forEach(b => b.classList.toggle("on", !!INST[b.dataset.inst]));
   $("#i-speed").classList.toggle("hidden", !INST.speed);
