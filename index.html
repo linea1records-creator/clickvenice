@@ -1592,6 +1592,8 @@
   #camFull .camX{width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.2);color:#fff;font-size:18px;backdrop-filter:blur(6px)}
   #camFull .camTop b{display:block;font-size:16px} #camFull .camTop small{opacity:.85;font-size:12.5px}
   #camFull .camLive{font-style:normal;background:#e11d48;border-radius:5px;padding:1px 6px;font-size:11px;margin-right:4px;vertical-align:2px}
+  #camFull.man iframe{pointer-events:auto;width:100vw!important;height:100vh!important;transform:translate(-50%,-50%)!important} #camFull.man .camTop{opacity:1;pointer-events:auto}
+  #camFull.man .camBot{opacity:1;pointer-events:none;background:none;top:calc(64px + var(--safe-t));bottom:auto;justify-content:flex-end} #camFull.man .camBot>*{pointer-events:auto} #camFull.man .camOth:not(.camQ),#camFull.man .camYt{display:none}
   #camFull .camOth{border:0;background:rgba(255,255,255,.2);color:#fff;font-weight:800;border-radius:99px;padding:9px 14px;backdrop-filter:blur(6px)} #camFull .camYt{color:#fff;opacity:.85;font-size:12.5px}
   [data-cam] .ic svg{stroke:#fff!important;fill:none}
 </style>
@@ -2141,7 +2143,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.33</p>
+      <p class="sub">clickVenice · versione 4.34</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -11565,15 +11567,19 @@ function camOpen(c){
   o = document.createElement("div"); o.id = "camFull";
   o.innerHTML = `<div class="camV"><iframe src="https://www.youtube-nocookie.com/embed/${c.y}?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&vq=hd1080&hd=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="${esc(c.n)}"></iframe></div>
     <div class="camTop"><button class="camX" aria-label="Chiudi">✕</button><div><b><i class="camLive">LIVE</i> ${esc(c.n)}</b><small>${esc(c.d)}</small></div></div>
-    <div class="camBot"><button class="camOth">📹 Altre webcam</button><a class="camYt" href="https://www.youtube.com/watch?v=${c.y}" target="_blank" rel="noopener">Non si vede? Apri su YouTube</a></div>`;
+    <div class="camBot"><button class="camOth">📹 Altre webcam</button><button class="camOth camQ">⚙️ Qualità</button><a class="camYt" href="https://www.youtube.com/watch?v=${c.y}" target="_blank" rel="noopener">Non si vede? Apri su YouTube</a></div>`;
   document.body.appendChild(o); requestAnimationFrame(() => o.classList.add("on"));
   // YouTube sceglie la qualità dalla grandezza del player: lo creiamo a 2560×1440 e lo rimpiccioliamo per riempire lo schermo, così parte in HD
-  const fit = () => { const f = o.querySelector("iframe"); if (!f) return; const k = Math.max(innerWidth / 2560, innerHeight / 1440); f.style.transform = `translate(-50%,-50%) scale(${k})`; };
+  const fit = () => { const f = o.querySelector("iframe"); if (!f || o.classList.contains("man")) return; const k = Math.max(innerWidth / 2560, innerHeight / 1440); f.style.transform = `translate(-50%,-50%) scale(${k})`; };
   fit(); addEventListener("resize", fit); o._fit = fit;
   try{ const el = document.documentElement; if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); if (screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(() => {}); }catch(e){}
   const chiudi = () => { removeEventListener("resize", o._fit); o.classList.remove("on"); setTimeout(() => o.remove(), 250); try{ if (document.fullscreenElement) document.exitFullscreen(); if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){} };
   o.querySelector(".camX").onclick = chiudi;
-  o.querySelector(".camOth").onclick = () => { chiudi(); setTimeout(camList, 260); };
+  o.querySelector(".camOth:not(.camQ)").onclick = () => { chiudi(); setTimeout(camList, 260); };
+  // qualità a mano: si riaccendono i comandi di YouTube (rotellina → Qualità), il video si può toccare
+  o.querySelector(".camQ").onclick = ev => { ev.stopPropagation(); haptic();
+    if (!o.classList.contains("man")){ const f = o.querySelector("iframe"); o.classList.add("man"); f.style.transform = "translate(-50%,-50%)"; f.src = f.src.replace(/controls=0/, "controls=1"); }
+    toast("Tocca il video, poi la rotellina ⚙️ di YouTube → Qualità e scegli la più alta", false, true); };
   let t = null; const mostra = () => { o.classList.add("ui"); clearTimeout(t); t = setTimeout(() => o.classList.remove("ui"), 3500); };
   o.addEventListener("pointerdown", mostra); mostra();
 }
