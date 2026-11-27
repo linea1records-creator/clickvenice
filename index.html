@@ -2376,7 +2376,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.76</p>
+      <p class="sub">clickVenice · versione 4.77</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -11483,7 +11483,7 @@ async function scheiSheet(){
     </div>
     ${adm ? `<button class="btn" id="schAdm" style="background:#0a8f4e">✓ Valida segnalazioni${SCHEI.pending ? ` <span class="schBdg">${SCHEI.pending}</span>` : ""}</button>` : ""}
     <div class="row" style="gap:8px;margin-top:8px"><button class="btn small" id="schSeg" style="flex:1">📸 Segnala</button><button class="btn small" id="schSfida" style="flex:1">⚔️ Sfida un amico</button></div>
-    <button class="btn small" id="schShop" style="margin-top:8px">🛍️ Spendi gli schei nel negozio</button>
+    <div class="row" style="gap:8px;margin-top:8px"><button class="btn small" id="schZaino" style="flex:1">🎒 Zaino</button><button class="btn small" id="schShop" style="flex:1">🛍️ Negozio</button></div>
     ${adm ? `<button class="btn small ghost" id="schTesAdd" style="margin-top:8px">💰 Metti un tesoro sulla mappa (solo Trops)</button><button class="btn small ghost" id="schLuogo" style="margin-top:8px">📍 Aggiungi un luogo (solo Trops)</button>` : ""}
     <h4 class="schH">Tesori</h4><div id="schTes"></div>
     <h4 class="schH">Le tue sfide</h4><div id="schSf"><p class="muted">Carico…</p></div>
@@ -11492,6 +11492,7 @@ async function scheiSheet(){
   if ($("#schLuogo")) $("#schLuogo").onclick = extraPick;
   $("#schSeg").onclick = segStart;
   $("#schShop").onclick = () => shopOpen();
+  $("#schZaino").onclick = () => { haptic(); zainoOpen(); };
   $("#schSfida").onclick = () => { closeSheet(); setMode("sport"); tttHost(); toast("Invita un amico nella stanza, poi puntate gli schei"); };
   if ($("#schTesAdd")) $("#schTesAdd").onclick = () => { closeSheet(); tesAddPick(); };
   const T = TESORI.map(t => ({ t, d: lastPos ? dist(lastPos, t) : null })).sort((a, b) => (a.d ?? 1e12) - (b.d ?? 1e12));
