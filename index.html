@@ -24,8 +24,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>clickVenice</title>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<link rel="stylesheet" crossorigin="anonymous" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script crossorigin="anonymous" src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>if(!window.maplibregl){document.write('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"><\/script>');}</script>
 <style>
   :root{
@@ -1750,10 +1750,10 @@
 <!-- ============ SPLASH: avviso obbligatorio ============ -->
 <div id="splash">
   <!-- logo -->
-  <div class="ob hidden" id="ob-brand"><img class="obLogo" src="logo.png" alt="clickVenice"></div>
+  <div class="ob hidden" id="ob-brand"><img class="obLogo" src="logo.webp" alt="clickVenice"></div>
   <!-- 3) accesso o registrazione -->
   <div class="ob hidden" id="ob-reg">
-    <img class="obLogo small" src="logo.png" alt="clickVenice">
+    <img class="obLogo small" src="logo.webp" alt="clickVenice">
     <div class="seg" id="authSeg" style="margin-top:20px"><button data-a="login" class="on">Accedi</button><button data-a="reg">Registrati</button></div>
     <div class="field"><label>Clickname</label>
       <div class="cn"><span>@</span><input id="regName" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="20" placeholder="il_tuo_nome"></div>
@@ -2067,7 +2067,7 @@
   <!-- MARKETPLACE: negozi, barche e usato (il cibo resta in Delivery) -->
   <section class="view hidden" id="v-shop">
     <div class="scroll lightv" id="shopScroll">
-      <div class="igh"><img src="barketplace.png" alt="" class="bkLogo"><h2 class="bkBrand"><i>bark</i><i>etplace</i><i>.it</i></h2><button class="mpadd hidden" id="mpAdd" hidden>+ Vendi o segnala</button></div>
+      <div class="igh"><img src="barketplace.webp" alt="" class="bkLogo"><h2 class="bkBrand"><i>bark</i><i>etplace</i><i>.it</i></h2><button class="mpadd hidden" id="mpAdd" hidden>+ Vendi o segnala</button></div>
       <div id="bkBox"></div>
       <div id="mpUsato" class="hidden">
       <div class="mpbar"><button id="mpCatBtn" class="mpcat">☰ <span id="mpCatName">Tutte le categorie</span></button><button id="mpMine" class="mpcat">I miei</button></div>
@@ -2164,6 +2164,7 @@
         <button class="card rowbtn" data-go="boat">⛵ La mia barca <span>›</span></button>
         <button class="card rowbtn" id="pfPark">⚓ Parcheggio della barca nel gioco <span id="pfParkSub">Scegli ›</span></button>
         <button class="card rowbtn hidden" id="pfLuogo">📍 Aggiungi un luogo (tabaccheria, ristorante…) <span>›</span></button>
+        <button class="card rowbtn" id="pfOff">📥 Mappa e dati sul telefono <em id="pfOffV" style="font-style:normal;color:#64748b;margin-left:auto;margin-right:6px">…</em><span>›</span></button>
         <button class="card rowbtn" id="pfNight">🌙 Mappa di notte <em id="pfNightV" style="font-style:normal;color:#64748b;margin-left:auto;margin-right:6px">Automatica</em><span>›</span></button>
         <button class="card rowbtn hidden" id="pfValida">✓ Valida segnalazioni <i class="pfBdg hidden"></i><span>›</span></button>
         <button class="card rowbtn hidden" id="pfHidden">🙈 Cose eliminate dalla mappa <span>›</span></button>
@@ -2205,7 +2206,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.61</p>
+      <p class="sub">clickVenice · versione 4.62</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -2244,7 +2245,7 @@
     <div id="tabs" role="tablist" aria-label="Modalità"></div>
     <div id="verMark" class="hidden"></div>
     <div id="regPop" class="hidden"><div class="rpCard">
-      <div class="rpHead"><img class="rpLogo" src="logo-mark.png" alt=""><button id="rpMode" class="rpSw">Accedi</button></div>
+      <div class="rpHead"><img class="rpLogo" src="logo-mark.webp" alt=""><button id="rpMode" class="rpSw">Accedi</button></div>
       <div id="rpS1">
         <div class="rpT" id="rpT1">Scegli il tuo nome utente</div>
         <div class="cn rpName"><span>@</span><input id="rpName" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="20" placeholder="nome utente" enterkeyhint="next"></div>
@@ -2902,7 +2903,7 @@ function paintSrv(){   // una sola schermata: sei tasti larghi e bassi
     { ic: "car", c: "#13294b", t: "Noleggia una macchina", d: "Auto a noleggio da Venezia e Mestre", go: carRent },
     { ic: "barca", c: "#1d4e89", t: "Compravendita di barche", d: "Il primo portale su misura veneziano", go: () => setMode("shop") } ];
   $("#shipTypes").innerHTML = `<div class="sx sx2">
-    <div class="sxHead"><img class="sxLogo" src="logo-word.png" alt="clickVenice.com"><p>Tutto quello che ti serve a Venezia, in un click.</p></div>
+    <div class="sxHead"><img class="sxLogo" src="logo-word.webp" alt="clickVenice.com"><p>Tutto quello che ti serve a Venezia, in un click.</p></div>
     <div class="sxBig">${ALL.map((x, i) => `<button data-sxi="${i}" class="${x.gold ? "gold" : ""}" style="--sc:${x.c};--sf:${x.fg || "#fff"}"><i class="ic">${sxSvg(x.ic)}</i><span><b>${x.t}</b><small>${x.d}</small></span><em>›</em></button>`).join("")}</div></div>`;
   document.querySelectorAll("#shipTypes [data-sxi]").forEach(b => b.onclick = () => { haptic(); ALL[+b.dataset.sxi].go(); });
 }
@@ -9573,7 +9574,7 @@ function partnerPin(kind){
   } else { g.fillStyle = "#fff"; g.beginPath(); for (let i = 0; i < 10; i++){ const r = i % 2 ? 7 : 15, a = -Math.PI / 2 + i * Math.PI / 5; g.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a)); } g.closePath(); g.fill(); }
   return { width: W, height: H, data: g.getImageData(0, 0, W, H).data };
 }
-(function(){ const im = new Image(); im.onload = () => { FOOD_PIN_IMG = im; try{ if (map && map.hasImage && map.hasImage("pin-food")) map.updateImage("pin-food", partnerPin("food")); }catch(e){} }; im.src = "food-logo.png"; })();
+(function(){ const im = new Image(); im.onload = () => { FOOD_PIN_IMG = im; try{ if (map && map.hasImage && map.hasImage("pin-food")) map.updateImage("pin-food", partnerPin("food")); }catch(e){} }; im.src = "food-logo.webp"; })();
 /* ---------- Menu delivery interattivo (pagina a tutto schermo, stile locandina) ---------- */
 const DM_CAT = { primi: "Primi della tradizione", secondi: "Secondi & contorni caldi", pizze: "Pizze al forno", "": "Piatti del giorno" };
 const DM_TAB = [["tutto", "Tutto"], ["primi", "Primi"], ["secondi", "Secondi & Contorni"], ["pizze", "Pizze"]];
@@ -13362,6 +13363,48 @@ if (PROFILE && PROFILE.age !== undefined){
   openApp(); store.set("ln_old_name", old);   // il PIN si sceglie da myClick, quando lo apre
 } else openApp();   // accesso facoltativo: niente pannello sulla mappa, si entra da myClick
 
+
+/* ---------- mappa e dati salvati sul telefono: l'app parte subito e funziona anche col segnale debole in laguna ---------- */
+const OFF_DATA = ["canali", "ponti", "pontili", "fondali", "fondogrid", "bricole", "locali"].map(t => CONFIG.SUPABASE_URL + "/functions/v1/dati?tipo=" + t).concat([CONFIG.SUPABASE_URL + "/functions/v1/negozi"]);
+let OFF = { fatte: 0, tot: 0, attivo: false };
+const offMB = async () => { try{ const e = await navigator.storage.estimate(); return Math.round((e.usage || 0) / 1048576); }catch(e){ return null; } };
+async function offPaint(){ const v = $("#pfOffV"); if (!v) return;
+  if (OFF.attivo) v.textContent = OFF.tot ? Math.round(OFF.fatte / OFF.tot * 100) + "%" : "…";
+  else { const mb = await offMB(); v.textContent = store.get("ln_offmap", 0) ? (mb != null ? mb + " MB" : "salvata") : "da scaricare"; } }
+async function offStart(manuale){
+  if (!("serviceWorker" in navigator)) return manuale && toast("Questo browser non può salvare la mappa sul telefono.");
+  const reg = await navigator.serviceWorker.ready; if (!reg.active) return;
+  try{ if (navigator.storage && navigator.storage.persist) await navigator.storage.persist(); }catch(e){}
+  OFF = { fatte: 0, tot: 0, attivo: true }; offPaint();
+  reg.active.postMessage({ t: "precache-data", urls: OFF_DATA });
+  reg.active.postMessage({ t: "precache", style: STYLE_VECTOR });
+  if (manuale) toast("Scarico la mappa di Venezia e della laguna sul telefono…");
+}
+if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", e => { const d = e.data || {};
+  if (d.t === "precache"){
+    if (d.errore){ OFF.attivo = false; offPaint(); return; }
+    OFF.fatte = d.fatte; OFF.tot = d.tot; if (d.fine){ OFF.attivo = false; store.set("ln_offmap", Date.now()); }
+    offPaint(); const sb = $("#offBar"); if (sb) sb.style.width = (d.tot ? d.fatte / d.tot * 100 : 0) + "%";
+    const st = $("#offTxt"); if (st) st.textContent = d.fine ? "Fatto ✓ La mappa di Venezia e della laguna è sul telefono." : `Scarico… ${d.fatte} di ${d.tot}`; }
+  if (d.t === "svuotato"){ store.set("ln_offmap", 0); offPaint(); toast("Mappa e dati salvati cancellati"); } });
+// in automatico solo col Wi-Fi (per non consumare i giga), una volta al mese
+setTimeout(() => { const c = navigator.connection, wifi = c && (c.type === "wifi" || c.type === "ethernet") && !c.saveData;
+  try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  if (wifi && Date.now() - store.get("ln_offmap", 0) > 30 * 864e5) offStart(false); }, 20000);
+(function(){ const b = document.getElementById("pfOff"); if (!b) return; setTimeout(offPaint, 1500);
+  b.onclick = async () => { const mb = await offMB();
+    openSheet(`<h3>📥 Mappa e dati sul telefono</h3>
+      <p class="muted" style="line-height:1.45">Salva sul telefono la mappa di Venezia e della laguna, la libreria della mappa, canali, ponti, fondali e civici: l'app si apre subito e la mappa funziona anche dove il segnale è debole. Col Wi-Fi si aggiorna da sola una volta al mese.</p>
+      <p style="margin:6px 0"><b>Spazio usato adesso:</b> ${mb != null ? mb + " MB" : "non disponibile"}</p>
+      <div style="height:8px;background:#eef1f4;border-radius:5px;overflow:hidden;margin:8px 0"><div id="offBar" style="height:100%;width:${OFF.tot ? OFF.fatte / OFF.tot * 100 : (store.get("ln_offmap", 0) ? 100 : 0)}%;background:#1d4e89;transition:width .4s"></div></div>
+      <p class="muted" id="offTxt" style="margin:0 0 12px">${OFF.attivo ? "Scarico…" : store.get("ln_offmap", 0) ? "Salvata il " + new Date(store.get("ln_offmap", 0)).toLocaleDateString("it-IT") : "Non ancora scaricata (circa 30–50 MB, meglio col Wi-Fi)"}</p>
+      <button class="btn" id="offGo">${store.get("ln_offmap", 0) ? "Aggiorna adesso" : "Scarica adesso"}</button>
+      <button class="btn ghost" style="margin-top:10px" id="offDel">Cancella i dati salvati</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`);
+    $("#offGo").onclick = () => { offStart(true); $("#offTxt").textContent = "Scarico…"; };
+    $("#offDel").onclick = async () => { const reg = await navigator.serviceWorker.ready; reg.active && reg.active.postMessage({ t: "svuota" }); closeSheet(); };
+  };
+})();
 (function(){ const N = { auto: "Automatica", on: "Sempre", off: "Mai" }, nx = { auto: "on", on: "off", off: "auto" };
   const paint = () => { const v = $("#pfNightV"); if (v) v.textContent = N[store.get("ln_night", "auto")] || "Automatica"; };
   const b = document.getElementById("pfNight"); if (!b) return; paint();
