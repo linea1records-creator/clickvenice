@@ -1166,6 +1166,18 @@
   .rb-subs button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 4px;border-radius:10px;background:#fff;color:#3a3d42;border:1px solid #e1e3e6;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
   .rb-subs button small{font-size:10.5px;font-weight:500;color:#6b7078;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .rb-subs button.on{border-color:#111;box-shadow:inset 0 0 0 1px #111;color:#111}
+  /* in barca: tre banner colorati (barca tua blu, taxi giallo ocra, vaporetto bianco) */
+  .rb-subs > div[data-sg="barca"]{flex-direction:column;gap:6px}
+  .rb-subs [data-sg="barca"] button{flex-direction:row;justify-content:space-between;align-items:center;padding:9px 14px;border-radius:12px;font-size:14px;font-weight:800;border-width:1.5px;transition:transform .15s,opacity .15s}
+  .rb-subs [data-sg="barca"] button small{font-size:12.5px;font-weight:700;max-width:65%}
+  .rb-subs [data-sub="mia"]{background:#1d4e89;border-color:#1d4e89;color:#fff} .rb-subs [data-sub="mia"] small{color:#d6e4f5}
+  .rb-subs [data-sg="barca"] [data-sub="taxi"]{background:#f2b738;border-color:#f2b738;color:#1a1300} .rb-subs [data-sg="barca"] [data-sub="taxi"] small{color:#4a3600}
+  .rb-subs [data-sub="vapo"]{background:#fff;border-color:#d5d8dc;color:#111} .rb-subs [data-sub="vapo"] small{color:#555}
+  .rb-subs [data-sg="barca"] button:not(.on){opacity:.75}
+  .rb-subs [data-sg="barca"] button.on{opacity:1;box-shadow:0 0 0 2px #fff,0 0 0 4px currentColor;transform:scale(1.01)}
+  .rb-subs [data-sg="barca"] [data-sub="vapo"].on{box-shadow:0 0 0 2px #fff,0 0 0 4px #111;color:#111}
+  .rb-subs [data-sg="barca"] [data-sub="mia"].on{box-shadow:0 0 0 2px #fff,0 0 0 4px #1d4e89;color:#fff}
+  .rb-subs [data-sg="barca"] [data-sub="taxi"].on{box-shadow:0 0 0 2px #fff,0 0 0 4px #c98f12;color:#1a1300}
   .svc{border:1.5px solid #e1e3e6;border-radius:14px;background:#f7f8f9;overflow:hidden}
   .svc.on{border-color:#111;background:#fff}
   .svc .txo{background:none;border:0;border-radius:0}
@@ -2185,7 +2197,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.51</p>
+      <p class="sub">clickVenice · versione 4.52</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
