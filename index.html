@@ -445,6 +445,11 @@
   #swp.hidden{display:none}
   #swp .swTop{display:flex;align-items:center;gap:10px}
   #swp .swTop b{flex:1;font-size:20px;letter-spacing:.01em}
+  #swp .swTop .swBrand{font-family:"Didot","Bodoni 72","Playfair Display",Georgia,serif;font-weight:700;font-size:24px;letter-spacing:.16em;text-align:center;padding-left:42px;white-space:nowrap;
+    background:linear-gradient(#ffffff,#c9d1da 45%,#8d97a3 55%,#eef2f6);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 2px rgba(0,0,0,.8))}
+  #swp .swCh{padding-bottom:18px;justify-content:center}
+  #swp .swGrid{grid-auto-rows:minmax(130px,1fr);align-content:stretch;margin-top:14px}
+  #swp .swCh .ico svg{width:78px;height:62px}
   #swp .swX{width:42px;height:42px;border-radius:50%;border:2px solid #4b5563;background:radial-gradient(circle at 35% 30%,#4b5563,#1f2328);color:#e5e7eb;font-size:18px;box-shadow:0 3px 8px rgba(0,0,0,.6),inset 0 1px 1px rgba(255,255,255,.25)}
   #swp .swSt{margin:10px 2px;display:flex;align-items:center;gap:10px;font-size:14px;color:#b9c3cf}
   #swp .swSt i{width:11px;height:11px;border-radius:50%;background:#3b82f6;box-shadow:0 0 8px #3b82f6;flex:0 0 auto}
@@ -2045,9 +2050,9 @@
 
   <!-- cruscotto a schermo intero -->
   <div id="swp" class="hidden" role="dialog" aria-label="Pannello interruttori">
-  <div class="swTop"><b>⚡ Pannello interruttori</b><button class="swX" id="swX" aria-label="Chiudi">✕</button></div>
+  <div class="swTop"><b class="swBrand">TULLIO ABBATE</b><button class="swX" id="swX" aria-label="Chiudi">✕</button></div>
   <div class="swSt" id="swSt"><i></i><span>Non collegato</span></div>
-  <div class="swBtns"><button class="pri" id="swConn">Collega</button><button id="swAllOn">Tutti ON</button><button id="swAllOff">Tutti OFF</button></div>
+  <div class="swBtns"><button class="pri" id="swConn">Collega</button></div>
   <div class="swGrid" id="swGrid"></div>
   <select id="swN" hidden><option>12</option></select>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -2264,7 +2269,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.68</p>
+      <p class="sub">clickVenice · versione 4.69</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -13481,11 +13486,11 @@ function swPaint(){
   const c = swCfg(), g = $("#swGrid"), ok = !!SWP.chr; c.n = 12;
   const isOn = i => SWP.stati[i] != null ? SWP.stati[i] : !!(c.ch[i] || {}).stato;
   $("#swp").classList.toggle("conn", ok);
-  g.innerHTML = Array.from({ length: 12 }, (_, i) => { const ch = c.ch[i] || {}; if (ch.nascosto) return "";
+  const ordine = (c.ordine && c.ordine.length ? c.ordine : SW_ORDINE).concat(Array.from({ length: 12 }, (_, i) => i)).filter((x, k, a) => a.indexOf(x) === k);
+  g.innerHTML = ordine.map(i => { const ch = c.ch[i] || {}; if (ch.nascosto) return "";
     const on = isOn(i), bloccato = ch.serve != null && !isOn(ch.serve);
     const stato = bloccato ? (((c.ch[ch.serve] || {}).nome || "").toLowerCase() + " spento") : ch.mom ? (on ? "ATTIVO" : "tieni premuto") : (on ? "ACCESO" : "spento");
-    return `<button class="swCh${on ? " on" : ""}${bloccato ? " off" : ""}" data-i="${i}" ${ok ? "" : 'aria-disabled="true"'}><span class="led"></span><span class="ico">${swSvg(ch.ico)}</span>${esc(ch.nome || "Canale " + (i + 1))}<small>${i + 1} · ${esc(stato)}</small></button>`; }).join("");
-  ["#swAllOn", "#swAllOff"].forEach(s => $(s).disabled = !ok);
+    return `<button class="swCh${on ? " on" : ""}${bloccato ? " off" : ""}" data-i="${i}" ${ok ? "" : 'aria-disabled="true"'}><span class="led"></span><span class="ico">${swSvg(ch.ico)}</span>${esc(ch.nome || "Canale " + (i + 1))}</button>`; }).join("");
   $("#swConn").innerHTML = ok ? "Scollega" : store.get("ln_sw_id", "") ? "🔍 Cerca" : "🔗 Collega";
 }
 let swLock = Promise.resolve();
@@ -13602,11 +13607,12 @@ const SW_ICO = { nav: "Luci di via", pompa: "Pompa di sentina", led: "LED", bt: 
   inverter: "Inverter / batteria", boiler: "Boiler", altro: "Altro" };
 const swSvg = k => `<svg viewBox="0 0 64 52">${SW_P[k] || SW_P.bolt}</svg>`;
 // collegamenti del pannello MG-P1SR-12P (canali 1–12): tipo "mom" = acceso solo finché tieni premuto; "serve" = funziona solo se quel canale è acceso
+const SW_ORDINE = [8, 9, 0, 4, 10, 3, 11, 5];   // Motore/Start · Luci di via/LED · Clacson/Pompa · Stereo/Bluetooth
 const SW_PRESET = [
-  { nome: "LUCI DI VIA", ico: "nav" }, { nascosto: true }, { nascosto: true }, { nome: "Pompa di sentina", ico: "pompa" },
+  { nome: "LUCI DI VIA", ico: "nav" }, { nascosto: true }, { nascosto: true }, { nome: "POMPA DI SENTINA", ico: "pompa" },
   { nome: "LED", ico: "led" }, { nome: "BLUETOOTH", ico: "bt" }, { nascosto: true }, { nascosto: true },
-  { nome: "MOTORE", ico: "motore", noTutti: true }, { nome: "START", ico: "start", mom: true, serve: 8 }, { nome: "Tromba", ico: "tromba", mom: true }, { nome: "Stereo", ico: "stereo" } ];
-if (!store.get("ln_sw_preset1", 0)){ try{ const c = swCfg(); c.n = 12; c.ch = SW_PRESET.map((x, i) => Object.assign({ nome: "Canale " + (i + 1) }, x)); swSave(c); store.set("ln_sw_preset1", 1); }catch(e){} }
+  { nome: "MOTORE", ico: "motore", noTutti: true }, { nome: "START", ico: "start", mom: true, serve: 8 }, { nome: "CLACSON", ico: "tromba", mom: true }, { nome: "STEREO", ico: "stereo" } ];
+if (!store.get("ln_sw_preset2", 0)){ try{ const c = swCfg(); c.n = 12; c.ch = SW_PRESET.map((x, i) => Object.assign({ nome: "Canale " + (i + 1) }, x)); swSave(c); store.set("ln_sw_preset2", 1); }catch(e){} }
 function swEdit(i){
   const c = swCfg(), ch = c.ch[i] = Object.assign({ nome: "Canale " + (i + 1) }, c.ch[i] || {});
   let m = $("#swEd"); if (!m){ m = document.createElement("div"); m.id = "swEd"; $("#swp").appendChild(m); }
@@ -13624,7 +13630,6 @@ function swEdit(i){
 (function(){
   $("#swX").onclick = () => $("#swp").classList.add("hidden");
   $("#swConn").onclick = swConnect;
-  $("#swAllOn").onclick = () => swTutti(true); $("#swAllOff").onclick = () => swTutti(false);
   let hold = null, held = false, momI = -1;
   const G = $("#swGrid");
   const momStop = () => { if (momI < 0) return; const i = momI; momI = -1; const b = G.querySelector(`[data-i="${i}"]`); if (b) b.classList.remove("on");
@@ -13632,7 +13637,7 @@ function swEdit(i){
   G.addEventListener("pointerdown", e => { const b = e.target.closest(".swCh"); if (!b) return; const i = +b.dataset.i, c = swCfg(), ch = c.ch[i] || {}; held = false;
     if (ch.mom){ e.preventDefault(); if (b.getAttribute("aria-disabled")) return toast("Pannello non collegato");
       if (ch.serve != null && !(SWP.stati[ch.serve] != null ? SWP.stati[ch.serve] : (c.ch[ch.serve] || {}).stato)){ toast("Accendi prima " + ((c.ch[ch.serve] || {}).nome || "")); return; }
-      try{ b.setPointerCapture(e.pointerId); }catch(_){} momI = i; b.classList.add("on"); const sm = b.querySelector("small"); if (sm) sm.textContent = (i + 1) + " · ATTIVO"; haptic(); swSet(i, true).catch(er => { toast("Comando non inviato: " + er.message); momStop(); }); return; }
+      try{ b.setPointerCapture(e.pointerId); }catch(_){} momI = i; b.classList.add("on"); haptic(); swSet(i, true).catch(er => { toast("Comando non inviato: " + er.message); momStop(); }); return; }
     hold = setTimeout(() => { held = true; haptic(); swEdit(i); }, 900); });
   ["pointerup", "pointercancel", "lostpointercapture"].forEach(ev => G.addEventListener(ev, () => { clearTimeout(hold); momStop(); }));
   G.addEventListener("pointerleave", () => clearTimeout(hold));
