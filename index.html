@@ -438,38 +438,50 @@
   #mkPanel .stop{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid #eee;font-size:14px;cursor:pointer}
   #mkPanel .btn{margin-top:8px;background:#d95f26;color:#fff;width:100%}
   #mkPanel .trnote{color:#666;font-size:13px;line-height:1.4;margin:6px 0}
-  /* pannello interruttori Bluetooth (3 tocchi su Naviga) */
-  #swp{position:fixed;inset:0;z-index:3200;background:#0f1720;color:#e6edf3;display:flex;flex-direction:column;padding:calc(12px + var(--safe-t)) 14px calc(14px + var(--safe-b))}
+  /* pannello interruttori Bluetooth (3 tocchi su Naviga): fibra di carbonio, tasti in metallo spazzolato con bordo blu luminoso */
+  #swp{position:fixed;inset:0;z-index:3200;color:#e8edf3;display:flex;flex-direction:column;padding:calc(12px + var(--safe-t)) 14px calc(14px + var(--safe-b));
+    background:radial-gradient(ellipse at 50% 0%,rgba(40,90,160,.18),transparent 60%),
+      repeating-linear-gradient(45deg,#0d0f12 0 3px,#15181c 3px 6px),repeating-linear-gradient(-45deg,rgba(255,255,255,.025) 0 3px,rgba(0,0,0,.25) 3px 6px);background-color:#0e1013}
   #swp.hidden{display:none}
   #swp .swTop{display:flex;align-items:center;gap:10px}
-  #swp .swTop b{flex:1;font-size:18px}
-  #swp .swX{width:36px;height:36px;border-radius:50%;border:0;background:#1f2b38;color:#e6edf3;font-size:16px}
-  #swp .swSt{margin:10px 0;display:flex;align-items:center;gap:8px;font-size:13.5px;color:#9fb3c8}
-  #swp .swSt i{width:10px;height:10px;border-radius:50%;background:#64748b}
-  #swp .swSt.on i{background:#22c55e;box-shadow:0 0 8px #22c55e} #swp .swSt.wait i{background:#f59e0b}
-  #swp .swBtns{display:flex;gap:8px;margin-bottom:12px}
-  #swp .swBtns button{flex:1;border:0;border-radius:12px;padding:12px 8px;font:inherit;font-weight:700;background:#1f2b38;color:#e6edf3}
-  #swp .swBtns .pri{background:#1d4e89}
-  #swp .swGrid{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
-  #swp .swCh{border:1.5px solid #263445;border-radius:16px;background:#17212d;color:#e6edf3;padding:16px 10px;font:inherit;font-weight:800;font-size:15px;display:flex;flex-direction:column;align-items:center;gap:8px;transition:background .2s,border-color .2s}
-  #swp .swCh .led{width:14px;height:14px;border-radius:50%;background:#334155}
-  #swp .swCh.on{background:#123222;border-color:#22c55e} #swp .swCh.on .led{background:#22c55e;box-shadow:0 0 10px #22c55e}
-  #swp .swCh small{font-weight:600;font-size:11px;color:#8ba0b5}
-  #swp .swCh[aria-disabled]{opacity:.5}
-  #swp .swCh .ico svg{width:34px;height:34px;display:block}
-  #swp .swCh.on .ico{color:#4ade80}
+  #swp .swTop b{flex:1;font-size:20px;letter-spacing:.01em}
+  #swp .swX{width:42px;height:42px;border-radius:50%;border:2px solid #4b5563;background:radial-gradient(circle at 35% 30%,#4b5563,#1f2328);color:#e5e7eb;font-size:18px;box-shadow:0 3px 8px rgba(0,0,0,.6),inset 0 1px 1px rgba(255,255,255,.25)}
+  #swp .swSt{margin:10px 2px;display:flex;align-items:center;gap:10px;font-size:14px;color:#b9c3cf}
+  #swp .swSt i{width:11px;height:11px;border-radius:50%;background:#3b82f6;box-shadow:0 0 8px #3b82f6;flex:0 0 auto}
+  #swp .swSt.on i{background:#22c55e;box-shadow:0 0 8px #22c55e}
+  #swp .swBtns{display:flex;gap:10px;margin-bottom:14px}
+  #swp .swBtns button,#swEd .swBtns button{flex:1;border-radius:999px;padding:12px 8px;font:inherit;font-weight:700;font-size:16px;color:#8fc2ff;
+    background:linear-gradient(#2a2f36,#14171b);border:2px solid #1d5fbf;box-shadow:0 0 10px rgba(37,120,255,.35),inset 0 1px 0 rgba(255,255,255,.12),0 4px 8px rgba(0,0,0,.6)}
+  #swp .swBtns button:active{transform:translateY(1px);box-shadow:0 0 6px rgba(37,120,255,.3),inset 0 3px 8px rgba(0,0,0,.7)}
+  #swp .swBtns button:disabled{opacity:.4}
+  #swp.conn .swSt,#swp.conn #swConn{display:none}
+  #swp .swGrid{flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start;padding:2px 2px 8px}
+  #swp .swCh{position:relative;border-radius:14px;padding:22px 8px 14px;font:inherit;font-weight:800;font-size:17px;color:#eef2f6;letter-spacing:.01em;
+    display:flex;flex-direction:column;align-items:center;gap:6px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),linear-gradient(#4a4f56,#2c3036 48%,#24282d 52%,#3a3f45);
+    border:2px solid #1d5fbf;box-shadow:0 0 12px rgba(37,120,255,.45),inset 0 1px 0 rgba(255,255,255,.22),inset 0 -2px 3px rgba(0,0,0,.5),0 6px 10px rgba(0,0,0,.7);
+    transition:transform .08s,box-shadow .15s,border-color .15s,filter .15s;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+  #swp .swCh .led{position:absolute;top:7px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#8cc8ff,#1d6fe0 60%,#0b3a80);box-shadow:0 0 6px rgba(59,130,246,.7)}
+  #swp .swCh .ico svg{width:64px;height:52px;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.7))}
+  #swp .swCh small{font-weight:600;font-size:14px;color:#aab4c0}
+  /* acceso: tasto schiacciato, bordo e luce accesi */
+  #swp .swCh.on{transform:translateY(2px) scale(.975);border-color:#3fa1ff;
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px),linear-gradient(#22262b,#2b3036 50%,#363b42);
+    box-shadow:0 0 18px rgba(59,160,255,.75),inset 0 4px 10px rgba(0,0,0,.75),inset 0 -1px 0 rgba(255,255,255,.12)}
+  #swp .swCh.on .led{background:radial-gradient(circle at 40% 35%,#e0f4ff,#38bdf8 55%,#0369a1);box-shadow:0 0 6px #7dd3fc,0 0 14px #38bdf8,0 0 22px rgba(56,189,248,.6)}
+  #swp .swCh.on .ico svg{filter:drop-shadow(0 0 6px rgba(96,180,255,.9)) drop-shadow(0 0 14px rgba(59,130,246,.6))}
+  #swp .swCh.on small{color:#7dd3fc}
+  #swp .swCh.off{opacity:.38;filter:grayscale(.6)}
+  #swp .swCh[aria-disabled]{opacity:.55}
   #swEd{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:2}
-  #swEd .swEdBox{width:100%;background:#17212d;border-radius:18px 18px 0 0;padding:16px 14px calc(16px + var(--safe-b));display:flex;flex-direction:column;gap:10px}
-  #swEd input#swEdNome{background:#0b121a;color:#e6edf3;border:1px solid #263445;border-radius:10px;padding:11px;font:inherit;font-size:16px}
-  #swEd .swEdIco{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-  #swEd .swEdIco button{padding:9px 0;border-radius:10px;border:1.5px solid #263445;background:#0b121a;color:#e6edf3;display:flex;justify-content:center}
-  #swEd .swEdIco button svg{width:24px;height:24px}
-  #swEd .swEdIco button.on{border-color:#22c55e;background:#123222}
-  #swEd .swEdHid{font-size:13px;color:#9fb3c8;display:flex;gap:8px;align-items:center;justify-content:flex-start;text-align:left}
+  #swEd .swEdBox{width:100%;background:#16191d;border-top:2px solid #1d5fbf;border-radius:18px 18px 0 0;padding:16px 14px calc(16px + var(--safe-b));display:flex;flex-direction:column;gap:10px}
+  #swEd input#swEdNome{background:#0b0d10;color:#e6edf3;border:1px solid #2b3440;border-radius:10px;padding:11px;font:inherit;font-size:16px}
+  #swEd .swEdIco{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-height:40vh;overflow:auto}
+  #swEd .swEdIco button{padding:6px 0;border-radius:10px;border:1.5px solid #2b3440;background:#0b0d10;display:flex;justify-content:center}
+  #swEd .swEdIco button svg{width:40px;height:32px}
+  #swEd .swEdIco button.on{border-color:#3fa1ff;box-shadow:0 0 8px rgba(59,160,255,.6)}
+  #swEd .swEdHid{font-size:13px;color:#9fb3c8;display:flex;gap:8px;align-items:center;text-align:left}
   #swEd .swEdHid input{width:20px;height:20px;flex:0 0 auto;margin:0}
-  #swp .swFoot{display:flex;gap:8px;margin-top:10px;align-items:center;font-size:12.5px;color:#8ba0b5}
-  #swp .swFoot select{background:#17212d;color:#e6edf3;border:1px solid #263445;border-radius:8px;padding:6px}
-  #swp .swFoot a{color:#93c5fd;margin-left:auto}
   #dash{position:fixed;inset:0;z-index:3000;background:radial-gradient(ellipse at 50% 35%,#0b2240 0%,#050d18 60%,#02060c 100%);color:#dff6ff;padding:calc(12px + var(--safe-t)) 12px calc(12px + var(--safe-b));display:flex;flex-direction:column}
   #dash .ckTop{display:flex;align-items:center;gap:10px;margin-bottom:6px}
   #dash .ckTitle{font-size:13px;letter-spacing:.14em;color:#9fc6e6;font-weight:700}
@@ -2035,10 +2047,15 @@
   <div id="swp" class="hidden" role="dialog" aria-label="Pannello interruttori">
   <div class="swTop"><b>⚡ Pannello interruttori</b><button class="swX" id="swX" aria-label="Chiudi">✕</button></div>
   <div class="swSt" id="swSt"><i></i><span>Non collegato</span></div>
-  <div class="swBtns"><button class="pri" id="swConn">🔗 Collega</button><button id="swAllOn">Tutti ON</button><button id="swAllOff">Tutti OFF</button></div>
+  <div class="swBtns"><button class="pri" id="swConn">Collega</button><button id="swAllOn">Tutti ON</button><button id="swAllOff">Tutti OFF</button></div>
   <div class="swGrid" id="swGrid"></div>
-  <div class="swFoot">Canali <select id="swN"><option>4</option><option>6</option><option>8</option><option>10</option><option selected>12</option></select>
-    <span>· tieni premuto un canale per scegliere nome e icona</span><a href="strumenti-ble.html" target="_blank">Avanzate</a></div>
+  <select id="swN" hidden><option>12</option></select>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <linearGradient id="swMet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#c9d1da"/><stop offset=".55" stop-color="#8d97a3"/><stop offset="1" stop-color="#e3e8ee"/></linearGradient>
+    <linearGradient id="swMetF" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f6f8"/><stop offset=".5" stop-color="#9aa4af"/><stop offset="1" stop-color="#dfe4ea"/></linearGradient>
+    <linearGradient id="swRed" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6b5b"/><stop offset="1" stop-color="#a3120a"/></linearGradient>
+    <linearGradient id="swGreen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ee38a"/><stop offset="1" stop-color="#0a7a3a"/></linearGradient>
+  </defs></svg>
 </div>
 <div id="dash" class="hidden">
     <div class="ckTop"><b class="ckTitle">BUSSOLA <span id="ckHead">–</span></b><span class="ckGps" id="ckGps">GPS in attesa…</span><button class="ckX" id="dashClose" aria-label="Chiudi">✕</button></div>
@@ -2247,7 +2264,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.67</p>
+      <p class="sub">clickVenice · versione 4.68</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -13461,12 +13478,15 @@ function swCmd(stati){
 }
 function swStato(t, cls){ const e = $("#swSt"); e.className = "swSt " + (cls || ""); e.querySelector("span").textContent = t; }
 function swPaint(){
-  const c = swCfg(), g = $("#swGrid"); $("#swN").value = c.n; const ok = !!SWP.chr;
-  g.innerHTML = Array.from({ length: c.n }, (_, i) => { const ch = c.ch[i] || {}, on = SWP.stati[i] != null ? SWP.stati[i] : !!ch.stato;
-    if (ch.nascosto) return "";
-    return `<button class="swCh${on ? " on" : ""}" data-i="${i}" ${ok ? "" : 'aria-disabled="true"'}><span class="led"></span><span class="ico">${swSvg(ch.ico)}</span>${esc(ch.nome || "Canale " + (i + 1))}<small>${i + 1} · ${on ? "ACCESO" : "spento"}</small></button>`; }).join("");
+  const c = swCfg(), g = $("#swGrid"), ok = !!SWP.chr; c.n = 12;
+  const isOn = i => SWP.stati[i] != null ? SWP.stati[i] : !!(c.ch[i] || {}).stato;
+  $("#swp").classList.toggle("conn", ok);
+  g.innerHTML = Array.from({ length: 12 }, (_, i) => { const ch = c.ch[i] || {}; if (ch.nascosto) return "";
+    const on = isOn(i), bloccato = ch.serve != null && !isOn(ch.serve);
+    const stato = bloccato ? (((c.ch[ch.serve] || {}).nome || "").toLowerCase() + " spento") : ch.mom ? (on ? "ATTIVO" : "tieni premuto") : (on ? "ACCESO" : "spento");
+    return `<button class="swCh${on ? " on" : ""}${bloccato ? " off" : ""}" data-i="${i}" ${ok ? "" : 'aria-disabled="true"'}><span class="led"></span><span class="ico">${swSvg(ch.ico)}</span>${esc(ch.nome || "Canale " + (i + 1))}<small>${i + 1} · ${esc(stato)}</small></button>`; }).join("");
   ["#swAllOn", "#swAllOff"].forEach(s => $(s).disabled = !ok);
-  $("#swConn").textContent = ok ? "Scollega" : store.get("ln_sw_id", "") ? "🔍 Cerca" : "🔗 Collega";
+  $("#swConn").innerHTML = ok ? "Scollega" : store.get("ln_sw_id", "") ? "🔍 Cerca" : "🔗 Collega";
 }
 let swLock = Promise.resolve();
 function swSend(stati){
@@ -13475,18 +13495,25 @@ function swSend(stati){
   swLock = swLock.catch(() => {}).then(() => c.properties.write ? c.writeValueWithResponse(b) : c.writeValueWithoutResponse(b));
   return swLock;
 }
-async function swToggle(i){
-  const c = swCfg(), on = !(SWP.stati[i] != null ? SWP.stati[i] : (c.ch[i] || {}).stato);
-  haptic();
-  try{ await swSend(Array.from({ length: 12 }, (_, k) => k === i ? (on ? 1 : 0) : 8));
-    SWP.stati[i] = on; c.ch[i] = Object.assign({ nome: "Canale " + (i + 1) }, c.ch[i] || {}, { stato: on }); swSave(c); swPaint();
-  }catch(e){ toast("Comando non inviato: " + e.message); }
+async function swSet(i, on){
+  const c = swCfg();
+  await swSend(Array.from({ length: 12 }, (_, k) => k === i ? (on ? 1 : 0) : 8));
+  SWP.stati[i] = on; c.ch[i] = Object.assign({ nome: "Canale " + (i + 1) }, c.ch[i] || {}, { stato: on }); swSave(c);
 }
-async function swTutti(on){
+async function swToggle(i){
+  const c = swCfg(), ch = c.ch[i] || {}, on = !(SWP.stati[i] != null ? SWP.stati[i] : ch.stato);
+  if (ch.serve != null && !(SWP.stati[ch.serve] != null ? SWP.stati[ch.serve] : (c.ch[ch.serve] || {}).stato)) return toast("Accendi prima " + ((c.ch[ch.serve] || {}).nome || "il canale " + (ch.serve + 1)));
+  haptic();
+  try{ await swSet(i, on);
+    // motore spento: lo start non resta acceso
+    if (!on) c.ch.forEach((x, k) => { if (x && x.serve === i && SWP.stati[k]) swSet(k, false).catch(() => {}); });
+    swPaint(); }catch(e){ toast("Comando non inviato: " + e.message); }
+}
+async function swTutti(on){   // solo gli interruttori normali: niente motore, start e tromba
   const c = swCfg(); haptic();
-  try{ await swSend(Array.from({ length: 12 }, (_, k) => k < c.n ? (on ? 1 : 0) : 8));
-    for (let k = 0; k < c.n; k++){ SWP.stati[k] = on; c.ch[k] = Object.assign({ nome: "Canale " + (k + 1) }, c.ch[k] || {}, { stato: on }); }
-    swSave(c); swPaint(); }catch(e){ toast("Comando non inviato: " + e.message); }
+  const quali = c.ch.map((x, k) => x && !x.nascosto && !x.mom && !x.noTutti && x.serve == null ? k : -1).filter(k => k >= 0);
+  try{ await swSend(Array.from({ length: 12 }, (_, k) => quali.includes(k) ? (on ? 1 : 0) : 8));
+    quali.forEach(k => { SWP.stati[k] = on; c.ch[k].stato = on; }); swSave(c); swPaint(); }catch(e){ toast("Comando non inviato: " + e.message); }
 }
 function swNotify(ev){   // protocollo classico: F8/F9 + 12 stati
   const v = new Uint8Array(ev.target.value.buffer), h = Array.from(v).map(x => x.toString(16).padStart(2, "0")).join("").toUpperCase();
@@ -13544,35 +13571,42 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) setT
 function swOpen(){ $("#swp").classList.remove("hidden"); haptic(); try{ $("#modeHint").classList.add("hidden"); clearTimeout(toast._t); }catch(e){} swPaint();
   if (!SWP.chr) swStato(store.get("ln_sw_dev", "") ? "In attesa di " + store.get("ln_sw_dev", "") + " · si collega da solo quando è acceso" : "Non collegato · premi Collega la prima volta"); SWP.manualOff = false; swAuto(); }
 // icone degli accessori
-const SW_P = {   // icone a linee (24×24), uguali su tutti i telefoni
-  luce: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.5 1.1-2.1A6 6 0 0 0 12 3z"/>',
-  faro: '<path d="M4 8l8-3v14l-8-3z"/><path d="M15 9l5-2M15 12h6M15 15l5 2"/>',
-  nav: '<circle cx="7.5" cy="12" r="4" fill="#ef4444" stroke="#ef4444"/><circle cx="16.5" cy="12" r="4" fill="#22c55e" stroke="#22c55e"/>',
-  ancora: '<circle cx="12" cy="5" r="2"/><path d="M12 7v14M8 10h8M5 14a7 7 0 0 0 14 0M5 14l-1.5 1.5M19 14l1.5 1.5"/>',
-  cabina: '<path d="M3 19V7M3 15h18v4M21 15v-2.5A2.5 2.5 0 0 0 18.5 10H11v5"/><circle cx="7" cy="12" r="1.6"/>',
-  coperta: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>',
-  sub: '<path d="M2 9c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6 0M2 14c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6 0M2 19c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6 0"/>',
-  led: '<path d="M3 18a9 9 0 0 1 18 0M6.5 18a5.5 5.5 0 0 1 11 0M10 18a2 2 0 0 1 4 0"/>',
-  pompa: '<path d="M12 3s-6 6.5-6 11a6 6 0 0 0 12 0c0-4.5-6-11-6-11z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/>',
-  acqua: '<path d="M4 20V8a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4"/><path d="M10 11h8M12 14v1M15 14v1M18 14v1M12 18v1M15 18v1M18 18v1"/>',
-  tromba: '<path d="M3 10v4h4l8 5V5l-8 5z"/><path d="M18 9c1 .8 1.6 1.9 1.6 3s-.6 2.2-1.6 3"/>',
-  tergi: '<path d="M3 17a9 9 0 0 1 18 0"/><path d="M12 17L6.5 8.5"/><circle cx="12" cy="17" r="1.3"/>',
-  frigo: '<rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M6 10h12M9 6v2M9 13v3"/>',
-  radio: '<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M7 8l9-5"/><circle cx="8" cy="14" r="2.5"/><path d="M14 12h4M14 16h4"/>',
-  eco: '<path d="M12 21L4 7a11 11 0 0 1 16 0z"/><path d="M8 10a6 6 0 0 1 8 0"/>',
-  stereo: '<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
-  usb: '<path d="M9 2v5M15 2v5M6 7h12v5a6 6 0 0 1-12 0zM12 18v4"/>',
-  ventola: '<circle cx="12" cy="12" r="1.8"/><path d="M12 10.2C11 6 13 3 16 4.5c2 1 1 4-4 5.7zM13.6 12.9c3.2 2.9 3.4 6.5.1 6.8-2.2.2-2.9-2.9-.1-6.8zM10.4 12.9C6.3 14.2 3.3 12.2 5.4 9.6c1.4-1.7 4.1-.5 5 3.3z"/>',
-  verricello: '<circle cx="9" cy="12" r="5"/><circle cx="9" cy="12" r="1.5"/><path d="M14 12h3M17 10v4M17 12h4v9"/>',
-  inverter: '<rect x="3" y="7" width="16" height="11" rx="2"/><path d="M19 10.5h2v4h-2M7 12.5h3M8.5 11v3M13 12.5h3"/>',
-  boiler: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.4 1.3-3.8 2.5-5 .3 1.7 1 2.6 2 3 0-3 .2-5.5.5-8z"/>',
-  altro: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9L7 7M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
-  bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' };
-const SW_ICO = { luce: "Luce", faro: "Faro", nav: "Luci di via", ancora: "Luce d'ancoraggio", cabina: "Luce cabina", coperta: "Luci di coperta",
-  sub: "Luci subacquee", led: "LED", pompa: "Pompa di sentina", acqua: "Pompa acqua / doccia", tromba: "Tromba", tergi: "Tergicristallo",
-  frigo: "Frigo", radio: "Radio / VHF", eco: "GPS / ecoscandaglio", stereo: "Stereo", usb: "Prese USB / 12V", ventola: "Ventola / aspiratore",
-  verricello: "Verricello", inverter: "Inverter / batteria", boiler: "Boiler", altro: "Altro" };
-const swSvg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${SW_P[k] || SW_P.bolt}</svg>`;
+const SW_P = {   // icone in metallo (viewBox 0 0 64 52): contorno e riempimenti con sfumature d'acciaio
+  nav: '<path d="M32 6L6 26l26 20z" fill="url(#swRed)" stroke="url(#swMet)" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 6l26 20-26 20z" fill="url(#swGreen)" stroke="url(#swMet)" stroke-width="2.5" stroke-linejoin="round"/><path d="M32 6v40" stroke="url(#swMet)" stroke-width="2.5"/>',
+  pompa: '<path d="M32 4S19 19 19 30a13 13 0 0 0 26 0C45 19 32 4 32 4z" fill="none" stroke="url(#swMet)" stroke-width="3" stroke-linejoin="round"/><path d="M22 32c3-2 6-2 10 0s7 2 10 0M24 38c3-2 5-2 8 0s5 2 8 0" fill="none" stroke="url(#swMet)" stroke-width="2.6" stroke-linecap="round"/>',
+  led: '<path d="M25 34c-2-2.5-4-5-4-9a11 11 0 0 1 22 0c0 4-2 6.5-4 9v4H25z" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.5"/><rect x="25" y="39" width="14" height="4" rx="1.5" fill="url(#swMet)"/><rect x="27" y="44" width="10" height="3" rx="1.5" fill="url(#swMet)"/><path d="M32 2v5M14 8l4 4M50 8l-4 4M8 24h5M51 24h5M12 38l4-3M52 38l-4-3" stroke="url(#swMet)" stroke-width="2.8" stroke-linecap="round"/>',
+  bt: '<path d="M24 16l17 18-9 9V9l9 9-17 18" fill="none" stroke="url(#swMet)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>',
+  motore: '<path d="M22 4h18a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H22a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4z" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4"/><path d="M24 22h12v6l-2 2v12h-6V30l-4-3z" fill="url(#swMet)"/><path d="M28 42h-6l-2 4h12l-2-4z" fill="url(#swMet)"/><path d="M34 33h7l3 3" fill="none" stroke="url(#swMet)" stroke-width="2.4" stroke-linecap="round"/><path d="M23 10h16M23 14h16" stroke="#7b8590" stroke-width="1.6"/>',
+  start: '<circle cx="32" cy="26" r="21" fill="none" stroke="url(#swMet)" stroke-width="3.2"/><circle cx="32" cy="26" r="15" fill="none" stroke="url(#swMet)" stroke-width="2.4"/><path d="M34 14l-8 13h6l-2 11 8-14h-6z" fill="url(#swMet)"/>',
+  tromba: '<path d="M8 22h8v8H8z" fill="url(#swMet)"/><path d="M16 23l28-11v28L16 29z" fill="none" stroke="url(#swMet)" stroke-width="3" stroke-linejoin="round"/><path d="M44 12c4 3 6 8 6 14s-2 11-6 14" fill="none" stroke="url(#swMet)" stroke-width="3"/><path d="M20 30l2 8h5l-2-7" fill="none" stroke="url(#swMet)" stroke-width="2.4" stroke-linejoin="round"/>',
+  stereo: '<rect x="10" y="4" width="26" height="44" rx="3" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4"/><circle cx="23" cy="14" r="4.5" fill="#2a2e33" stroke="#cfd6de" stroke-width="1.5"/><circle cx="23" cy="33" r="9" fill="#2a2e33" stroke="#cfd6de" stroke-width="2"/><circle cx="23" cy="33" r="3" fill="#8d97a3"/><path d="M44 30V14l12-3v15" fill="none" stroke="url(#swMet)" stroke-width="2.6"/><circle cx="41" cy="31" r="3.5" fill="url(#swMet)"/><circle cx="53" cy="27" r="3.5" fill="url(#swMet)"/>',
+  luce: '<path d="M25 34c-2-2.5-4-5-4-9a11 11 0 0 1 22 0c0 4-2 6.5-4 9v4H25z" fill="none" stroke="url(#swMet)" stroke-width="3"/><path d="M26 43h12M28 47h8" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/>',
+  ancora: '<circle cx="32" cy="9" r="4.5" fill="none" stroke="url(#swMet)" stroke-width="3"/><path d="M32 13v34M24 20h16M14 30a18 18 0 0 0 36 0M14 30l-4 3M50 30l4 3" fill="none" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/>',
+  faro: '<path d="M10 16l20-8v36l-20-8z" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4"/><path d="M36 18l14-5M36 26h16M36 34l14 5" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/>',
+  pompaAcqua: '<path d="M12 46V20a10 10 0 0 1 10-10h6a10 10 0 0 1 10 10" fill="none" stroke="url(#swMet)" stroke-width="3"/><path d="M28 24h20M32 30v3M38 30v3M44 30v3M32 38v3M38 38v3M44 38v3" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/>',
+  frigo: '<rect x="18" y="4" width="28" height="44" rx="3" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4"/><path d="M18 20h28M24 10v6M24 26v8" stroke="#4b5563" stroke-width="2.4" stroke-linecap="round"/>',
+  radio: '<rect x="8" y="16" width="48" height="30" rx="4" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4"/><path d="M16 16l30-12" stroke="url(#swMet)" stroke-width="3"/><circle cx="22" cy="31" r="7" fill="#2a2e33"/><path d="M36 26h12M36 32h12M36 38h12" stroke="#4b5563" stroke-width="2.4"/>',
+  eco: '<path d="M32 48L12 16a28 28 0 0 1 40 0z" fill="none" stroke="url(#swMet)" stroke-width="3" stroke-linejoin="round"/><path d="M21 22a16 16 0 0 1 22 0M26 30a8 8 0 0 1 12 0" fill="none" stroke="url(#swMet)" stroke-width="2.6"/>',
+  usb: '<path d="M24 4v12M40 4v12" stroke="url(#swMet)" stroke-width="3.4" stroke-linecap="round"/><path d="M16 16h32v10a16 16 0 0 1-32 0z" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4"/><path d="M32 42v8" stroke="url(#swMet)" stroke-width="3.4"/>',
+  ventola: '<circle cx="32" cy="26" r="21" fill="none" stroke="url(#swMet)" stroke-width="2.6"/><circle cx="32" cy="26" r="4" fill="url(#swMet)"/><path d="M32 22c-3-9 3-15 9-12 4 2 2 8-9 12zM35.5 28.5c8 4 7 12 1 13-4.5.6-6-5-1-13zM28.5 28.5c-8 3-14-2-10-7 3-3 8-1 10 7z" fill="url(#swMetF)"/>',
+  verricello: '<circle cx="24" cy="26" r="14" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4"/><circle cx="24" cy="26" r="4" fill="#2a2e33"/><path d="M38 26h8M46 20v12M46 26h10v22" fill="none" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/>',
+  inverter: '<rect x="8" y="12" width="44" height="30" rx="4" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4"/><path d="M52 21h4v12h-4M16 27h8M20 23v8M34 27h8" stroke="#3b4048" stroke-width="3" stroke-linecap="round"/>',
+  boiler: '<path d="M32 4c2 8 12 12 12 24a12 12 0 0 1-24 0c0-6 3-9 6-12 .7 4 2.5 6 5 7 0-7 .4-13 1-19z" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4"/>',
+  sub: '<path d="M6 16c5-4 9-4 14 0s9 4 14 0 9-4 14 0 9 4 10 2M6 27c5-4 9-4 14 0s9 4 14 0 9-4 14 0 9 4 10 2M6 38c5-4 9-4 14 0s9 4 14 0 9-4 14 0 9 4 10 2" fill="none" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/>',
+  tergi: '<path d="M8 40a24 24 0 0 1 48 0" fill="none" stroke="url(#swMet)" stroke-width="3"/><path d="M32 40L18 16" stroke="url(#swMet)" stroke-width="3.4" stroke-linecap="round"/><circle cx="32" cy="40" r="3.5" fill="url(#swMet)"/>',
+  altro: '<circle cx="32" cy="26" r="8" fill="none" stroke="url(#swMet)" stroke-width="3"/><path d="M32 4v7M32 41v7M10 26h7M47 26h7M16.5 10.5l5 5M42.5 36.5l5 5M16.5 41.5l5-5M42.5 15.5l5-5" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/>',
+  bolt: '<path d="M36 4L16 30h13l-3 18 20-26H33z" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.4" stroke-linejoin="round"/>' };
+const SW_ICO = { nav: "Luci di via", pompa: "Pompa di sentina", led: "LED", bt: "Bluetooth", motore: "Motore", start: "Start", tromba: "Tromba", stereo: "Stereo",
+  luce: "Luce", ancora: "Luce d'ancoraggio", faro: "Faro", sub: "Luci subacquee", pompaAcqua: "Pompa acqua / doccia", tergi: "Tergicristallo",
+  frigo: "Frigo", radio: "Radio / VHF", eco: "GPS / ecoscandaglio", usb: "Prese USB / 12V", ventola: "Ventola / aspiratore", verricello: "Verricello",
+  inverter: "Inverter / batteria", boiler: "Boiler", altro: "Altro" };
+const swSvg = k => `<svg viewBox="0 0 64 52">${SW_P[k] || SW_P.bolt}</svg>`;
+// collegamenti del pannello MG-P1SR-12P (canali 1–12): tipo "mom" = acceso solo finché tieni premuto; "serve" = funziona solo se quel canale è acceso
+const SW_PRESET = [
+  { nome: "LUCI DI VIA", ico: "nav" }, { nascosto: true }, { nascosto: true }, { nome: "Pompa di sentina", ico: "pompa" },
+  { nome: "LED", ico: "led" }, { nome: "BLUETOOTH", ico: "bt" }, { nascosto: true }, { nascosto: true },
+  { nome: "MOTORE", ico: "motore", noTutti: true }, { nome: "START", ico: "start", mom: true, serve: 8 }, { nome: "Tromba", ico: "tromba", mom: true }, { nome: "Stereo", ico: "stereo" } ];
+if (!store.get("ln_sw_preset1", 0)){ try{ const c = swCfg(); c.n = 12; c.ch = SW_PRESET.map((x, i) => Object.assign({ nome: "Canale " + (i + 1) }, x)); swSave(c); store.set("ln_sw_preset1", 1); }catch(e){} }
 function swEdit(i){
   const c = swCfg(), ch = c.ch[i] = Object.assign({ nome: "Canale " + (i + 1) }, c.ch[i] || {});
   let m = $("#swEd"); if (!m){ m = document.createElement("div"); m.id = "swEd"; $("#swp").appendChild(m); }
@@ -13591,13 +13625,21 @@ function swEdit(i){
   $("#swX").onclick = () => $("#swp").classList.add("hidden");
   $("#swConn").onclick = swConnect;
   $("#swAllOn").onclick = () => swTutti(true); $("#swAllOff").onclick = () => swTutti(false);
-  $("#swN").onchange = e => { const c = swCfg(); c.n = +e.target.value; swSave(c); swPaint(); };
-  let hold = null, held = false;
+  let hold = null, held = false, momI = -1;
   const G = $("#swGrid");
-  G.addEventListener("pointerdown", e => { const b = e.target.closest(".swCh"); if (!b) return; held = false;
-    hold = setTimeout(() => { held = true; haptic(); swEdit(+b.dataset.i); }, 600); });
-  ["pointerup", "pointercancel", "pointerleave"].forEach(ev => G.addEventListener(ev, () => clearTimeout(hold)));
-  G.addEventListener("click", e => { const b = e.target.closest(".swCh"); if (!b) return; if (held){ held = false; return; } if (b.getAttribute("aria-disabled")){ toast("Pannello non collegato"); return; } if (held){ held = false; return; } swToggle(+b.dataset.i); });
+  const momStop = () => { if (momI < 0) return; const i = momI; momI = -1; const b = G.querySelector(`[data-i="${i}"]`); if (b) b.classList.remove("on");
+    swSet(i, false).then(swPaint).catch(() => {}); };
+  G.addEventListener("pointerdown", e => { const b = e.target.closest(".swCh"); if (!b) return; const i = +b.dataset.i, c = swCfg(), ch = c.ch[i] || {}; held = false;
+    if (ch.mom){ e.preventDefault(); if (b.getAttribute("aria-disabled")) return toast("Pannello non collegato");
+      if (ch.serve != null && !(SWP.stati[ch.serve] != null ? SWP.stati[ch.serve] : (c.ch[ch.serve] || {}).stato)){ toast("Accendi prima " + ((c.ch[ch.serve] || {}).nome || "")); return; }
+      try{ b.setPointerCapture(e.pointerId); }catch(_){} momI = i; b.classList.add("on"); const sm = b.querySelector("small"); if (sm) sm.textContent = (i + 1) + " · ATTIVO"; haptic(); swSet(i, true).catch(er => { toast("Comando non inviato: " + er.message); momStop(); }); return; }
+    hold = setTimeout(() => { held = true; haptic(); swEdit(i); }, 900); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(ev => G.addEventListener(ev, () => { clearTimeout(hold); momStop(); }));
+  G.addEventListener("pointerleave", () => clearTimeout(hold));
+  G.addEventListener("contextmenu", e => e.preventDefault());
+  G.addEventListener("click", e => { const b = e.target.closest(".swCh"); if (!b) return; const ch = swCfg().ch[+b.dataset.i] || {}; if (ch.mom) return;
+    if (held){ held = false; return; } if (b.getAttribute("aria-disabled")){ toast("Pannello non collegato"); return; } swToggle(+b.dataset.i); });
+  window.addEventListener("blur", momStop); document.addEventListener("visibilitychange", () => { if (document.hidden) momStop(); });
   // 3 tocchi su Naviga in meno di un secondo
   let taps = [];
   $("#tabs").addEventListener("click", e => { const b = e.target.closest('[data-pm="nautica"]'); if (!b){ taps = []; return; }
