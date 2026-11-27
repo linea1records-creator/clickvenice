@@ -439,7 +439,7 @@
   #mkPanel .btn{margin-top:8px;background:#d95f26;color:#fff;width:100%}
   #mkPanel .trnote{color:#666;font-size:13px;line-height:1.4;margin:6px 0}
   /* plancia TULLIO ABBATE: strumenti e comandi a pagine (trascina), carbonio, metallo e luci rosse */
-  #swp{position:fixed;inset:0;z-index:3200;color:#eef1f4;display:flex;flex-direction:column;padding:calc(8px + var(--safe-t)) 10px calc(8px + var(--safe-b));
+  #swp{--tc:#ff2a1f;--tr:255,42,31;position:fixed;inset:0;z-index:3200;color:#eef1f4;display:flex;flex-direction:column;padding:calc(8px + var(--safe-t)) 10px calc(8px + var(--safe-b));
     background:linear-gradient(115deg,transparent 55%,rgba(255,255,255,.045) 55.2%,transparent 75%),
       repeating-linear-gradient(45deg,#0b0c0e 0 3px,#17191c 3px 6px),repeating-linear-gradient(-45deg,rgba(255,255,255,.03) 0 3px,rgba(0,0,0,.3) 3px 6px);
     background-color:#0c0d0f;box-shadow:inset 0 0 0 3px #2a2d31,inset 0 0 0 5px #0a0b0c}
@@ -451,69 +451,95 @@
   #swp .taLogo{height:54px;max-width:72%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(0,0,0,.9))}
   #swp .swX{position:absolute;right:6px;top:6px;width:46px;height:46px;border-radius:50%;border:0;color:#e5e7eb;font-size:20px;font-weight:700;
     background:radial-gradient(circle at 35% 30%,#5a6067,#1c1f22 70%);box-shadow:0 0 0 3px #3a3e43,0 0 0 5px #121315,0 4px 8px rgba(0,0,0,.7)}
-  #swp .taPager{flex:1;min-height:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-  #swp .taPager::-webkit-scrollbar{display:none}
-  #swp .taPage{flex:0 0 100%;min-width:100%;scroll-snap-align:start;display:flex;flex-direction:column;min-height:0;padding:4px 4px 0}
-  #swp .taGrid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;gap:12px;grid-auto-rows:1fr;padding:6px 4px}
-  #swp .taDots{display:flex;justify-content:center;gap:8px;padding:6px 0 2px}
-  #swp .taDots i{width:8px;height:8px;border-radius:50%;background:#3a3e43;transition:all .25s}
-  #swp .taDots i.on{background:#ff2a1f;box-shadow:0 0 8px #ff2a1f;width:22px;border-radius:5px}
+  #swp .taBody{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:4px 4px 2px;scrollbar-width:none}
+  #swp .taBody::-webkit-scrollbar{display:none}
+  #swp .taGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 4px}
+  #swp .swGrid{flex:4 1 0;grid-auto-rows:minmax(66px,1fr)}
+  #swp #taInst{flex:4.6 1 0;grid-template-rows:repeat(4,minmax(74px,1fr))}
   /* carta / tasto: cornice in metallo, tacca con LED, barra rossa */
   #swp .taCard,#swp .swCh{position:relative;border-radius:20px;padding:7px;min-height:0;font:inherit;color:#eef1f4;
     background:linear-gradient(155deg,#5d6268,#2a2d31 30%,#17191b 60%,#3c4046);border:2px solid #4b5056;
     box-shadow:0 6px 12px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .09s,box-shadow .25s,border-color .25s;
     touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;display:block;text-align:center}
-  #swp .taIn,#swp .swCh .taIn{position:absolute;inset:7px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:22px 6px 18px;
+  #swp .taIn,#swp .swCh .taIn{position:absolute;inset:7px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:13px 4px 12px;
     background:radial-gradient(ellipse at 50% 35%,#2a2d31,#0f1012 70%),repeating-linear-gradient(90deg,rgba(255,255,255,.02) 0 1px,transparent 1px 3px);
     box-shadow:inset 0 2px 8px rgba(0,0,0,.9),inset 0 0 0 1px #000,0 0 0 1px rgba(255,255,255,.08)}
-  #swp .taNotch{position:absolute;top:2px;left:50%;width:58px;height:22px;margin-left:-29px;z-index:2;border-radius:0 0 16px 16px;
+  #swp .taNotch{position:absolute;top:2px;left:50%;width:46px;height:17px;margin-left:-23px;z-index:2;border-radius:0 0 16px 16px;
     background:linear-gradient(#3b3f44,#1a1c1f);box-shadow:inset 0 -1px 0 rgba(255,255,255,.12),0 2px 3px rgba(0,0,0,.6)}
-  #swp .taLed{position:absolute;left:50%;top:3px;width:15px;height:15px;margin-left:-7.5px;border-radius:50%;
-    background:radial-gradient(circle at 38% 32%,#ff9a8a,#c0160a 55%,#4a0400);box-shadow:0 0 0 2px #111,0 0 6px rgba(255,40,30,.55)}
-  #swp .taBar{position:absolute;bottom:13px;left:50%;width:44%;height:4px;margin-left:-22%;border-radius:3px;z-index:2;background:#ff2a1f;box-shadow:0 0 8px #ff2a1f,0 0 16px rgba(255,42,31,.5)}
-  #swp .taIco svg{width:66px;height:54px;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.8))}
-  #swp .taIco.big svg{width:min(34vw,140px);height:min(34vw,140px)}
-  #swp .taVal{font-size:clamp(30px,10vw,46px);font-weight:900;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;
-    background:linear-gradient(#ffffff,#d5dae0 50%,#9aa3ad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 6px rgba(255,40,30,.55)) drop-shadow(0 2px 1px rgba(0,0,0,.9))}
+  #swp .taLed{position:absolute;left:50%;top:2px;width:11px;height:11px;margin-left:-5.5px;border-radius:50%;
+    background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--tc) 45%,#fff),color-mix(in srgb,var(--tc) 75%,#000) 55%,color-mix(in srgb,var(--tc) 25%,#000));box-shadow:0 0 0 2px #111,0 0 6px rgba(var(--tr),.55)}
+  #swp .taBar{position:absolute;bottom:10px;left:50%;width:40%;height:3px;margin-left:-20%;border-radius:3px;z-index:2;background:var(--tc);box-shadow:0 0 8px var(--tc),0 0 16px rgba(var(--tr),.5)}
+  #swp .taIco svg{width:auto;height:clamp(26px,5.2vh,46px);aspect-ratio:64/52;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.8))}
+  #swp .taVal{font-size:clamp(30px,10.5vw,50px);font-weight:900;line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;
+    background:linear-gradient(#ffffff,#d5dae0 50%,#9aa3ad);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 6px rgba(var(--tr),.55)) drop-shadow(0 2px 1px rgba(0,0,0,.9))}
   #swp .taVal em{font-style:normal;font-size:.55em;margin-left:4px;font-weight:800}
-  #swp .taLab,#swp .swCh .taLab{font-size:clamp(13px,4.2vw,17px);font-weight:800;letter-spacing:.02em;color:#e7ebef;text-shadow:0 0 6px rgba(255,40,30,.35),0 1px 2px #000;line-height:1.15}
+  #swp .taLab,#swp .swCh .taLab{font-size:clamp(12px,3.9vw,16px);font-weight:800;letter-spacing:.02em;color:#e7ebef;text-shadow:0 0 6px rgba(var(--tr),.35),0 1px 2px #000;line-height:1.15}
   /* acceso / dato vivo: bordo rosso luminoso, LED acceso */
-  #swp .taCard.on,#swp .swCh.on{border-color:#ff2a1f;box-shadow:0 0 0 1px #7a0d07,0 0 14px rgba(255,42,31,.85),0 0 30px rgba(255,42,31,.35),inset 0 1px 0 rgba(255,255,255,.2)}
-  #swp .taCard.on .taLed,#swp .swCh.on .taLed{background:radial-gradient(circle at 38% 32%,#fff1ec,#ff3b2c 45%,#a10c04);box-shadow:0 0 0 2px #111,0 0 8px #ff3b2c,0 0 18px #ff2a1f;animation:taLed 2.4s ease-in-out infinite}
-  @keyframes taLed{50%{box-shadow:0 0 0 2px #111,0 0 5px #ff3b2c,0 0 10px rgba(255,42,31,.6)}}
-  #swp .taCard:not(.on) .taBar{opacity:.55;box-shadow:0 0 4px rgba(255,42,31,.5)}
+  #swp .taCard.on,#swp .swCh.on{border-color:var(--tc);box-shadow:0 0 0 1px color-mix(in srgb,var(--tc) 45%,#000),0 0 14px rgba(var(--tr),.85),0 0 30px rgba(var(--tr),.35),inset 0 1px 0 rgba(255,255,255,.2)}
+  #swp .taCard.on .taLed,#swp .swCh.on .taLed{background:radial-gradient(circle at 38% 32%,color-mix(in srgb,var(--tc) 12%,#fff),var(--tc) 45%,color-mix(in srgb,var(--tc) 60%,#000));box-shadow:0 0 0 2px #111,0 0 8px var(--tc),0 0 18px var(--tc);animation:taLed 2.4s ease-in-out infinite}
+  @keyframes taLed{50%{box-shadow:0 0 0 2px #111,0 0 5px var(--tc),0 0 10px rgba(var(--tr),.6)}}
+  #swp .taCard:not(.on) .taBar{opacity:.55;box-shadow:0 0 4px rgba(var(--tr),.5)}
   /* tasto premuto: scende e si stringe; icona accesa */
   #swp .swCh{cursor:pointer}
   #swp .swCh:active,#swp .swCh.press{transform:translateY(3px) scale(.965)}
-  #swp .swCh.on .taIn{box-shadow:inset 0 5px 14px rgba(0,0,0,.95),inset 0 0 0 1px #000,inset 0 0 22px rgba(255,42,31,.18)}
-  #swp .swCh.on .taIco svg{filter:drop-shadow(0 0 6px rgba(255,80,60,.75)) drop-shadow(0 2px 2px rgba(0,0,0,.8))}
+  #swp .swCh.on .taIn{box-shadow:inset 0 5px 14px rgba(0,0,0,.95),inset 0 0 0 1px #000,inset 0 0 22px rgba(var(--tr),.18)}
+  #swp .swCh.on .taIco svg{filter:drop-shadow(0 0 6px rgba(var(--tr),.75)) drop-shadow(0 2px 2px rgba(0,0,0,.8))}
   #swp .swCh.off{opacity:.45;filter:grayscale(.5)}
   #swp .swCh[aria-disabled] .taIn{opacity:.55}
   /* animazioni degli strumenti */
-  #swp .taNeedle{transition:transform .8s cubic-bezier(.2,.8,.2,1)}
-  #swp #taEco.on .taW1{animation:taPing 1.6s ease-out infinite} #swp #taEco.on .taW2{animation:taPing 1.6s .25s ease-out infinite} #swp #taEco.on .taW3{animation:taPing 1.6s .5s ease-out infinite}
-  @keyframes taPing{0%{opacity:.15}30%{opacity:1}100%{opacity:.15}}
-  #swp #taHumFill,#swp #taTmpFill{transition:all 1s ease}
-  #swp .taWave{animation:taWv 3s ease-in-out infinite} @keyframes taWv{50%{transform:translateY(-1.5px)}}
   #swp .taVal.bump{animation:taBump .35s ease} @keyframes taBump{40%{transform:scale(1.06)}}
   /* stato del collegamento e tasto Cerca (pagina comandi) */
   #swp .swSt{margin:2px 6px 6px;display:flex;align-items:center;gap:10px;font-size:14px;color:#c4cad1}
-  #swp .swSt i{width:11px;height:11px;border-radius:50%;background:#ff2a1f;box-shadow:0 0 8px #ff2a1f;flex:0 0 auto;animation:taLed 1.4s ease-in-out infinite}
+  #swp .swSt i{width:11px;height:11px;border-radius:50%;background:var(--tc);box-shadow:0 0 8px var(--tc);flex:0 0 auto;animation:taLed 1.4s ease-in-out infinite}
   #swp .swSt.on i{background:#22c55e;box-shadow:0 0 8px #22c55e}
   #swp .swBtns{display:flex;gap:10px;margin:0 4px 6px}
-  #swp .swBtns button,#swEd .swBtns button{flex:1;border-radius:999px;padding:12px 8px;font:inherit;font-weight:800;font-size:16px;color:#ffd5d0;
-    background:linear-gradient(#2e3135,#141517);border:2px solid #ff2a1f;box-shadow:0 0 12px rgba(255,42,31,.45),inset 0 1px 0 rgba(255,255,255,.12),0 4px 8px rgba(0,0,0,.6)}
+  #swp .swBtns button,#swEd .swBtns button{flex:1;border-radius:999px;padding:12px 8px;font:inherit;font-weight:800;font-size:16px;color:color-mix(in srgb,var(--tc) 22%,#fff);
+    background:linear-gradient(#2e3135,#141517);border:2px solid var(--tc);box-shadow:0 0 12px rgba(var(--tr),.45),inset 0 1px 0 rgba(255,255,255,.12),0 4px 8px rgba(0,0,0,.6)}
   #swp .swBtns button:active{transform:translateY(1px)}
-  #swp.conn .swSt,#swp.conn .swBtns{display:none}
+  #swp.conn .taBody>.swSt,#swp.conn .taBody>.swBtns{display:none}
+  /* display degli strumenti: schermo incassato con numero grande */
+  #swp .taDisp{position:relative;border-radius:20px;padding:7px;font:inherit;color:#eef1f4;text-align:center;
+    background:linear-gradient(155deg,#5d6268,#2a2d31 30%,#17191b 60%,#3c4046);border:2px solid #4b5056;box-shadow:0 6px 12px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .09s}
+  #swp .taScr{position:absolute;inset:7px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px 12px;overflow:hidden;
+    background:radial-gradient(ellipse at 50% 30%,#26292d,#0c0d0f 75%);box-shadow:inset 0 3px 10px rgba(0,0,0,.95),inset 0 0 0 1px #000,0 0 0 1px rgba(255,255,255,.08)}
+  #swp .taScr::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(160deg,rgba(255,255,255,.09),transparent 40%);pointer-events:none}
+  #swp #taHum .taScr{background:radial-gradient(ellipse at 50% 30%,#2f5a86,#13263d 80%)}
+  #swp .taDisp .taVal{white-space:nowrap;transition:opacity .4s}
+  #swp .taDisp:not(.on) .taVal{opacity:.45}
+  #swp .taDisp:not(.on) .taBar{opacity:.35;box-shadow:none}
+  #swp .taTr{display:inline-block;margin-left:5px;color:var(--tc);text-shadow:0 0 8px var(--tc)}
+  #swp .taTr.su{animation:taSu 1.6s ease-in-out infinite} #swp .taTr.giu{animation:taGiu 1.6s ease-in-out infinite}
+  @keyframes taSu{50%{transform:translateY(-4px)}} @keyframes taGiu{50%{transform:translateY(4px)}}
+  #swp .taMet{font-size:clamp(28px,9vw,42px);line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.8));animation:taFl 4s ease-in-out infinite}
+  @keyframes taFl{50%{transform:translateY(-3px)}}
+  #swp .taMetT{font-size:clamp(11px,3.2vw,13px);font-weight:700;color:#c9d0d7;margin-top:1px;line-height:1.1;max-width:100%}
+  #swp .swCh .taBar,#swp .taDisp .taBar{display:none}
+  #swp .swCh .taIn{padding:16px 4px 6px}
+  #swEd .swEdBox>*{flex-shrink:0}
+  #swp #taSet{cursor:pointer}
+  #swp #taSet:active{transform:translateY(3px) scale(.965)}
+  #swp #taSet svg{width:clamp(32px,6vh,48px);height:auto;transition:transform .6s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 2px 2px rgba(0,0,0,.8))}
+  #swp #taSet:active svg{transform:rotate(90deg)}
   #swEd{position:absolute;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:flex-end;z-index:5}
-  #swEd .swEdBox{width:100%;background:#141517;border-top:2px solid #ff2a1f;border-radius:18px 18px 0 0;padding:16px 14px calc(16px + var(--safe-b));display:flex;flex-direction:column;gap:10px}
+  #swEd .swEdBox{width:100%;max-height:88%;overflow-y:auto;background:#141517;border-top:2px solid var(--tc);border-radius:18px 18px 0 0;padding:16px 14px calc(16px + var(--safe-b));display:flex;flex-direction:column;gap:10px}
   #swEd input#swEdNome{background:#0b0c0e;color:#eef1f4;border:1px solid #2f3338;border-radius:10px;padding:11px;font:inherit;font-size:16px}
   #swEd .swEdIco{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-height:40vh;overflow:auto}
   #swEd .swEdIco button{padding:6px 0;border-radius:10px;border:1.5px solid #2f3338;background:#0b0c0e;display:flex;justify-content:center}
   #swEd .swEdIco button svg{width:40px;height:32px}
-  #swEd .swEdIco button.on{border-color:#ff2a1f;box-shadow:0 0 8px rgba(255,42,31,.6)}
+  #swEd .swEdIco button.on{border-color:var(--tc);box-shadow:0 0 8px rgba(var(--tr),.6)}
   #swEd .swEdHid{font-size:13px;color:#b6bec7;display:flex;gap:8px;align-items:center;text-align:left}
   #swEd .swEdHid input{width:20px;height:20px;flex:0 0 auto;margin:0}
+  #swEd h4{margin:4px 0 0;font-size:13px;letter-spacing:.08em;color:#9aa3ad;text-align:left}
+  #swEd .taCols{display:flex;gap:10px;flex-wrap:wrap}
+  #swEd .taCols button{width:42px;height:42px;border-radius:50%;border:3px solid #2a2d31;background:radial-gradient(circle at 38% 32%,#fff 0,var(--c) 40%,#000 130%);box-shadow:0 0 10px var(--c)}
+  #swEd .taCols button.on{border-color:#eef1f4;transform:scale(1.08)}
+  #swEd .taOrd{display:flex;flex-direction:column;gap:6px}
+  #swEd .taOrd div{display:flex;align-items:center;gap:10px;background:#0b0c0e;border:1px solid #2a2d31;border-radius:12px;padding:3px 8px;color:#e7ebef;font-weight:700;font-size:14px;transition:transform .2s}
+  #swEd .taOrd div svg{width:34px;height:28px;flex:0 0 auto}
+  #swEd .taOrd div span{flex:1;text-align:left}
+  #swEd .taOrd button{width:40px;height:32px;border-radius:9px;border:1px solid #3a3e43;background:#1c1f22;color:#eef1f4;font-size:15px}
+  #swEd .taOrd button:disabled{opacity:.25}
+  #swEd .taOrd div.mv{transform:scale(1.03);border-color:var(--tc);box-shadow:0 0 10px rgba(var(--tr),.5)}
   #dash{position:fixed;inset:0;z-index:3000;background:radial-gradient(ellipse at 50% 35%,#0b2240 0%,#050d18 60%,#02060c 100%);color:#dff6ff;padding:calc(12px + var(--safe-t)) 12px calc(12px + var(--safe-b));display:flex;flex-direction:column}
   #dash .ckTop{display:flex;align-items:center;gap:10px;margin-bottom:6px}
   #dash .ckTitle{font-size:13px;letter-spacing:.14em;color:#9fc6e6;font-weight:700}
@@ -2079,27 +2105,21 @@
   <div id="swp" class="hidden" role="dialog" aria-label="Tullio Abbate">
   <i class="taScrew a"></i><i class="taScrew b"></i><i class="taScrew c"></i><i class="taScrew d"></i>
   <div class="swTop"><img class="taLogo" src="ta-logo.webp" alt="Tullio Abbate" draggable="false"><button class="swX" id="swX" aria-label="Chiudi">✕</button></div>
-  <div class="taPager" id="taPager">
-    <section class="taPage" data-pg="0" aria-label="Strumenti">
-      <div class="taGrid" id="taInst">
-        <div class="taCard" id="taSpd"><span class="taNotch"><i class="taLed"></i></span><div class="taIn"><span class="taIco"><svg viewBox="0 0 64 52"><path d="M10 42a24 24 0 1 1 44 0" fill="none" stroke="url(#swMet)" stroke-width="3.2" stroke-linecap="round"/><path d="M16 34l3-1.5M14 24l3.5.5M20 15l2.5 2.5M32 10v4M44 15l-2.5 2.5M50 24l-3.5.5M48 34l-3-1.5" stroke="url(#swMet)" stroke-width="2.4" stroke-linecap="round"/><g class="taNeedle" style="transform-origin:32px 38px"><path d="M32 38L45 24" stroke="url(#swMet)" stroke-width="3.2" stroke-linecap="round"/></g><circle cx="32" cy="38" r="4" fill="url(#swMetF)"/></svg></span><b class="taVal"><span id="taSpdV">–</span><em>km/h</em></b><span class="taLab">VELOCITÀ</span></div><span class="taBar"></span></div>
-        <div class="taCard" id="taHum"><span class="taNotch"><i class="taLed"></i></span><div class="taIn"><span class="taIco"><svg viewBox="0 0 64 52"><defs><clipPath id="taDropC"><path d="M32 4S17 20 17 31a15 15 0 0 0 30 0C47 20 32 4 32 4z"/></clipPath></defs><rect id="taHumFill" x="10" y="52" width="44" height="52" fill="url(#swMetF)" opacity=".55" clip-path="url(#taDropC)"/><path d="M32 4S17 20 17 31a15 15 0 0 0 30 0C47 20 32 4 32 4z" fill="none" stroke="url(#swMet)" stroke-width="3"/><path class="taWave" d="M19 33c4-3 8-3 13 0s9 3 13 0" fill="none" stroke="url(#swMet)" stroke-width="2.4"/></svg></span><b class="taVal"><span id="taHumV">–</span><em>%</em></b><span class="taLab">UMIDITÀ</span></div><span class="taBar"></span></div>
-        <div class="taCard" id="taCmp"><span class="taNotch"><i class="taLed"></i></span><div class="taIn"><span class="taIco big"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="url(#swMet)" stroke-width="6"/><circle cx="50" cy="50" r="38" fill="#121417" stroke="#5b636c" stroke-width="1.5"/><g id="taRose" style="transform-origin:50px 50px;transition:transform .6s cubic-bezier(.2,.8,.2,1)">
-          <g fill="#e7ebef" font-size="11" font-weight="800" text-anchor="middle" font-family="system-ui,sans-serif"><text x="50" y="20">N</text><text x="50" y="89">S</text><text x="85" y="54">E</text><text x="15" y="54">W</text></g>
-          <g stroke="#7b848e" stroke-width="1"><path d="M50 14v4M50 82v4M14 50h4M82 50h4M24.5 24.5l2.8 2.8M72.7 72.7l2.8 2.8M24.5 75.5l2.8-2.8M72.7 27.3l2.8-2.8"/></g>
-          <path d="M50 22l6 28-6 28-6-28z" fill="url(#swMetF)"/><path d="M22 50l28-6 28 6-28 6z" fill="url(#swMetF)" opacity=".85"/><path d="M50 22l6 28h-12z" fill="#e0352b"/><circle cx="50" cy="50" r="4" fill="#2a2e33" stroke="#cfd6de" stroke-width="1.5"/></g></svg></span><span class="taLab" id="taCmpL">BUSSOLA</span></div><span class="taBar"></span></div>
-        <div class="taCard" id="taTmp"><span class="taNotch"><i class="taLed"></i></span><div class="taIn"><span class="taIco"><svg viewBox="0 0 64 52"><path d="M27 6a5 5 0 0 1 10 0v26a9 9 0 1 1-10 0z" fill="none" stroke="url(#swMet)" stroke-width="2.8"/><rect id="taTmpFill" x="30" y="30" width="4" height="10" rx="2" fill="#e0352b"/><circle cx="32" cy="40" r="5.5" fill="#e0352b"/><path d="M42 8h5M42 14h3M42 20h5M42 26h3" stroke="url(#swMet)" stroke-width="2" stroke-linecap="round"/></svg></span><b class="taVal"><span id="taTmpV">–</span><em>°C</em></b><span class="taLab">TEMPERATURA</span></div><span class="taBar"></span></div>
-        <div class="taCard" id="taEco"><span class="taNotch"><i class="taLed"></i></span><div class="taIn"><span class="taIco"><svg viewBox="0 0 64 52"><path d="M8 20h9l12-10v32L17 32H8z" fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.2"/><path class="taW1" d="M36 18a10 10 0 0 1 0 16" fill="none" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/><path class="taW2" d="M42 12a18 18 0 0 1 0 28" fill="none" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/><path class="taW3" d="M48 6a26 26 0 0 1 0 40" fill="none" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/></svg></span><b class="taVal"><span id="taEcoV">–</span><em>m</em></b><span class="taLab">ECOSCANDAGLIO</span></div><span class="taBar"></span></div>
-        <div class="taCard" id="taMax"><span class="taNotch"><i class="taLed"></i></span><div class="taIn"><span class="taIco"><svg viewBox="0 0 64 52"><path d="M10 42a24 24 0 1 1 44 0" fill="none" stroke="url(#swMet)" stroke-width="3.2" stroke-linecap="round"/><path d="M16 34l3-1.5M14 24l3.5.5M20 15l2.5 2.5M32 10v4M44 15l-2.5 2.5M50 24l-3.5.5" stroke="url(#swMet)" stroke-width="2.4" stroke-linecap="round"/><path d="M32 38l9-14" stroke="url(#swMet)" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="38" r="3.5" fill="url(#swMetF)"/><path d="M38 50l10-10M42 40h6v6" fill="none" stroke="url(#swMet)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b class="taVal"><span id="taMaxV">–</span><em>km/h</em></b><span class="taLab">VELOCITÀ MASSIMA</span></div><span class="taBar"></span></div>
-      </div>
-    </section>
-    <section class="taPage" data-pg="1" aria-label="Comandi">
-      <div class="swSt" id="swSt"><i></i><span>Non collegato</span></div>
-      <div class="swBtns"><button class="pri" id="swConn">Collega</button></div>
-      <div class="taGrid swGrid" id="swGrid"></div>
-    </section>
+  <div class="taBody" id="taBody">
+    <div class="swSt" id="swSt"><i></i><span>Non collegato</span></div>
+    <div class="swBtns"><button class="pri" id="swConn">Collega</button></div>
+    <div class="taGrid swGrid" id="swGrid"></div>
+    <div class="taGrid" id="taInst">
+      <div class="taDisp" id="taSpd"><div class="taScr"><b class="taVal"><span id="taSpdV">–</span><em>km/h</em></b><span class="taLab">VELOCITÀ</span></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taMax"><div class="taScr"><b class="taVal"><span id="taMaxV">–</span><em>km/h</em></b><span class="taLab">VELOCITÀ MASSIMA</span></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taTmp"><div class="taScr"><b class="taVal"><span id="taTmpV">–</span><em>°C</em></b><span class="taLab">TEMPERATURA</span></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taHum"><div class="taScr"><b class="taVal"><span id="taHumV">–</span><em>%</em></b><span class="taLab">UMIDITÀ</span></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taTide"><div class="taScr"><b class="taVal"><span id="taTideV">–</span><em>cm</em><i class="taTr" id="taTideTr"></i></b><span class="taLab">MAREA</span></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taEco"><div class="taScr"><b class="taVal"><span id="taEcoV">–</span><em>m</em></b><span class="taLab">ECOSCANDAGLIO</span></div><span class="taBar"></span></div>
+      <div class="taDisp" id="taMet"><div class="taScr"><span class="taMet" id="taMetI">–</span><span class="taMetT" id="taMetT"></span><span class="taLab">METEO</span></div><span class="taBar"></span></div>
+      <button class="taDisp on" id="taSet" aria-label="Impostazioni"><div class="taScr"><svg viewBox="0 0 64 64"><path fill="url(#swMetF)" stroke="#e5e9ee" stroke-width="1.2" d="M28 4h8l1.6 7.4a21 21 0 0 1 5.6 2.3l6.4-4.1 5.7 5.7-4.1 6.4a21 21 0 0 1 2.3 5.6L60 28v8l-7.4 1.6a21 21 0 0 1-2.3 5.6l4.1 6.4-5.7 5.7-6.4-4.1a21 21 0 0 1-5.6 2.3L36 60h-8l-1.6-7.4a21 21 0 0 1-5.6-2.3l-6.4 4.1-5.7-5.7 4.1-6.4a21 21 0 0 1-2.3-5.6L4 36v-8l7.4-1.6a21 21 0 0 1 2.3-5.6l-4.1-6.4 5.7-5.7 6.4 4.1a21 21 0 0 1 5.6-2.3z"/><circle cx="32" cy="32" r="9" fill="#1a1c1f" stroke="url(#swMet)" stroke-width="3"/></svg><span class="taLab">IMPOSTAZIONI</span></div><span class="taBar"></span></button>
+    </div>
   </div>
-  <div class="taDots" id="taDots"><i class="on" data-go="0"></i><i data-go="1"></i></div>
   <select id="swN" hidden><option>12</option></select>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
     <linearGradient id="swMet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#c9d1da"/><stop offset=".55" stop-color="#8d97a3"/><stop offset="1" stop-color="#e3e8ee"/></linearGradient>
@@ -2316,7 +2336,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.70</p>
+      <p class="sub">clickVenice · versione 4.71</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -13677,51 +13697,70 @@ function swEdit(i){
   $("#swEdOk").onclick = () => { const c2 = swCfg(); c2.ch[i] = Object.assign(c2.ch[i] || {}, { nome: $("#swEdNome").value.trim() || "Canale " + (i + 1), ico, nascosto: $("#swEdHid").checked }); swSave(c2); m.remove(); swPaint(); };
 }
 
-/* ---------- plancia TULLIO ABBATE: pagina strumenti (0) e pagina comandi (1), si passa trascinando ---------- */
-const TA = { t: null, rot: 0, last: {} };
+/* ---------- plancia TULLIO ABBATE: comandi e strumenti in un'unica pagina ---------- */
+const TA = { t: null };
+const TA_COL = [["Rosso", "#ff2a1f"], ["Ambra", "#ff9a1a"], ["Verde", "#22e06b"], ["Azzurro", "#1fb6ff"], ["Blu", "#3a5bff"], ["Viola", "#b04bff"], ["Bianco", "#e8eef5"]];
+function taColore(hex){
+  hex = hex || store.get("ln_ta_col", "#ff2a1f"); const n = parseInt(hex.slice(1), 16), e = $("#swp");
+  e.style.setProperty("--tc", hex); e.style.setProperty("--tr", `${n >> 16},${(n >> 8) & 255},${n & 255}`);
+}
 function openTA(pg){
-  swOpenBase();
-  if (watchId === null){ try{ askCompass(); startGps(); }catch(e){} }
-  try{ if (Date.now() - meteoAt > 10 * 60000) loadMeteo(); loadTide(); }catch(e){}
-  const P = $("#taPager"); requestAnimationFrame(() => { P.scrollTo({ left: P.clientWidth * (pg || 0), behavior: "instant" }); taDots(); });
+  swOpenBase(); taColore();
+  if (watchId === null){ try{ startGps(); }catch(e){} }
+  try{ if (Date.now() - meteoAt > 10 * 60000) loadMeteo(); loadTide(); loadForecast(); }catch(e){}
+  const B = $("#taBody"); requestAnimationFrame(() => { B.scrollTop = pg === 0 ? $("#taInst").offsetTop - 6 : 0; });
   clearInterval(TA.t); TA.t = setInterval(taTick, 500); taTick();
 }
-function closeTA(){ $("#swp").classList.add("hidden"); clearInterval(TA.t); TA.t = null; }
-function taDots(){ const P = $("#taPager"), i = Math.round(P.scrollLeft / Math.max(1, P.clientWidth)); document.querySelectorAll("#taDots i").forEach((d, k) => d.classList.toggle("on", k === i)); }
+function closeTA(){ $("#swp").classList.add("hidden"); clearInterval(TA.t); TA.t = null; const m = $("#swEd"); if (m) m.remove(); }
 function taSet(id, v){ const e = $("#" + id); if (!e || e.textContent === v) return; e.textContent = v; const b = e.closest(".taVal"); if (b){ b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump"); } }
+const taOn = (id, on) => $("#" + id).classList.toggle("on", !!on);
 function taTick(){
   if ($("#swp").classList.contains("hidden")) return;
   const fresh = lastPos && Date.now() - (lastPos.t || 0) < 15000, kmh = fresh ? speedMs * 3.6 : 0;
-  // velocità e lancetta (0–80 km/h su 240°)
-  taSet("taSpdV", fresh ? (kmh < 0.5 ? "0" : kmh < 10 ? kmh.toFixed(1).replace(".", ",") : String(Math.round(kmh))) : "–");
-  const ang = -120 + 240 * Math.min(1, kmh / 80), nd = $("#taSpd .taNeedle"); if (nd) nd.style.transform = `rotate(${(ang - 43).toFixed(1)}deg)`;
-  $("#taSpd").classList.toggle("on", !!fresh);
-  // velocità massima del giro (anche a plancia chiusa conta TRIP)
+  taSet("taSpdV", fresh ? (kmh < 0.5 ? "0" : kmh < 10 ? kmh.toFixed(1).replace(".", ",") : String(Math.round(kmh))) : "–"); taOn("taSpd", fresh);
   try{ if (fresh && kmh < 120) TRIP.max = Math.max(TRIP.max || 0, kmh); }catch(e){}
   const vmax = (typeof TRIP !== "undefined" && TRIP.max) || 0;
-  taSet("taMaxV", vmax ? String(Math.round(vmax)) : "–"); $("#taMax").classList.toggle("on", vmax > 0);
-  // bussola: la rosa gira al contrario della prua, sempre per la via più corta
-  const h = ((heading % 360) + 360) % 360; let d = (-h - TA.rot) % 360; if (d > 180) d -= 360; if (d < -180) d += 360; TA.rot += d;
-  const rose = $("#taRose"); if (rose) rose.style.transform = `rotate(${TA.rot.toFixed(1)}deg)`;
-  $("#taCmpL").textContent = (fresh || heading) ? `BUSSOLA ${Math.round(h)}°` : "BUSSOLA";
-  $("#taCmp").classList.toggle("on", !!(fresh || heading));
-  // meteo: temperatura e umidità
+  taSet("taMaxV", vmax ? String(Math.round(vmax)) : "–"); taOn("taMax", vmax > 0);
+  // meteo del punto in cui sei
   const M = typeof METEO !== "undefined" && METEO;
-  taSet("taTmpV", M && M.t != null ? String(Math.round(M.t)) : "–");
-  const tf = $("#taTmpFill"); if (tf && M && M.t != null){ const hgt = 4 + 24 * Math.max(0, Math.min(1, (M.t + 5) / 45)); tf.setAttribute("y", 40 - hgt); tf.setAttribute("height", hgt); }
-  $("#taTmp").classList.toggle("on", !!(M && M.t != null));
-  taSet("taHumV", M && M.h != null ? String(Math.round(M.h)) : "–");
-  const hf = $("#taHumFill"); if (hf && M && M.h != null) hf.setAttribute("y", 46 - 42 * M.h / 100);
-  $("#taHum").classList.toggle("on", !!(M && M.h != null));
+  taSet("taTmpV", M && M.t != null ? String(Math.round(M.t)) : "–"); taOn("taTmp", M && M.t != null);
+  taSet("taHumV", M && M.h != null ? String(Math.round(M.h)) : "–"); taOn("taHum", M && M.h != null);
+  if (M){ let [ic, nm] = WMO(M.c); if (M.mmh >= .1 && !(M.c >= 51 && M.c <= 82 || M.c >= 95) && !M.neve) [ic, nm] = ["🌧️", "pioggia"];
+    $("#taMetI").textContent = ic; const tx = nm + (M.w != null ? " · " + Math.round(M.w) + " km/h" : ""); if ($("#taMetT").textContent !== tx) $("#taMetT").textContent = tx; }
+  taOn("taMet", !!M);
+  // marea adesso (dato o stima) e tendenza nella prossima mezz'ora
+  let td = null; try{ td = tideNow(); if (td == null){ const e = tideAt(Date.now()); if (e != null) td = Math.round(e); } }catch(e){}
+  taSet("taTideV", td == null ? "–" : (td > 0 ? "+" : "") + td);
+  let tr = ""; try{ const a = tideAt(Date.now()), b = tideAt(Date.now() + 30 * 60000); if (a != null && b != null && Math.abs(b - a) >= 1) tr = b > a ? "su" : "giu"; }catch(e){}
+  const T = $("#taTideTr"); if (T.className !== "taTr " + tr){ T.className = "taTr " + tr; T.textContent = tr === "su" ? "▲" : tr === "giu" ? "▼" : ""; }
+  taOn("taTide", td != null);
   // ecoscandaglio: acqua sotto la barca (fondale + marea)
-  let w = null; try{ if (fresh){ const fd = fondaleAt(lastPos.lat, lastPos.lng), td = tideNow(); if (fd) w = (fd.z * 100 + (td == null ? 30 : td)) / 100; } }catch(e){}
-  taSet("taEcoV", w != null ? w.toFixed(1).replace(".", ",") : "–"); $("#taEco").classList.toggle("on", w != null);
+  let w = null; try{ if (fresh){ const fd = fondaleAt(lastPos.lat, lastPos.lng); if (fd) w = (fd.z * 100 + (td == null ? 30 : td)) / 100; } }catch(e){}
+  taSet("taEcoV", w != null ? w.toFixed(1).replace(".", ",") : "–"); taOn("taEco", w != null);
 }
-(function(){
-  const P = $("#taPager"); let st = null;
-  P.addEventListener("scroll", () => { clearTimeout(st); st = setTimeout(taDots, 60); }, { passive: true });
-  document.querySelectorAll("#taDots i").forEach(d => d.onclick = () => P.scrollTo({ left: P.clientWidth * +d.dataset.go, behavior: "smooth" }));
-})();
+// impostazioni: colore delle luci e ordine dei tasti
+function taImpost(){
+  let m = $("#swEd"); if (!m){ m = document.createElement("div"); m.id = "swEd"; $("#swp").appendChild(m); }
+  const cur = store.get("ln_ta_col", "#ff2a1f");
+  const lista = () => { const c = swCfg(); return (c.ordine && c.ordine.length ? c.ordine : SW_ORDINE).concat(Array.from({ length: 12 }, (_, i) => i)).filter((x, k, a) => a.indexOf(x) === k); };
+  const ord = (mv) => { const c = swCfg(), L = lista(), vis = L.filter(i => !(c.ch[i] || {}).nascosto);
+    return vis.map((i, k) => `<div data-i="${i}" class="${mv === i ? "mv" : ""}">${swSvg((c.ch[i] || {}).ico)}<span>${esc((c.ch[i] || {}).nome || "Canale " + (i + 1))}</span><button data-su="${i}" ${k ? "" : "disabled"} aria-label="Su">▲</button><button data-giu="${i}" ${k < vis.length - 1 ? "" : "disabled"} aria-label="Giù">▼</button></div>`).join(""); };
+  m.innerHTML = `<div class="swEdBox"><b>Impostazioni</b>
+    <h4>COLORE LUCI</h4><div class="taCols">${TA_COL.map(([n, h]) => `<button data-c="${h}" style="--c:${h}" class="${h === cur ? "on" : ""}" aria-label="${n}" title="${n}"></button>`).join("")}</div>
+    <h4>ORDINE DEI TASTI</h4><div class="taOrd" id="taOrd">${ord()}</div>
+    <p class="muted" style="font-size:12px;color:#8d96a0;margin:0;text-align:left">Tieni premuto un tasto della plancia per cambiarne nome e icona.</p>
+    <div class="swBtns">${SWP.chr ? '<button id="taScol">Scollega pannello</button>' : ""}<button class="pri" id="swEdNo">Fatto</button></div></div>`;
+  m.querySelectorAll(".taCols button").forEach(b => b.onclick = () => { store.set("ln_ta_col", b.dataset.c); taColore(b.dataset.c); haptic();
+    m.querySelectorAll(".taCols button").forEach(x => x.classList.toggle("on", x === b)); });
+  $("#taOrd").onclick = e => { const b = e.target.closest("button"); if (!b || b.disabled) return;
+    const c = swCfg(), L = lista(), i = +(b.dataset.su ?? b.dataset.giu), dir = b.dataset.su != null ? -1 : 1;
+    const vis = L.filter(x => !(c.ch[x] || {}).nascosto), k = vis.indexOf(i), j = vis[k + dir]; if (j == null) return;
+    const a1 = L.indexOf(i), a2 = L.indexOf(j); L[a1] = j; L[a2] = i; c.ordine = L; swSave(c); haptic();
+    $("#taOrd").innerHTML = ord(i); swPaint(); };
+  $("#swEdNo").onclick = () => m.remove();
+  const sc = $("#taScol"); if (sc) sc.onclick = () => { m.remove(); swConnect(); };
+}
+$("#taSet").onclick = () => { haptic(); taImpost(); };
 (function(){
   $("#swX").onclick = closeTA;
   $("#swConn").onclick = swConnect;
