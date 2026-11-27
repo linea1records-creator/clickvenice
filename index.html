@@ -2116,6 +2116,7 @@
       <label class="srng"><span>Barca <b id="szBoatV">100%</b></span><input type="range" id="szBoat" min="0.4" max="3" step="0.1" value="1"></label>
       <div id="admSet" class="hidden"><div class="sh">MODIFICA MAPPA · SOLO TROPSS</div>
         <button class="srow" id="admEdit"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>Modifica un luogo<small>poi tocca il luogo sulla mappa</small></span><i class="sw"></i></button>
+        <button class="srow" id="admTes"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9 9.5h6M9 14.5h6M12 7v10"/></svg><span>Aggiungi un tesoro<small>poi tocca la mappa dove metterlo</small></span></button>
         <button class="srow" id="admList"><svg viewBox="0 0 24 24"><path d="M5 6h14M5 12h14M5 18h9"/></svg><span>Luoghi modificati</span></button>
         <button class="srow" id="admHid"><svg viewBox="0 0 24 24"><path d="M5 7h14l-1 13H6zM9 7V4h6v3"/></svg><span>Luoghi eliminati</span></button>
         <button class="srow" id="admBle"><svg viewBox="0 0 24 24"><path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg><span>Pannello interruttori BLE<small>test e comandi del pannello 12/24V via Bluetooth</small></span></button></div>
@@ -2376,7 +2377,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.74</p>
+      <p class="sub">clickVenice · versione 4.75</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -11424,6 +11425,13 @@ async function segAdmin(){
 }
 
 /* ---------- Tesori nelle isole ---------- */
+// solo tropss: tocca la mappa e metti un nuovo tesoro (da Impostazioni di Naviga o dalla pagina Schei)
+function tesAddPick(){
+  if (!isTropss()) return; setMode("nautica"); addMode = "wzpick"; const h = $("#modeHint"); h.textContent = "💰 Tocca la mappa dove mettere il tesoro"; h.classList.remove("hidden");
+  if (LY.tesori === false){ LY.tesori = true; store.set("ln_layers", LY); mkVis(); paintSet(); }
+  window._wzPick = async ll => { const nome = prompt("Nome del tesoro (es. «Torcello · il campanile»)", "Tesoro"); if (nome === null) return;
+    const j = await rpc("tesoro_admin", { p_azione: "add", p_nome: nome, p_lat: ll.lat, p_lng: ll.lng }).catch(() => null); if (j && j.ok){ toast("Tesoro aggiunto"); tesLoad(); } else toast("Non aggiunto"); };
+}
 let TESORI = [], TES_MK = [], tesNear = null;
 const tesWait = t => t.prossimo && new Date(t.prossimo) > new Date();
 const tesLeft = t => { const m = Math.max(0, Math.round((new Date(t.prossimo) - Date.now()) / 60000)); return m >= 60 ? Math.floor(m / 60) + " h " + (m % 60) + " min" : m + " min"; };
@@ -11486,9 +11494,7 @@ async function scheiSheet(){
   $("#schSeg").onclick = segStart;
   $("#schShop").onclick = () => shopOpen();
   $("#schSfida").onclick = () => { closeSheet(); setMode("sport"); tttHost(); toast("Invita un amico nella stanza, poi puntate gli schei"); };
-  if ($("#schTesAdd")) $("#schTesAdd").onclick = () => { closeSheet(); setMode("nautica"); addMode = "wzpick"; const h = $("#modeHint"); h.textContent = "💰 Tocca la mappa dove mettere il tesoro"; h.classList.remove("hidden");
-    window._wzPick = async ll => { const nome = prompt("Nome del tesoro (es. «Torcello · il campanile»)", "Tesoro"); if (nome === null) return;
-      const j = await rpc("tesoro_admin", { p_azione: "add", p_nome: nome, p_lat: ll.lat, p_lng: ll.lng }).catch(() => null); if (j && j.ok){ toast("Tesoro aggiunto"); tesLoad(); } else toast("Non aggiunto"); }; };
+  if ($("#schTesAdd")) $("#schTesAdd").onclick = () => { closeSheet(); tesAddPick(); };
   const T = TESORI.map(t => ({ t, d: lastPos ? dist(lastPos, t) : null })).sort((a, b) => (a.d ?? 1e12) - (b.d ?? 1e12));
   $("#schTes").innerHTML = T.length ? T.map(({ t, d }) => `<button class="card rowbtn" data-tz="${t.id}" style="width:100%">${esc(t.nome)} <span>${tesWait(t) ? "fra " + tesLeft(t) : d === null ? "+" + t.premio : d >= 1000 ? (d / 1000).toFixed(1) + " km" : Math.round(d) + " m"}</span></button>`).join("") : `<p class="muted">Nessun tesoro per ora.</p>`;
   document.querySelectorAll("[data-tz]").forEach(b => b.onclick = () => { const t = TESORI.find(x => x.id === +b.dataset.tz); if (t) tesInfo(t); });
@@ -11885,6 +11891,7 @@ async function admEditList(){
   const f = $("#fabSet"); if (f) f.addEventListener("click", show); show();
   if ($("#admEdit")) $("#admEdit").onclick = () => { haptic(); admEditToggle(); };
   if ($("#admList")) $("#admList").onclick = () => { $("#setPanel").classList.add("hidden"); admEditList(); };
+  if ($("#admTes")) $("#admTes").onclick = () => { haptic(); $("#setPanel").classList.add("hidden"); $("#fabSet").classList.remove("on"); tesAddPick(); };
   if ($("#admBle")) $("#admBle").onclick = () => { haptic(); if (!isTropss()) return; window.open("strumenti-ble.html", "_blank"); };
   if ($("#admHid")) $("#admHid").onclick = () => { $("#setPanel").classList.add("hidden"); hiddenSheet(); }; })();
 // tocco in modalità nascondi: cosa c'è sotto il dito?
