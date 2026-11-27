@@ -1624,6 +1624,12 @@
   [data-cam] .ic svg{stroke:#fff!important;fill:none}
   .bdr.aereo{cursor:pointer}
   .ptMk{width:38px;height:38px;display:grid;place-items:center;filter:drop-shadow(0 2px 4px rgba(0,0,0,.45))} .ptMk svg{width:34px;height:34px;fill:#f2b738;stroke:#111;stroke-width:.9}
+  #ptMap{position:fixed;inset:0;z-index:3100;background:#dfe7ee}
+  #ptMap #ptMapC{position:absolute;inset:0}
+  #ptMap .ptVce{display:flex;flex-direction:column;align-items:center} #ptMap .ptVce i{width:14px;height:14px;border-radius:50%;background:#d6551b;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  #ptMap .ptVce span{margin-top:2px;font-size:11px;font-weight:800;background:#fff;color:#111;padding:1px 6px;border-radius:7px;box-shadow:0 1px 3px rgba(0,0,0,.3);white-space:nowrap;order:-1;margin-bottom:3px}
+  #ptMap .ptMk svg{width:34px;height:34px;fill:#1d4e89;stroke:#fff;stroke-width:1.2;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+  #ptBox em{display:block;font-style:normal;font-size:11.5px;opacity:.75;margin-top:3px}
   #ptBox{position:fixed;left:12px;right:12px;top:calc(76px + var(--safe-t));z-index:40;background:#0f172a;color:#fff;border-radius:16px;padding:10px 12px 10px 52px;box-shadow:0 8px 24px rgba(0,0,0,.3);cursor:pointer}
   #ptBox .ptX{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.15);color:#fff}
   #ptBox b{display:block;font-size:16px} #ptBox b small{font-weight:600;opacity:.7;font-size:12px} #ptBox small{display:block;opacity:.8;font-size:12.5px} #ptBox span{display:block;font-size:13px;margin-top:2px;color:#f2b738;font-weight:700}
@@ -2195,7 +2201,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.55</p>
+      <p class="sub">clickVenice · versione 4.56</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -8622,30 +8628,48 @@ document.querySelectorAll("#trPanel [data-tr]").forEach(b => b.onclick = () => {
 const ACTV = (q) => fetchT(CONFIG.SUPABASE_URL + "/functions/v1/actv?" + q, {}, 15000).then(r => r.json());
 /* ---------- dov'è l'aereo: posizione in tempo reale dal numero di volo (dati ADS-B aperti di adsb.lol) ---------- */
 let PT = null;
-async function planeTrack(fl, place, verso){
+// la mappa di clickVenice è solo Venezia: l'aereo si segue su una mappa leggera a parte (tutta l'Europa, tessere raster CARTO)
+const PT_STYLE = { version: 8, sources: { c: { type: "raster", tileSize: 256, maxzoom: 18, attribution: "© OpenStreetMap © CARTO",
+  tiles: ["a", "b", "c", "d"].map(x => `https://${x}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png`) } }, layers: [{ id: "c", type: "raster", source: "c" }] };
+const PT_URL = o => CONFIG.SUPABASE_URL + "/functions/v1/aereo?" + new URLSearchParams(Object.entries(o).filter(([, v]) => v != null && v !== "")).toString();
+async function planeTrack(fl, place, verso, alt, ora){
   haptic(); toast("Cerco l'aereo " + fl + "…", false, true);
-  let j = null; try{ j = await fetchT(CONFIG.SUPABASE_URL + "/functions/v1/aereo?volo=" + encodeURIComponent(fl), {}, 25000).then(r => r.json()); }catch(e){}
-  if (!j || !j.trovato){ toast(j && j.provati ? "L'aereo " + fl + " non è in volo adesso, oppure la compagnia trasmette un nominativo diverso dal numero del volo (Ryanair, easyJet, Wizz Air): prova un altro numero dello stesso volo" : "Posizione non disponibile adesso, riprova tra poco."); return; }
-  try{ closeBoard(); }catch(e){} if (MODES[modeIdx].k !== "nautica") setMode("nautica");
-  planeStop(); PT = { fl, place, verso, j, first: true }; planePaint();
-  PT.t = setInterval(async () => { if (!PT) return; try{ const k = await fetchT(CONFIG.SUPABASE_URL + "/functions/v1/aereo?volo=" + encodeURIComponent(fl), {}, 20000).then(r => r.json()); if (PT && k && k.trovato){ PT.j = k; planePaint(); } }catch(e){} }, 10000);
+  const q = { volo: fl, alt: alt || "", ora: ora || "", verso };
+  let j = null; try{ j = await fetchT(PT_URL(q), {}, 30000).then(r => r.json()); }catch(e){}
+  if (!j || !j.trovato){ toast("Non trovo l'aereo " + fl + " adesso: forse è ancora al gate di un altro aeroporto, è già atterrato o non trasmette la posizione. Riprova tra qualche minuto."); return; }
+  try{ closeBoard(); }catch(e){}
+  planeStop(); PT = { fl, place, verso, j, q, first: true }; planeOpen(); planePaint();
+  PT.t = setInterval(async () => { if (!PT) return; try{ const k = await fetchT(PT_URL({ ...PT.q, hex: PT.j.hex, stima: PT.j.stima ? 1 : "" }), {}, 20000).then(r => r.json()); if (PT && k && k.trovato){ PT.j = k; planePaint(); } }catch(e){} }, 10000);
 }
-function planeStop(){ if (!PT) return; clearInterval(PT.t); try{ PT.mk && PT.mk.remove(); }catch(e){} const b = $("#ptBox"); if (b) b.remove(); PT = null; }
+function planeOpen(){
+  let o = $("#ptMap"); if (o) return;
+  o = document.createElement("div"); o.id = "ptMap"; o.innerHTML = `<div id="ptMapC"></div><div id="ptBox"></div>`; document.body.appendChild(o);
+  try{ PT.map = new maplibregl.Map({ container: "ptMapC", style: PT_STYLE, center: [PT.j.lng, PT.j.lat], zoom: 5, attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false });
+    PT.map.on("load", () => { if (!PT || !PT.map) return;
+      PT.map.addSource("ptl", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      PT.map.addLayer({ id: "ptl", type: "line", source: "ptl", paint: { "line-color": "#1d4e89", "line-width": 2.5, "line-dasharray": [2, 2] } });
+      planePaint(); }); }catch(e){}
+  const v = document.createElement("div"); v.className = "ptVce"; v.innerHTML = "<i></i><span>Venezia ✈ Marco Polo</span>";
+  try{ PT.vce = new maplibregl.Marker({ element: v, anchor: "bottom" }).setLngLat([12.3519, 45.5053]).addTo(PT.map); }catch(e){}
+}
+function planeStop(){ if (!PT) return; clearInterval(PT.t); try{ PT.map && PT.map.remove(); }catch(e){} const o = $("#ptMap"); if (o) o.remove(); PT = null; }
 function planePaint(){
-  if (!PT || !map) return; const j = PT.j;
-  if (!PT.mk){ const el = document.createElement("div"); el.className = "ptMk"; el.setAttribute("data-noico", "");
+  if (!PT) return; const j = PT.j, M = PT.map;
+  if (M && !PT.mk){ const el = document.createElement("div"); el.className = "ptMk";
     el.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 2c.8 0 1.4 1 1.4 2.4v5.2l7.6 4.6v2l-7.6-2.3v4.6l2.4 1.8V22L12 21l-3.8 1v-1.7l2.4-1.8v-4.6L3 16.2v-2l7.6-4.6V4.4C10.6 3 11.2 2 12 2z"/></svg>`;
-    PT.mk = new maplibregl.Marker({ element: el, anchor: "center", rotationAlignment: "map" }).setLngLat([j.lng, j.lat]).addTo(map); }
-  PT.mk.setLngLat([j.lng, j.lat]); if (j.rotta != null) PT.mk.setRotation(j.rotta);
+    PT.mk = new maplibregl.Marker({ element: el, anchor: "center", rotationAlignment: "map" }).setLngLat([j.lng, j.lat]).addTo(M); }
+  if (PT.mk){ PT.mk.setLngLat([j.lng, j.lat]); if (j.rotta != null) PT.mk.setRotation(j.rotta); }
+  try{ M && M.getSource("ptl") && M.getSource("ptl").setData({ type: "Feature", geometry: { type: "LineString", coordinates: [[j.lng, j.lat], [12.3519, 45.5053]] } }); }catch(e){}
   const quota = j.a_terra ? "a terra" : j.alt_ft != null ? Math.round(j.alt_ft * 0.3048).toLocaleString("it-IT") + " m" : "", vel = j.kn != null ? Math.round(j.kn * 1.852) + " km/h" : "";
   const dist = hav(j.lat, j.lng, 45.5053, 12.3519) / 1000, eta = PT.verso === "arrivi" && j.kn > 60 && !j.a_terra ? Math.round(dist / (j.kn * 1.852) * 60) : null;
-  let b = $("#ptBox"); if (!b){ b = document.createElement("div"); b.id = "ptBox"; document.body.appendChild(b); }
+  const b = $("#ptBox"); if (!b) return;
   b.innerHTML = `<button class="ptX" aria-label="Chiudi">✕</button><div><b>✈ ${esc(PT.fl)}${j.callsign && j.callsign !== PT.fl ? ` <small>(${esc(j.callsign)})</small>` : ""}</b>
     <small>${PT.verso === "arrivi" ? "da " : "per "}${esc(PT.place || "")}${j.tipo ? " · " + esc(j.tipo) : ""}${j.reg ? " " + esc(j.reg) : ""}</small>
-    <span>${[quota, vel, Math.round(dist) + " km da Venezia", eta != null ? "arriva tra ~" + eta + " min" : ""].filter(Boolean).join(" · ")}</span></div>`;
+    <span>${[quota, vel, Math.round(dist) + " km da Venezia", eta != null ? "arriva tra ~" + eta + " min" : ""].filter(Boolean).join(" · ")}</span>
+    ${j.stima ? `<em>Aereo riconosciuto da compagnia, orario e rotta: è quasi certamente lui</em>` : ""}</div>`;
   b.querySelector(".ptX").onclick = planeStop;
-  b.onclick = ev => { if (ev.target.closest(".ptX")) return; try{ map.easeTo({ center: [j.lng, j.lat], zoom: Math.min(map.getZoom(), 8), duration: 600 }); }catch(e){} };
-  if (PT.first){ PT.first = false; try{ const bb = new maplibregl.LngLatBounds([j.lng, j.lat], [j.lng, j.lat]).extend([12.3519, 45.5053]); map.fitBounds(bb, { padding: { top: 170, bottom: 200, left: 50, right: 50 }, maxZoom: 11, duration: 900 }); }catch(e){} }
+  b.onclick = ev => { if (ev.target.closest(".ptX") || !M) return; try{ M.easeTo({ center: [j.lng, j.lat], zoom: Math.max(M.getZoom(), 7), duration: 600 }); }catch(e){} };
+  if (PT.first && M && M.loaded && M.loaded()){ PT.first = false; try{ M.fitBounds([[Math.min(j.lng, 12.3519), Math.min(j.lat, 45.5053)], [Math.max(j.lng, 12.3519), Math.max(j.lat, 45.5053)]], { padding: { top: 150, bottom: 60, left: 50, right: 50 }, maxZoom: 9, duration: 0 }); }catch(e){} }
 }
 /* ---------- aeroporto Marco Polo: partenze e arrivi (fonte non ufficiale) ---------- */
 const VOLI = () => fetchT(CONFIG.SUPABASE_URL + "/functions/v1/voli", {}, 15000).then(r => r.json());
@@ -8661,7 +8685,7 @@ function renderVoli(){
   if (voliData.error){ box.textContent = "Orari non disponibili adesso."; return; }
   const rows = (voliTab === "dep" ? voliData.dep : voliData.arr) || [], pre = voliTab === "dep" ? "per" : "da";
   if (!rows.length){ box.textContent = "Nessun volo al momento."; return; }
-  setTimeout(() => box.querySelectorAll(".ae-row[data-fl]").forEach(el => el.onclick = () => { closeAero(); planeTrack(el.dataset.fl, el.dataset.pl, voliTab === "dep" ? "partenze" : "arrivi"); }), 0);
+  setTimeout(() => box.querySelectorAll(".ae-row[data-fl]").forEach(el => el.onclick = () => { closeAero(); const r = rows.find(x => x.flight === el.dataset.fl) || {}; planeTrack(el.dataset.fl, el.dataset.pl, voliTab === "dep" ? "partenze" : "arrivi", rows.filter(x => x !== r && x.time === r.time && x.place === r.place).map(x => x.flight).join(","), ((String(r.status || "").match(/(\d{1,2}:\d\d)/) || [])[1]) || r.time); }), 0);
   box.innerHTML = rows.map(r => `<div class="ae-row" data-fl="${esc(r.flight)}" data-pl="${esc(r.place)}" style="cursor:pointer"><div class="ae-t">${esc(r.time)}</div><div class="ae-m"><b>${esc(r.flight)}</b> · ${esc(pre)} ${esc(r.place)}<br><span class="ae-a">${esc(r.airline)}</span></div><div class="ae-s ${statusCls(r.status)}">${esc(statusIt(r.status))}</div></div>`).join("");
 }
 async function loadVoli(){ try{ voliData = await VOLI(); }catch(e){ voliData = { error: 1 }; } renderVoli(); }
@@ -10308,8 +10332,9 @@ async function openStation(st, verso){
     const bx = $("#bdRows"), list = v && !v.error ? (verso === "arrivi" ? v.arr : v.dep) : null, U = t => esc(String(t || "").toUpperCase());
     if (!list){ bx.innerHTML = `<div class="bdmsg">TABELLONE NON DISPONIBILE · CONTROLLA LA CONNESSIONE</div>`; return; }
     if (!list.length){ bx.innerHTML = `<div class="bdmsg">NESSUN VOLO NELLE PROSSIME ORE</div>`; return; }
-    bx.innerHTML = list.map(c => `<div class="bdr aereo${/cancel/i.test(c.status) ? " sop" : ""}" data-fl="${esc(c.flight)}" data-pl="${esc(c.place)}" data-vv="${verso}"><span class="c-tr">${U(c.flight)}</span><span class="c-to">${U(c.place)}</span><span class="c-h">${esc(c.time)}</span><span class="c-d">${U(statusIt(c.status))}</span><span class="c-i">${U(c.airline)}</span></div>`).join("");
-    bx.querySelectorAll("[data-fl]").forEach(el => el.onclick = () => planeTrack(el.dataset.fl, el.dataset.pl, el.dataset.vv));
+    const altOf = c => list.filter(x => x !== c && x.time === c.time && x.place === c.place).map(x => x.flight).join(","), oraOf = c => ((String(c.status || "").match(/(\d{1,2}:\d\d)/) || [])[1]) || c.time;
+    bx.innerHTML = list.map(c => `<div class="bdr aereo${/cancel/i.test(c.status) ? " sop" : ""}" data-fl="${esc(c.flight)}" data-pl="${esc(c.place)}" data-vv="${verso}" data-alt="${esc(altOf(c))}" data-t="${esc(oraOf(c))}"><span class="c-tr">${U(c.flight)}</span><span class="c-to">${U(c.place)}</span><span class="c-h">${esc(c.time)}</span><span class="c-d">${U(statusIt(c.status))}</span><span class="c-i">${U(c.airline)}</span></div>`).join("");
+    bx.querySelectorAll("[data-fl]").forEach(el => el.onclick = () => planeTrack(el.dataset.fl, el.dataset.pl, el.dataset.vv, el.dataset.alt, el.dataset.t));
     $("#bdNote").textContent = "Voli del Marco Polo · fonte non ufficiale · tocca un volo per vedere l'aereo in tempo reale"; return;
   }
   let j;
