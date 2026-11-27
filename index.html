@@ -2201,7 +2201,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.57</p>
+      <p class="sub">clickVenice · versione 4.58</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -8637,8 +8637,10 @@ async function planeTrack(fl, place, verso, alt, ora){
   const q = { volo: fl, alt: alt || "", ora: ora || "", verso };
   let j = null; try{ j = await fetchT(PT_URL(q), {}, 30000).then(r => r.json()); }catch(e){}
   if (!j || !j.trovato){ toast("Non trovo l'aereo " + fl + " adesso: forse è ancora al gate di un altro aeroporto, è già atterrato o non trasmette la posizione. Riprova tra qualche minuto."); return; }
+  // da dove arrivo: con ✕ si torna al tabellone dei voli
+  const B = $("#board"), back = B && !B.classList.contains("hidden") ? "board" : "aero";
   try{ closeBoard(); }catch(e){}
-  planeStop(); PT = { fl, place, verso, j, q, first: true }; planeOpen(); planePaint();
+  planeStop(); PT = { fl, place, verso, j, q, first: true, back }; planeOpen(); planePaint();
   PT.t = setInterval(async () => { if (!PT) return; try{ const k = await fetchT(PT_URL({ ...PT.q, hex: PT.j.hex, stima: PT.j.stima ? 1 : "" }), {}, 20000).then(r => r.json()); if (PT && k && k.trovato){ PT.j = k; planePaint(); } }catch(e){} }, 10000);
 }
 function planeOpen(){
@@ -8667,7 +8669,8 @@ function planePaint(){
     <small>${PT.verso === "arrivi" ? "da " : "per "}${esc(PT.place || "")}${j.tipo ? " · " + esc(j.tipo) : ""}${j.reg ? " " + esc(j.reg) : ""}</small>
     <span>${[quota, vel, Math.round(dist) + " km da Venezia", eta != null ? "arriva tra ~" + eta + " min" : ""].filter(Boolean).join(" · ")}</span>
     ${j.stima ? `<em>Aereo riconosciuto da compagnia, orario e rotta: è quasi certamente lui</em>` : ""}</div>`;
-  b.querySelector(".ptX").onclick = planeStop;
+  b.querySelector(".ptX").onclick = ev => { ev.stopPropagation(); const back = PT && PT.back, v = PT && PT.verso; planeStop();
+    if (back === "board"){ const st = STZ.find(x => x.k === "aereo"); if (st) openStation(st, v || "partenze"); } else { try{ openAero(); }catch(e){} } };
   b.onclick = ev => { if (ev.target.closest(".ptX") || !M) return; try{ M.easeTo({ center: [j.lng, j.lat], zoom: Math.max(M.getZoom(), 7), duration: 600 }); }catch(e){} };
   if (PT.first && M && M.loaded && M.loaded()){ PT.first = false; try{ M.fitBounds([[Math.min(j.lng, 12.3519), Math.min(j.lat, 45.5053)], [Math.max(j.lng, 12.3519), Math.max(j.lat, 45.5053)]], { padding: { top: 150, bottom: 60, left: 50, right: 50 }, maxZoom: 9, duration: 0 }); }catch(e){} }
 }
