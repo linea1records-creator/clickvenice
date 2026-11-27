@@ -519,6 +519,44 @@
   #swp .swCh .taIco svg{height:min(78cqh,62cqw);width:auto;max-width:100%}
   #swp .taScr{container-type:size;padding:4px 6px}
   #swp .taDisp .taVal{font-size:min(58cqh,27cqw);max-width:100%;overflow:hidden}
+  /* marea: tocca il display per la previsione completa delle prossime 24 ore */
+  #swp #taTide{cursor:pointer} #swp #taTide:active{transform:translateY(3px) scale(.965)}
+  #taTP{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;gap:10px;padding:calc(8px + var(--safe-t)) 10px calc(10px + var(--safe-b));
+    background:inherit;background-color:#0c0d0f;box-shadow:inset 0 0 0 3px #2a2d31,inset 0 0 0 5px #0a0b0c;animation:taTPin .22s ease-out}
+  @keyframes taTPin{from{opacity:0;transform:translateY(14px)}}
+  #taTP .tpTop{position:relative;height:56px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  #taTP .tpTop b{font-size:15px;font-weight:900;letter-spacing:.18em;color:#e7ebef;text-shadow:0 0 8px rgba(var(--tr),.45),0 1px 2px #000}
+  #taTP .tpTop .swX{top:5px}
+  #taTP .tpBox{position:relative;border-radius:20px;padding:7px;flex:0 0 auto;
+    background:linear-gradient(155deg,#5d6268,#2a2d31 30%,#17191b 60%,#3c4046);border:2px solid var(--tc);
+    box-shadow:0 0 0 1px color-mix(in srgb,var(--tc) 45%,#000),0 0 14px rgba(var(--tr),.6),0 6px 12px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.25)}
+  #taTP .tpScr{position:relative;border-radius:14px;padding:10px 10px;overflow:hidden;
+    background:radial-gradient(ellipse at 50% 30%,#26292d,#0c0d0f 75%);box-shadow:inset 0 3px 10px rgba(0,0,0,.95),inset 0 0 0 1px #000,0 0 0 1px rgba(255,255,255,.08)}
+  #taTP .tpScr::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(160deg,rgba(255,255,255,.09),transparent 40%);pointer-events:none}
+  #taTP .tpNow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+  #taTP .tpNow .taVal{font-size:clamp(40px,14vw,64px);white-space:nowrap}
+  #taTP .tpNow .taTr{font-size:.45em;vertical-align:middle}
+  #taTP .tpNow small{display:block;font-size:12px;font-weight:700;color:#9aa3ad;letter-spacing:.06em;text-align:right;line-height:1.35}
+  #taTP .tpNow small b{color:#eef1f4;font-size:15px}
+  #taTP canvas{width:100%;height:150px;display:block}
+  #taTP .tpLab{font-size:11px;font-weight:800;letter-spacing:.14em;color:#9aa3ad;margin:0 0 6px 2px}
+  #taTP .tpPk{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  #taTP .tpPk div{border-radius:12px;padding:8px 10px;background:#0b0c0e;border:1px solid #2a2d31;display:flex;align-items:center;justify-content:space-between;gap:6px}
+  #taTP .tpPk span{font-size:12px;font-weight:700;color:#9aa3ad;line-height:1.2}
+  #taTP .tpPk span b{display:block;font-size:16px;color:#eef1f4}
+  #taTP .tpPk b{font-size:18px;font-weight:900;font-variant-numeric:tabular-nums;color:#eef1f4}
+  #taTP .tpPk b i{font-style:normal;color:var(--tc);text-shadow:0 0 8px var(--tc);margin-right:3px}
+  #taTP .tpPk .al{border-color:#d95f26;box-shadow:0 0 10px rgba(217,95,38,.5)} #taTP .tpPk .al b{color:#ff9a5a}
+  #taTP .tpH{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  #taTP .tpH::-webkit-scrollbar{display:none}
+  #taTP .tpH div{flex:0 0 52px;border-radius:10px;padding:6px 0;background:#0b0c0e;border:1px solid #2a2d31;text-align:center}
+  #taTP .tpH div.cur{border-color:var(--tc);box-shadow:0 0 8px rgba(var(--tr),.6)}
+  #taTP .tpH span{display:block;font-size:11px;color:#9aa3ad;font-weight:700}
+  #taTP .tpH b{display:block;font-size:15px;font-weight:900;color:#eef1f4;font-variant-numeric:tabular-nums}
+  #taTP .tpH .al b{color:#ff9a5a}
+  #taTP .tpBody{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:2px 2px 4px;scrollbar-width:none}
+  #taTP .tpBody::-webkit-scrollbar{display:none}
+  #taTP .tpSrc{font-size:11px;color:#7d868f;text-align:center;margin:2px 0 0}
   #swEd .swEdBox>*{flex-shrink:0}
   #swp #taSet{cursor:pointer}
   #swp #taSet:active{transform:translateY(3px) scale(.965)}
@@ -2338,7 +2376,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.73</p>
+      <p class="sub">clickVenice · versione 4.74</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -13713,7 +13751,7 @@ function openTA(pg){
   const B = $("#taBody"); requestAnimationFrame(() => { B.scrollTop = pg === 0 ? $("#taInst").offsetTop - 6 : 0; });
   clearInterval(TA.t); TA.t = setInterval(taTick, 500); taTick();
 }
-function closeTA(){ $("#swp").classList.add("hidden"); clearInterval(TA.t); TA.t = null; const m = $("#swEd"); if (m) m.remove(); }
+function closeTA(){ $("#swp").classList.add("hidden"); clearInterval(TA.t); TA.t = null; const m = $("#swEd"); if (m) m.remove(); const tp = $("#taTP"); if (tp) tp.remove(); }
 function taSet(id, v){ const e = $("#" + id); if (!e || e.textContent === v) return; e.textContent = v; const b = e.closest(".taVal"); if (b){ b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump"); } }
 const taOn = (id, on) => $("#" + id).classList.toggle("on", !!on);
 function taTick(){
@@ -13759,6 +13797,75 @@ function taImpost(){
   $("#swEdNo").onclick = () => m.remove();
   const sc = $("#taScol"); if (sc) sc.onclick = () => { m.remove(); swConnect(); };
 }
+/* ---------- marea: previsione completa delle prossime 24 ore (tocca il display MAREA) ---------- */
+function taTideOra(ts){ return new Date(ts).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }); }
+function taTideCm(v){ v = Math.round(v); return (v > 0 ? "+" : "") + v; }
+function taTidePaint(){
+  const P = $("#taTP"); if (!P) return;
+  const now = Date.now(), t0 = now, t1 = now + 24 * 3600e3;
+  let td = null; try{ td = tideNow(); if (td == null){ const e = tideAt(now); if (e != null) td = Math.round(e); } }catch(e){}
+  let tr = ""; try{ const a = tideAt(now), b = tideAt(now + 30 * 60000); if (a != null && b != null && Math.abs(b - a) >= 1) tr = b > a ? "su" : "giu"; }catch(e){}
+  $("#tpV").textContent = td == null ? "–" : taTideCm(td);
+  const T = $("#tpTr"); T.className = "taTr " + tr; T.textContent = tr === "su" ? "▲" : tr === "giu" ? "▼" : "";
+  $("#tpSt").innerHTML = tr === "su" ? "<b>In crescita</b>" : tr === "giu" ? "<b>In calo</b>" : td == null ? "<b>Nessun dato</b>" : "<b>Stanca</b>";
+  const pk = TFC ? TFC.pts.filter(p => p.ts > now && p.ts <= t1) : [];
+  const nx = pk[0];
+  $("#tpNx").innerHTML = nx ? `prossima ${nx.tipo === "max" ? "massima" : "minima"}<br><b>${taTideCm(nx.cm)} cm</b> alle <b>${taTideOra(nx.ts)}</b>` : "";
+  // massime e minime delle prossime 24 ore
+  $("#tpPk").innerHTML = pk.length ? pk.map(p => `<div class="${p.cm >= 110 ? "al" : ""}"><span>${p.tipo === "max" ? "Massima" : "Minima"}<b>${taTideOra(p.ts)}</b></span><b><i>${p.tipo === "max" ? "▲" : "▼"}</i>${taTideCm(p.cm)}</b></div>`).join("")
+    : `<div style="grid-column:span 2"><span>Previsione non disponibile: riprova tra poco</span></div>`;
+  // ora per ora
+  const h0 = new Date(now); h0.setMinutes(0, 0, 0); let H = "";
+  for (let k = 0; k <= 24; k++){ const ts = h0.getTime() + k * 3600e3; const v = k === 0 && td != null ? td : tideAt(ts); if (v == null) continue;
+    H += `<div class="${k === 0 ? "cur" : ""} ${v >= 110 ? "al" : ""}"><span>${k === 0 ? "adesso" : String(new Date(ts).getHours()).padStart(2, "0") + ":00"}</span><b>${taTideCm(v)}</b></div>`; }
+  $("#tpH").innerHTML = H || `<div style="flex:1 0 auto;padding:8px"><span>–</span></div>`;
+  // curva
+  const c = $("#tpC"), dpr = Math.min(window.devicePixelRatio || 1, 3), W = c.clientWidth, Hh = c.clientHeight; if (!W) return;
+  c.width = W * dpr; c.height = Hh * dpr; const g = c.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, Hh);
+  const vals = []; for (let t = t0; t <= t1; t += 600e3){ const v = tideAt(t); if (v !== null) vals.push([t, v]); }
+  if (vals.length < 2){ g.fillStyle = "#7d868f"; g.font = "700 13px system-ui"; g.textAlign = "center"; g.fillText("Previsione in arrivo…", W / 2, Hh / 2); return; }
+  const tc = getComputedStyle($("#swp")).getPropertyValue("--tc").trim() || "#ff2a1f", trgb = getComputedStyle($("#swp")).getPropertyValue("--tr").trim() || "255,42,31";
+  const lo = Math.min(-20, ...vals.map(v => v[1])) - 10, hi = Math.max(120, ...vals.map(v => v[1])) + 15, padB = 18, gh = Hh - padB;
+  const X = t => (t - t0) / (t1 - t0) * W, Y = v => gh - (v - lo) / (hi - lo) * gh;
+  // griglia: zero e ore ogni 3
+  g.strokeStyle = "rgba(255,255,255,.08)"; g.lineWidth = 1; g.font = "700 10px system-ui"; g.fillStyle = "#7d868f"; g.textAlign = "center";
+  const hs = new Date(t0); hs.setMinutes(0, 0, 0); for (let ts = hs.getTime() + 3600e3; ts < t1; ts += 3600e3){ const d = new Date(ts); if (d.getHours() % 3) continue;
+    const x = X(ts); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, gh); g.stroke(); g.fillText(String(d.getHours()).padStart(2, "0"), x, Hh - 4); }
+  g.strokeStyle = "rgba(255,255,255,.18)"; g.beginPath(); g.moveTo(0, Y(0)); g.lineTo(W, Y(0)); g.stroke();
+  g.textAlign = "right"; g.fillText("0", W - 3, Y(0) - 3);
+  // soglia acqua alta
+  g.strokeStyle = "rgba(217,95,38,.8)"; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(0, Y(110)); g.lineTo(W, Y(110)); g.stroke(); g.setLineDash([]);
+  g.fillStyle = "#d95f26"; g.fillText("110", W - 3, Y(110) - 3);
+  // area e linea nel colore delle luci
+  const gr = g.createLinearGradient(0, 0, 0, gh); gr.addColorStop(0, `rgba(${trgb},.45)`); gr.addColorStop(1, `rgba(${trgb},.02)`);
+  g.beginPath(); g.moveTo(X(vals[0][0]), gh); vals.forEach(v => g.lineTo(X(v[0]), Y(v[1]))); g.lineTo(X(vals[vals.length - 1][0]), gh); g.closePath(); g.fillStyle = gr; g.fill();
+  g.shadowColor = tc; g.shadowBlur = 8; g.strokeStyle = tc; g.lineWidth = 2.5; g.beginPath(); vals.forEach((v, i) => i ? g.lineTo(X(v[0]), Y(v[1])) : g.moveTo(X(v[0]), Y(v[1]))); g.stroke(); g.shadowBlur = 0;
+  // massime e minime sulla curva
+  g.textAlign = "center"; g.font = "800 11px system-ui";
+  pk.forEach(p => { const x = X(p.ts), y = Y(p.cm); g.fillStyle = "#eef1f4"; g.beginPath(); g.arc(x, y, 3.5, 0, 7); g.fill();
+    g.fillStyle = p.cm >= 110 ? "#ff9a5a" : "#eef1f4"; g.fillText(taTideCm(p.cm), Math.min(W - 14, Math.max(14, x)), p.tipo === "max" ? Math.max(11, y - 8) : Math.min(gh - 2, y + 16)); });
+  // adesso
+  if (td != null){ g.fillStyle = "#fff"; g.shadowColor = tc; g.shadowBlur = 10; g.beginPath(); g.arc(2, Y(td), 5, 0, 7); g.fill(); g.shadowBlur = 0; }
+}
+function taTideOpen(){
+  haptic(); let P = $("#taTP"); if (P) P.remove();
+  P = document.createElement("div"); P.id = "taTP"; P.setAttribute("role", "dialog"); P.setAttribute("aria-label", "Marea prossime 24 ore");
+  P.innerHTML = `<div class="tpTop"><b>MAREA · 24 ORE</b><button class="swX" id="tpX" aria-label="Chiudi">✕</button></div>
+    <div class="tpBody">
+      <div class="tpBox"><div class="tpScr"><div class="tpNow"><b class="taVal"><span id="tpV">–</span><em>cm</em><i class="taTr" id="tpTr"></i></b><small><span id="tpSt"></span><br><span id="tpNx"></span></small></div></div></div>
+      <div class="tpBox"><div class="tpScr"><canvas id="tpC"></canvas></div></div>
+      <div class="tpBox"><div class="tpScr"><div class="tpLab">MASSIME E MINIME</div><div class="tpPk" id="tpPk"></div></div></div>
+      <div class="tpBox"><div class="tpScr"><div class="tpLab">ORA PER ORA</div><div class="tpH" id="tpH"></div></div></div>
+      <p class="tpSrc">Previsione ufficiale del Comune di Venezia · Punta della Salute</p>
+    </div>`;
+  $("#swp").appendChild(P);
+  $("#tpX").onclick = () => { haptic(); P.remove(); clearInterval(taTideOpen.t); };
+  taTidePaint();
+  Promise.resolve().then(() => loadForecast()).then(taTidePaint).catch(() => {});
+  clearInterval(taTideOpen.t); taTideOpen.t = setInterval(() => { if (!$("#taTP") || $("#swp").classList.contains("hidden")) return clearInterval(taTideOpen.t); taTidePaint(); }, 60000);
+}
+$("#taTide").addEventListener("click", taTideOpen);
+$("#taTide").setAttribute("role", "button"); $("#taTide").setAttribute("title", "Tocca per la previsione delle prossime 24 ore");
 // impostazioni (colore luci, ordine tasti): tieni premuto il logo
 (function(){ const L = $("#swp .taLogo"); let t = null;
   L.addEventListener("pointerdown", () => { t = setTimeout(() => { haptic(); taImpost(); }, 700); });
