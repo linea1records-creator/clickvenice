@@ -2205,7 +2205,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.59</p>
+      <p class="sub">clickVenice · versione 4.60</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -5325,7 +5325,7 @@ function manFeatures(lat, lng, hdg, av, out, tilt, boatHint){
   const tl = tilt || 0, poly = (P, b, t, c) => { const dz = tl ? P.reduce((a, q) => a + q[1], 0) / P.length * tl : 0; out.push({ type: "Feature", properties: { c: C[c] || c, b: Math.max(0, b + dz) * u, h: Math.max(0.05, t + dz) * u },
     geometry: { type: "Polygon", coordinates: [P.concat([P[0]]).map(q => pt(q[0], q[1]))] } }); };
   // sull'acqua l'omino sta in piedi dentro una barchetta grande come lui (un po' verso poppa, sopra il pagliolo)
-  const wat = boatHint === true ? true : boatHint === false ? false : onWater(lat, lng);
+  const wat = boatHint === true ? true : boatHint === false ? false : meWater(lat, lng);
   const SZ = avSizes(), sm = SZ.man, sb = SZ.boat;
   if (wat){ boatFeatures((P, b, t, c) => poly(P.map(q => [q[0] * sb, q[1] * sb]), b * sb, t * sb, c), av); seatedMan(poly, C, girl, sm, sb, av);
     petBoxes(av, true, sm, sb).forEach(q => poly([[q[0], q[2]], [q[1], q[2]], [q[1], q[3]], [q[0], q[3]]], q[4], q[5], q[6]));
@@ -5406,13 +5406,25 @@ function inRing(x, y, R){ let a = false; for (let i = 0, j = R.length - 1; i < R
 function onWater(lat, lng){
   if (!map) return false;
   const k = lat.toFixed(4) + "," + lng.toFixed(4); if (WATER_AT.has(k)) return WATER_AT.get(k);
-  let res = null;
+  let res = null, poly = false;
   try{ const F = map.querySourceFeatures("openmaptiles", { sourceLayer: "water" });
-    if (F.length){ res = F.some(f => { const g = f.geometry, P = g.type === "Polygon" ? [g.coordinates] : g.type === "MultiPolygon" ? g.coordinates : [];
+    if (F.length){ poly = true; res = F.some(f => { const g = f.geometry, P = g.type === "Polygon" ? [g.coordinates] : g.type === "MultiPolygon" ? g.coordinates : [];
       return P.some(rings => rings.length && inRing(lng, lat, rings[0]) && !rings.slice(1).some(h => inRing(lng, lat, h))); }); } }catch(e){}
-  if (!res && typeof G !== "undefined" && G.done && gNear(lat, lng, 10)) res = true;   // sopra un canale della rete (anche dove le tessere della mappa non sono caricate)
+  // la rete dei canali conta solo se i poligoni dell'acqua non ci sono: sulle fondamenta il centro del rio è a pochi metri e l'avatar finiva in barca a terra
+  if (!poly && typeof G !== "undefined" && G.done && gNear(lat, lng, 4)) res = true;
   if (res === null) return false;   // tessere non pronte: non lo segno in memoria
   if (WATER_AT.size > 400) WATER_AT.clear(); WATER_AT.set(k, res); return res;
+}
+// in barca solo se è davvero in acqua: prima la maschera precisa dell'acqua, poi i poligoni della mappa;
+// il cambio a terra / in acqua vale solo se dura almeno 3 secondi (il GPS sulle fondamenta oscilla)
+let ME_W = { v: null, since: 0 };
+function meWater(lat, lng){
+  let w = null; try{ w = wmAt(lat, lng); }catch(e){} if (w === null) w = onWater(lat, lng);
+  const now = Date.now();
+  if (ME_W.v === null){ ME_W = { v: w, since: 0 }; return w; }
+  if (w === ME_W.v){ ME_W.since = 0; return w; }
+  if (!ME_W.since) ME_W.since = now; else if (now - ME_W.since > 3000) ME_W = { v: w, since: 0 };
+  return ME_W.v;
 }
 // l'omino è alto 13 metri veri (non cambia con lo zoom); da lontano, quando diventa troppo piccolo, resta il puntino blu
 const MAN_U = 40 / 3 / 11.9, MAN_MINZ = 17;   // alto circa 13 metri sulla mappa (con la barca intorno)
