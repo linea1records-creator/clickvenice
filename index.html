@@ -2172,7 +2172,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.42</p>
+      <p class="sub">clickVenice · versione 4.43</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -5004,7 +5004,7 @@ function addLayers(){
   map.addSource("velox", { type: "geojson", data: empty });
   addVeloxIcons();
   map.addLayer({ id: "velox", type: "symbol", source: "velox", layout: { visibility: LY.velox ? "visible" : "none",
-    "icon-image": ["match", ["get", "c"], "r", "vx-r", "g", "vx-g", "vx-o"],
+    "icon-image": ["match", ["get", "c"], "r", "vx-r", "g", "vx-g", "v", "vx-v", "vx-o"],
     "icon-size": ["interpolate", ["linear"], ["zoom"], 12, 0.5, 15, 0.75, 18, 1],
     "icon-allow-overlap": true, "icon-ignore-placement": true, "icon-pitch-alignment": "viewport", "icon-rotation-alignment": "viewport" } });
   map.addSource("ponti", { type: "geojson", data: empty });
@@ -5223,8 +5223,7 @@ function popupFor(f, ll){
   if (f.layer.id === "velox"){
     const v = VELOX.byId[f.properties.id]; if (!v) return;
     const tr = VELOX.tratte.filter(t => t.A.includes(v.id) || t.B.includes(v.id));
-    html = `<b>📷 Velox · ${esc(v.name)}</b><br><span style="color:#aaa">${{ ok: "Funzionante", ko: "Segnalato rotto", check: "Da verificare" }[v.state] || ""}</span>`
-      + (tr.length ? "<br>" + [...new Set(tr.map(t => t.note || "Tratta"))].slice(0, 3).map(n => esc(n)).join(", ") + " · limite " + Math.min(...tr.map(t => t.v)) + " km/h" : "");
+    html = `<b>📷 Velox · ${esc(v.name)}</b><br><span style="color:${VX_COL[v.col] || "#aaa"};font-weight:700">● ${esc(VX_NOMI[v.col] || "")}</span>`;
   } else if (f.layer.id === "ponti"){
     const p = BRIDGES.byId[f.properties.id]; if (!p) return;
     const h = bridgeH(p), t = tideNow();
@@ -7513,16 +7512,20 @@ const VELOX = { list: [], byId: {}, tratte: [] };
 let VX = null, vxLastHit = {}, vxResult = null;
 async function loadVelox(){
   try{
+    // i velox (posizione, nome, colore) vengono dal database di clickVenice, che li decide; San Marco Boat li legge da qui
     const r = await fetch("velox.json", { cache: "no-cache" }); const j = await r.json();
-    VELOX.list = j.velox.map(a => ({ id: a[0], name: a[1], lat: a[2], lng: a[3], state: a[4] }));
-    VELOX.list.forEach(v => VELOX.byId[v.id] = v);
-    VELOX.tratte = j.tratte.map(t => ({ A: t[0], B: t[1], v: t[2], note: t[3] || "", code: t[4] || "" }));
+    let L = null; try{ L = await rpc("velox_list", {}); }catch(e){}
+    VELOX.list = Array.isArray(L) && L.length ? L.map(a => ({ id: a.id, name: a.nome, lat: a.lat, lng: a.lng, col: a.colore, state: a.stato, kmh: a.kmh }))
+      : j.velox.map(a => ({ id: a[0], name: a[1], lat: a[2], lng: a[3], state: a[4], col: a[4] === "ko" ? "v" : a[4] === "check" ? "g" : "r" }));
+    VELOX.byId = {}; VELOX.list.forEach(v => VELOX.byId[v.id] = v);
+    VELOX.tratte = j.tratte.map(t => ({ A: t[0], B: t[1], v: t[2], note: t[3] || "", code: t[4] || "" }));   // usate solo per il limite, non si disegnano più
     drawVelox();
   }catch(e){}
 }
 const ctr = ids => { const p = ids.map(i => VELOX.byId[i]).filter(Boolean); return p.length ? { lat: p.reduce((s, x) => s + x.lat, 0) / p.length, lng: p.reduce((s, x) => s + x.lng, 0) / p.length } : null; };
 // icona del fotovelox: fondo nero, macchina fotografica bianca, bordo del colore del limite (rosso 7 km/h, arancione 11 km/h, grigio se spento)
-const VX_COL = { r: "#e53935", o: "#fb8c00", g: "#8e8e93" };
+const VX_COL = { r: "#e53935", o: "#fb8c00", g: "#8e8e93", v: "#2e7d32" };   // rosso, arancione, grigio, verde: li decide tropss
+const VX_NOMI = { r: "Rosso · attivo, limite 7 km/h", o: "Arancione · attivo, limite 11 km/h", g: "Grigio · da verificare", v: "Verde · spento, non controlla" };
 function veloxIcon(col){
   const S = 72, c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
   g.beginPath(); g.arc(36, 36, 31, 0, Math.PI * 2); g.fillStyle = "#111"; g.fill(); g.lineWidth = 8; g.strokeStyle = col; g.stroke();
@@ -7536,11 +7539,9 @@ function veloxIcon(col){
 function addVeloxIcons(){ if (!map) return; Object.entries(VX_COL).forEach(([k, col]) => { if (!map.hasImage("vx-" + k)) map.addImage("vx-" + k, veloxIcon(col), { pixelRatio: 2 }); }); }
 function drawVelox(){
   if (!map || !map.getSource("velox")) return;
-  const lim = {}; VELOX.tratte.forEach(t => t.A.concat(t.B).forEach(id => { lim[id] = Math.min(lim[id] ?? 99, t.v); }));
   map.getSource("velox").setData({ type: "FeatureCollection", features: VELOX.list.map(v => ({ type: "Feature",
-    properties: { id: v.id, s: v.state, c: v.state === "ko" ? "g" : (lim[v.id] ?? 11) <= 7 ? "r" : "o" }, geometry: { type: "Point", coordinates: [v.lng, v.lat] } })) });
-  map.getSource("velox-tratte").setData({ type: "FeatureCollection", features: VELOX.tratte.map(t => { const a = ctr(t.A), b = ctr(t.B);
-    return a && b && hav(a.lat, a.lng, b.lat, b.lng) > 20 ? { type: "Feature", properties: { v: t.v }, geometry: { type: "LineString", coordinates: [[a.lng, a.lat], [b.lng, b.lat]] } } : null; }).filter(Boolean) });
+    properties: { id: v.id, s: v.state, n: v.name, c: v.col || "g" }, geometry: { type: "Point", coordinates: [v.lng, v.lat] } })) });
+  map.getSource("velox-tratte").setData({ type: "FeatureCollection", features: [] });   // i tratti tra un velox e l'altro non si disegnano più
 }
 // tratte che partono da questo velox: l'altra estremità è dove finisce la misura
 function trattesFrom(id){
@@ -11449,7 +11450,7 @@ function editsOn(srcId, d){
   return Object.assign({}, d, { features: d.features.map(f => { const P = f.properties || {};
     for (const l of ls) for (const k of keys){ if (P[k] === undefined || P[k] === "") continue; const e = EDITS.get(l + "|" + k + "=" + P[k]); if (!e) continue;
       const q = Object.assign({}, P); if (e.n && typeof q.t === "string" && P.n) q.t = q.t.replace(P.n, e.n); if (e.n){ ["n", "name", "nome"].forEach(x => { if (q[x] !== undefined) q[x] = e.n; }); if (q.n === undefined && q.name === undefined && q.nome === undefined) q.name = e.n; }
-      if (e.c && l === "velox") q.c = e.c;
+
       const g = e.lat != null && e.lng != null && f.geometry && f.geometry.type === "Point" ? { type: "Point", coordinates: [e.lng, e.lat] } : f.geometry;
       return Object.assign({}, f, { properties: q, geometry: g }); }
     return f; }) });
@@ -11473,13 +11474,15 @@ function admEditAt(e){
   openSheet(`<h3>✏️ ${esc(nome)}</h3><p class="muted" style="margin-top:-4px">${esc(ADM_NOMI[F.layer] || F.layer)} · le modifiche valgono per tutti</p>
     <button class="btn" id="aeMove">📍 Sposta sulla mappa</button>
     <div class="field" style="margin-top:12px"><label>Nome del posto</label><div class="row" style="gap:6px"><input id="aeName" value="${esc(nome)}" maxlength="80" style="flex:1"><button class="btn small" id="aeNameOk">Salva</button></div></div>
-    ${VX ? `<div class="field"><label>Colore del velox</label><div class="aeCol">${[["r", "#d32f2f", "Rosso"], ["o", "#f57c00", "Arancione"], ["g", "#2e7d32", "Verde"]].map(([k, c, n]) => `<button data-aec="${k}" style="--c:${c}" class="${E.c === k ? "on" : ""}"><i></i>${n}</button>`).join("")}</div></div>` : ""}
+    ${VX ? `<div class="field"><label>Colore del velox (vale anche per San Marco Boat)</label><div class="aeCol">${[["r", "Rosso"], ["o", "Arancione"], ["g", "Grigio"], ["v", "Verde"]].map(([k, n]) => `<button data-aec="${k}" style="--c:${VX_COL[k]}" class="${(VELOX.byId[F.val.slice(3)] || {}).col === k ? "on" : ""}"><i></i>${n}</button>`).join("")}</div><small class="muted">${Object.values(VX_NOMI).join(" · ")}</small></div>` : ""}
     ${EDITS.has(F.layer + "|" + F.val) ? `<button class="btn ghost" id="aeReset" style="margin-top:4px">↩️ Torna com'era</button>` : ""}
     <button class="btn danger" id="aeDel" style="margin-top:8px">🗑 Elimina dalla mappa</button>
     <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`, "light");
   $("#aeMove").onclick = () => { closeSheet(); MOVE_F = F; toast("📍 Ora tocca il punto nuovo sulla mappa", false, true); };
   $("#aeNameOk").onclick = () => { const v = $("#aeName").value.trim(); if (v.length < 2) return toast("Scrivi il nome"); admSave(F, { nome: v }, "Nome cambiato ✓"); };
-  document.querySelectorAll("[data-aec]").forEach(b => b.onclick = () => admSave(F, { colore: b.dataset.aec }, "Colore cambiato ✓"));
+  document.querySelectorAll("[data-aec]").forEach(b => b.onclick = async () => { const id = F.val.slice(3), c = b.dataset.aec;
+    const j = await rpc("velox_colore", { p_id: id, p_colore: c }).catch(() => null); if (!j || !j.ok) return toast("Colore non salvato, riprova.");
+    const v = VELOX.byId[id]; if (v){ v.col = c; v.state = c === "r" || c === "o" ? "ok" : c === "v" ? "ko" : "check"; } drawVelox(); haptic(); closeSheet(); toast("Velox " + VX_NOMI[c].split(" · ")[0].toLowerCase() + " ✓"); });
   if ($("#aeReset")) $("#aeReset").onclick = () => admSave(F, { reset: true }, "Tornato com'era ✓");
   $("#aeDel").onclick = () => { closeSheet(); hideAsk(F.layer, F.val, nome); };
 }
