@@ -69,8 +69,13 @@
   .maplibregl-popup-tip{border-top-color:#111!important;border-bottom-color:#111!important}
   .maplibregl-popup-close-button{color:#aaa;font-size:18px}
   #searchBox{position:absolute;z-index:20;left:10px;right:10px;top:calc(10px + var(--safe-t))}
-  #strikeBar{position:absolute;z-index:19;left:50%;transform:translateX(-50%);top:calc(66px + var(--safe-t));max-width:calc(100% - 120px);padding:6px 12px;border-radius:999px;border:0;
-    background:#d95f26;color:#fff;font-weight:800;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+  #strikeBar{position:absolute;z-index:19;left:10px;bottom:calc(16px + var(--mwh, 0px) + 8px);top:auto;transform:none;width:auto;max-width:min(240px,calc(100% - 100px));padding:4px 10px;border-radius:999px;border:0;
+    background:#d95f26;color:#fff;font-weight:800;font-size:11px;line-height:1.35;white-space:nowrap;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.3);text-align:left}
+  #strikeBar .sbT{display:block;overflow:hidden} #strikeBar .sbT i{font-style:normal;display:inline-block}
+  #strikeBar.scroll .sbT{-webkit-mask-image:linear-gradient(90deg,transparent,#000 8px,#000 calc(100% - 8px),transparent);mask-image:linear-gradient(90deg,transparent,#000 8px,#000 calc(100% - 8px),transparent)}
+  #strikeBar.scroll .sbT i{animation:sbScroll 10s linear infinite} #strikeBar .sbT b{padding:0 10px;opacity:.7}
+  @keyframes sbScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  body.nav #strikeBar{bottom:calc(92px + var(--mwh, 0px) + 8px)}
   #strikeBar.oggi{background:#c0392b}
   body.mode-market #strikeBar, body.mode-incontra #strikeBar, body.mode-sport #strikeBar, body.mode-trasporti #strikeBar, body.nav #strikeBar{display:none}
   .sbar{display:flex;align-items:center;background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.35);padding:0 6px 0 12px}
@@ -1610,6 +1615,11 @@
   #mkPanel .pcard .go.off{background:#94a3b8!important;box-shadow:none;opacity:.9}
   .dlvAdm{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 2px;padding:8px;border:1.5px dashed #f2b738;border-radius:12px} .dlvAdm small{width:100%;font-weight:700;color:#64748b}
   .dlvAdm button{flex:1;border:1.5px solid #e2e8f0;background:#fff;border-radius:10px;padding:6px 4px;font-size:12.5px;font-weight:800} .dlvAdm button.on{border-color:#111;background:#111;color:#fff}
+  /* due dita: interfaccia nascosta con una transizione */
+  #v-map > *:not(#map), #tabs, #dock{transition:opacity .35s ease, transform .35s ease}
+  body.zen #v-map > *:not(#map):not(#depthLegend){opacity:0!important;pointer-events:none!important}
+  body.zen #v-map > #searchBox{transform:translateY(-14px)} body.zen #v-map > .fabs{transform:translateX(14px)}
+  body.zen #tabs{opacity:0;transform:translateY(16px);pointer-events:none}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2161,7 +2171,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.37</p>
+      <p class="sub">clickVenice · versione 4.38</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -8925,8 +8935,21 @@ function paintStrikes(){
   const b = $("#strikeBar"); if (!b) return; const L = strikesSoon(7);
   b.classList.toggle("hidden", !L.length); if (!L.length) return;
   const x = L[0]; b.classList.toggle("oggi", x.giorno === romeYmd());
-  b.textContent = `${strikeName(x)} ${strikeDay(x.giorno)}${L.length > 1 ? " · +" + (L.length - 1) : ""} ›`;
+  const t = `${strikeName(x)} ${strikeDay(x.giorno)}${L.length > 1 ? " · +" + (L.length - 1) : ""}`;
+  b.innerHTML = `<span class="sbT"><i>${esc(t)}</i></span>`; b.title = t;
+  requestAnimationFrame(() => { const w = b.querySelector(".sbT"), i = w && w.firstElementChild; if (!i) return;   // testo lungo: scorre dentro il banner
+    const over = i.scrollWidth > w.clientWidth + 2; b.classList.toggle("scroll", over);
+    if (over){ i.innerHTML = `${esc(t)}<b>·</b>${esc(t)}<b>·</b>`; i.style.animationDuration = Math.max(6, t.length * 0.28) + "s"; } });
+  strikePos();
 }
+// due dita sulla mappa: spariscono tutti i tasti di Naviga (resta solo la leggenda della secca, se accesa); tornano finito il gesto
+(function(){ const el = document.getElementById("map"); if (!el) return; let t = null;
+  el.addEventListener("touchstart", e => { if (e.touches.length >= 2 && appMode === "nautica" && !GM){ clearTimeout(t); document.body.classList.add("zen"); } }, { passive: true });
+  const fine = e => { if (e.touches.length === 0 && document.body.classList.contains("zen")){ clearTimeout(t); t = setTimeout(() => document.body.classList.remove("zen"), 1400); } };
+  el.addEventListener("touchend", fine, { passive: true }); el.addEventListener("touchcancel", fine, { passive: true }); })();
+// banner degli avvisi appena sopra il cruscotto in basso a sinistra
+function strikePos(){ const b = $("#strikeBar"), m = $("#miniW"); if (!b) return; const h = m && m.offsetParent ? m.offsetHeight : 0; b.style.setProperty("--mwh", h + "px"); }
+try{ new ResizeObserver(strikePos).observe($("#miniW")); }catch(e){} setInterval(strikePos, 3000);
 function openStrikes(){
   const L = strikesSoon(45);
   openSheet(`<h3>Scioperi in arrivo</h3>${L.length ? L.map(x => `<div class="card" style="padding:12px;margin-bottom:8px"><b>${esc(strikeName(x))} · ${esc(strikeDay(x.giorno))}</b>
