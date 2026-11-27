@@ -1620,6 +1620,7 @@
   body.zen #v-map > *:not(#map):not(#depthLegend){opacity:0!important;pointer-events:none!important}
   body.zen #v-map > #searchBox{transform:translateY(-14px)} body.zen #v-map > .fabs{transform:translateX(14px)}
   #depthLegend{touch-action:none;cursor:grab;user-select:none} #depthLegend.drag{cursor:grabbing;box-shadow:0 10px 26px rgba(0,0,0,.35);transform:scale(1.03);transition:none}
+  .navIc{width:1.05em;height:1.05em;vertical-align:-.15em;margin-right:6px;fill:currentColor;stroke:none;display:inline-block}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1982,7 +1983,7 @@
   <!-- tabellone stile stazione -->
   <div id="board" class="hidden">
     <div class="bdtop"><div><b id="bdTitle">PARTENZE</b><i id="bdTitleEn">DEPARTURES</i></div><div class="bdst" id="bdSt"></div><span style="flex:1"></span><div class="bdclk" id="bdClock">--:--</div></div>
-    <div class="bdtabs"><button data-bv="partenze" class="on">Partenze</button><button data-bv="arrivi">Arrivi</button><span class="bdst2" id="bdSt2"></span><button id="bdGo">🧭 Portami qui</button><button id="bdX" onclick="closeBoard()">✕</button></div>
+    <div class="bdtabs"><button data-bv="partenze" class="on">Partenze</button><button data-bv="arrivi">Arrivi</button><span class="bdst2" id="bdSt2"></span><button id="bdGo"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button><button id="bdX" onclick="closeBoard()">✕</button></div>
     <div class="bdhead" id="bdHead"></div>
     <div class="bdrows" id="bdRows"></div>
     <div class="bdnote" id="bdNote"></div>
@@ -2171,7 +2172,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.41</p>
+      <p class="sub">clickVenice · versione 4.42</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -4610,7 +4611,7 @@ function initMap(){
     if (addMode === "zone") return zoneForm(e.lngLat);
     if (addMode === "depth") return depthForm(e.lngLat);
     { const rv = map.getLayer("rive") && map.getLayoutProperty("rive", "visibility") === "visible" && map.queryRenderedFeatures([[e.point.x - 10, e.point.y - 10], [e.point.x + 10, e.point.y + 10]], { layers: ["rive"] })[0];
-      if (rv){ const r = RIVE[rv.properties.i]; if (r){ new maplibregl.Popup({ maxWidth: "250px" }).setLngLat([r.lng, r.lat]).setHTML(`<b>Riva per la sosta del diporto</b><br>${esc(r.n)}<br><span style="color:#888">${esc(r.rio)} · sosta max 1 ora con disco orario (ord. 375/2014)</span><br><a href="#" data-goto="${r.lat},${r.lng}" data-name="${esc(r.n)}" style="color:#5bc0eb">Portami qui</a>`).addTo(map); return; } } }
+      if (rv){ const r = RIVE[rv.properties.i]; if (r){ new maplibregl.Popup({ maxWidth: "250px" }).setLngLat([r.lng, r.lat]).setHTML(`<b>Riva per la sosta del diporto</b><br>${esc(r.n)}<br><span style="color:#888">${esc(r.rio)} · sosta max 1 ora con disco orario (ord. 375/2014)</span><br><a href="#" data-goto="${r.lat},${r.lng}" data-name="${esc(r.n)}" style="color:#5bc0eb"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</a>`).addTo(map); return; } } }
     { const fr = map.queryRenderedFeatures([[e.point.x - 14, e.point.y - 14], [e.point.x + 14, e.point.y + 14]], { layers: ["frman", "frdot"].filter(l => map.getLayer(l)) })[0];
       if (fr && fr.properties.n) return friendMenu(fr.properties.n); }
     if (false && INST.water && appMode === "nautica"){   // tocco sulla mappa: niente più profondità (tolta su richiesta)
@@ -5086,7 +5087,7 @@ function addMyPlace(ll, nome){
 }
 function openMyPlace(i){
   const x = MYPL[i]; if (!x) return;
-  new maplibregl.Popup({ maxWidth: "240px" }).setLngLat([x.lng, x.lat]).setHTML(`<b>${esc(x.n)}</b><br><span style="color:#888">Nella tua mappa</span><br><a href="#" data-goto="${x.lat},${x.lng}" data-name="${esc(x.n)}" style="color:#5bc0eb">Portami qui</a> · <a href="#" id="mpDel" style="color:#d95f26">Elimina</a>`).addTo(map);
+  new maplibregl.Popup({ maxWidth: "240px" }).setLngLat([x.lng, x.lat]).setHTML(`<b>${esc(x.n)}</b><br><span style="color:#888">Nella tua mappa</span><br><a href="#" data-goto="${x.lat},${x.lng}" data-name="${esc(x.n)}" style="color:#5bc0eb"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</a> · <a href="#" id="mpDel" style="color:#d95f26">Elimina</a>`).addTo(map);
   setTimeout(() => { const d = document.getElementById("mpDel"); if (d) d.onclick = ev => { ev.preventDefault(); MYPL.splice(i, 1); store.set("ln_myplaces", MYPL); closePopups(); drawMyPlaces(); NAV_IDX = null; }; }, 0);
 }
 /* ---------- scheda luogo: tieni premuto 2 secondi sulla mappa ----------
@@ -5231,13 +5232,13 @@ function popupFor(f, ll){
       + `<br><a href="#" data-measure="${p.id}" style="color:#5bc0eb">Misura questo ponte</a>`;
   } else if (f.layer.id === "poi"){
     const p = POI[f.properties.i]; if (!p) return;
-    html = `<b>${esc(p.n)}</b><br><span style="color:#aaa">${esc(poiLabel(p))}</span><br><a href="#" data-goto="${p.lat},${p.lng}" data-name="${esc(p.n)}" style="color:#5bc0eb">Portami qui</a>`;
+    html = `<b>${esc(p.n)}</b><br><span style="color:#aaa">${esc(poiLabel(p))}</span><br><a href="#" data-goto="${p.lat},${p.lng}" data-name="${esc(p.n)}" style="color:#5bc0eb"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</a>`;
   } else if (f.layer.id === "depths"){
     const p = depths[f.properties.i]; if (!p) return;
     const when = p.t ? new Date(p.t).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" }) : "—";
     html = `<b>Profondità ${p.d.toLocaleString("it-IT")} m</b><br>${esc(p.note || "")}<br><span style="color:#999">${p.ex ? "Esempio" : "Segnalato " + when}</span>`
       + (!p.ex && mine.depths.includes(p.id) ? `<br><a href="#" data-deld="${p.id}" style="color:#d95f26">Elimina (è tua)</a>` : "")
-      + `<br><a href="#" data-goto="${p.lat},${p.lng}" style="color:#5bc0eb">Portami qui</a>`;
+      + `<br><a href="#" data-goto="${p.lat},${p.lng}" style="color:#5bc0eb"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</a>`;
   } else {
     const z = allZones()[f.properties.i]; if (!z) return;
     html = `<b>⚠︎ Zona controllata — rallenta</b><br>${esc(z.name)}<br>Limite: <b>${z.limit} km/h</b>`
@@ -8222,7 +8223,7 @@ function openFuel(s){
     ${riga("Benzina", "b", k === "b")}${riga("Gasolio", "d", k === "d")}
     ${s.terra ? `<p style="margin:8px 0;padding:9px 12px;border-radius:12px;background:#fff4d6;color:#5a4300;font-size:13px">🚶 Distributore a terra: ormeggia vicino e scendi con la tanica, la pompa non è sulla riva.</p>` : `<p style="margin:8px 0;font-size:13px">⚓ Pompa sulla riva: ci arrivi direttamente in barca.</p>`}
     <p class="muted" style="font-size:12px;margin:8px 0">${!Object.keys(s.p).length ? "Prezzi non disponibili (aggiunto a mano) · " : ""}${b.fuel ? "La tua barca va a " + esc(b.fuel.toLowerCase()) : "Nessuna barca registrata: mostro la benzina"} · prezzi comunicati al Ministero${s.dt ? " il " + esc(String(s.dt).slice(0, 10)) : ""}</p>
-    <div class="row" style="margin-top:12px"><button class="btn" id="fuelGo">🧭 Portami qui</button><button class="btn ghost" onclick="closeSheet()">Chiudi</button></div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="fuelGo"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button><button class="btn ghost" onclick="closeSheet()">Chiudi</button></div>
     ${s.extra && isTropss() ? `<button class="btn ghost" style="margin-top:10px;color:#d32f2f" id="fuelDel">Togli questo distributore</button>` : ""}`);
   const fd = $("#fuelDel"); if (fd) fd.onclick = async () => { const j = await rpc("luogo_del", { p_id: s.extra }).catch(() => null);
     if (j && j.ok){ EXTRA = EXTRA.filter(x => x.id !== s.extra); store.set("ln_extra", EXTRA); closeSheet(); drawFuel(); toast("Tolto"); } else toast("Non riuscito"); };
@@ -8240,7 +8241,7 @@ function openCantiere(c){
     ${c.src === "osm" ? `<p class="muted" style="font-size:12px">Dati da OpenStreetMap: marchi e lavori da completare.</p>` : ""}
     <div class="row" style="margin-top:12px">
       ${ph ? `<a class="btn" style="text-align:center;text-decoration:none" href="tel:${esc(ph)}">📞 Chiama</a>` : ""}
-      <button class="btn ghost" id="cantGo">🧭 Portami qui</button>
+      <button class="btn ghost" id="cantGo"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>
     </div>
     ${c.web ? `<a class="btn ghost" style="display:block;margin-top:10px;text-align:center;text-decoration:none" href="${esc(c.web)}" target="_blank" rel="noopener">🌐 Sito</a>` : ""}
     <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`);
@@ -8980,7 +8981,7 @@ async function openFermata(nm, lat, lng){
   try{ closePopups(); trkStop(); }catch(e){} drawStop(true); corsaSeq++; CORSA_ST = null;
   if (map && map.getSource("corsa")) map.getSource("corsa").setData({ type: "FeatureCollection", features: [] });
   const seq = corsaSeq, box = $("#corsaBox"); box.classList.remove("hidden"); box.style.setProperty("--lc", "#9aa0a8"); box.style.setProperty("--ld", "#111");
-  $("#cbHead").innerHTML = `<span class="cbDir">${esc(nm)}</span><button id="cbPin" aria-label="Portami qui" title="Portami qui">${PIN_IC}</button><button id="cbClose" aria-label="Chiudi">\u00d7</button>`;
+  $("#cbHead").innerHTML = `<span class="cbDir">${esc(nm)}</span><button id="cbPin" aria-label="Naviga" title="Naviga">${PIN_IC}</button><button id="cbClose" aria-label="Chiudi">\u00d7</button>`;
   $("#cbClose").onclick = () => { clearInterval(fmTimer); closeCorsa(); };
   $("#cbPin").onclick = () => { clearInterval(fmTimer); closeCorsa(); openPlan({ name: nm, lat, lng }); };
   { const st = strikesSoon(1)[0]; $("#cbNote").textContent = st ? `\u26a0\ufe0e ${strikeName(st)} ${strikeDay(st.giorno)}: corse a rischio fuori dalle fasce garantite` : "Orari ufficiali ACTV e Alilaguna, senza ritardi"; }
@@ -9286,7 +9287,7 @@ function renderMk(){
       ${p.order_rest ? `<span class="bdg">${sc ? "-" + sc + "% Sconto" + (p.order_rest === "dogal" ? " · Consegna a domicilio" : " + Posate Omaggio") : p.order_rest === "dogal" ? "Consegna a domicilio" : "Posate Omaggio"}</span>` : ""}
       ${p.order_rest ? (apri ? `<button class="go" id="mkMenu">🍴 Apri Menu e Ordina</button>` : `<button class="go off" disabled>${ST === "coming_soon" ? "⏳ Presto disponibile" : "⛔ Al momento non disponibile"}</button>`) : ""}
       ${isTropss() ? `<div class="dlvAdm"><small>Stato (lo vedi solo tu):</small>${[["disponibile", "Disponibile"], ["coming_soon", "Coming soon"], ["non_disponibile", "Non disponibile"]].map(([k, n]) => `<button data-dst="${k}" class="${ST === k ? "on" : ""}">${n}</button>`).join("")}</div>` : ""}
-      <div class="row2"><button id="mkVai">Portami qui</button>${p.phone ? `<button id="mkTel">Chiama</button>` : ""}<button id="mkAltri">Altri locali</button></div></div>`;
+      <div class="row2"><button id="mkVai"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>${p.phone ? `<button id="mkTel">Chiama</button>` : ""}<button id="mkAltri">Altri locali</button></div></div>`;
     if ($("#mkMenu")) $("#mkMenu").onclick = () => deliveryMenu(p);
     box.querySelectorAll("[data-dst]").forEach(b => b.onclick = async () => { const v = b.dataset.dst; const j = await rpc("partner_stato", { p_id: p.id, p_stato: v }).catch(() => null);
       if (!j || !j.ok) return toast("Stato non salvato, riprova."); p.stato = v; store.set("ln_partners", PARTNERS); haptic(); toast("Stato: " + dlvStNome(v)); renderMk(); });
@@ -9311,7 +9312,7 @@ function openPartner(p){
     ${p.descr ? `<p style="line-height:1.45">${esc(p.descr)}</p>` : ""}
     ${p.order_rest && (p.stato || "disponibile") !== "disponibile" ? `<p style="font-weight:800;color:#ac3d21">${(p.stato === "coming_soon" ? "⏳ Presto disponibile" : "⛔ Al momento non disponibile")}</p>` : ""}
     ${p.order_rest && (p.stato || "disponibile") === "disponibile" ? `<button class="btn" id="pOrder">🛒 Apri il menu delivery${+p.sconto_pct ? " · -" + p.sconto_pct + "%" : ""}</button>` : ""}
-    <button class="btn ghost" id="pGo" style="margin-top:10px">⚓ Portami qui in barca</button>
+    <button class="btn ghost" id="pGo" style="margin-top:10px"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>
     ${p.phone ? `<a class="btn ghost" style="margin-top:10px;display:block;text-align:center;text-decoration:none" href="tel:${esc(p.phone.replace(/[^+\d]/g, ""))}">📞 Chiama</a>` : ""}
     <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`);
   if ($("#pOrder")) $("#pOrder").onclick = () => deliveryMenu(p);
@@ -9643,7 +9644,7 @@ async function openDlv(i){
     <div id="dlvRev" class="muted" style="margin-bottom:10px">Carico le recensioni…</div>
     <div id="dlvSite"></div>
     ${food ? `<div class="row" style="gap:8px"><button class="btn" id="dlvOrd" style="flex:1">Ordina delivery</button><button class="btn" id="dlvBook" style="flex:1;background:#8c2d19;color:#fff">Prenota</button></div>` : ""}
-    <button class="btn ghost" id="dlvGo" style="margin-top:10px">Portami qui</button>${x.extra && isTropss() ? `<button class="btn small ghost" id="dlvDel" style="margin-top:10px">🗑️ Togli questo luogo (solo Trops)</button>` : ""}<button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`);
+    <button class="btn ghost" id="dlvGo" style="margin-top:10px"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>${x.extra && isTropss() ? `<button class="btn small ghost" id="dlvDel" style="margin-top:10px">🗑️ Togli questo luogo (solo Trops)</button>` : ""}<button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`);
   $("#dlvGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: x.n, lat: x.lat, lng: x.lng }); };
   if ($("#dlvDel")) $("#dlvDel").onclick = () => extraDel(x.extra);
   siteLoad(key, $("#dlvSite"));
@@ -9830,7 +9831,7 @@ function renderEvents(){
     const span = e.day_from !== e.day_to ? `fino a ${new Date(e.day_to + "T12:00:00").toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short" })}` : "";
     return `<div class="ev"><b>${esc(e.title)}</b><div class="evm">${EV_KINDS[e.kind] || "✨ Evento"}${e.place ? " · " + esc(e.place) : ""}${e.hour ? " · ore " + esc(e.hour) : ""}${span ? " · " + span : ""}</div>
       ${e.info ? `<p>${esc(e.info)}</p>` : ""}
-      <div class="evb">${e.lat ? `<button class="btn ghost" data-evgo="${e.id}">⚓ Portami qui</button>` : ""}${e.link ? `<a class="btn ghost" href="${esc(e.link)}" target="_blank" rel="noopener" style="text-decoration:none">Dettagli ↗</a>` : ""}${mine.includes(e.id) ? `<button class="btn ghost" data-evdel="${e.id}">Elimina</button>` : ""}</div>
+      <div class="evb">${e.lat ? `<button class="btn ghost" data-evgo="${e.id}"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>` : ""}${e.link ? `<a class="btn ghost" href="${esc(e.link)}" target="_blank" rel="noopener" style="text-decoration:none">Dettagli ↗</a>` : ""}${mine.includes(e.id) ? `<button class="btn ghost" data-evdel="${e.id}">Elimina</button>` : ""}</div>
       ${e.source ? `<div class="evm" style="font-size:11px;margin-top:6px">Fonte: ${esc(e.source)}</div>` : ""}</div>`; }).join("")).join("");
   $("#sheetIn").innerHTML = `<h3>🎉 Feste ed eventi della settimana</h3>
     <button class="btn" id="evAdd">＋ Segnala una festa o un evento</button>` + (html || `<p class="muted" style="margin-top:14px">Nessun evento in calendario nei prossimi 7 giorni. Segnalane uno tu!</p>`) +
@@ -9896,7 +9897,7 @@ function discoCard(d){
   return `<div class="dcard" id="dc-${d.k}"><h4>🪩 ${esc(d.n)}</h4><div class="dad">${esc(d.ad)}${d.note ? " · " + esc(d.note) : ""}</div>` +
     (ev.length ? ev.map(e => `<div class="dev"><b>${esc(e.title)}</b><small>${dayLbl(e.day_from < isoDay(new Date()) ? isoDay(new Date()) : e.day_from)}${e.hour ? " · ore " + esc(e.hour) : ""}${e.info ? " · " + esc(e.info) : ""}</small></div>`).join("")
       : `<div class="dnone">Nessuna serata annunciata per i prossimi 7 giorni.</div>`) +
-    `<div class="evb">${g ? `<button class="btn ghost" data-dgo="${d.k}">⚓ Portami qui</button>` : ""}<a class="btn ghost" href="${esc(d.link)}" target="_blank" rel="noopener" style="text-decoration:none">Programma ↗</a></div></div>`;
+    `<div class="evb">${g ? `<button class="btn ghost" data-dgo="${d.k}"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>` : ""}<a class="btn ghost" href="${esc(d.link)}" target="_blank" rel="noopener" style="text-decoration:none">Programma ↗</a></div></div>`;
 }
 async function openDiscos(focus){
   openSheet(`<h3>🪩 Discoteche</h3><p class="muted">Carico le serate…</p>`);
@@ -10181,7 +10182,7 @@ setInterval(() => { const c = $("#bdClock"); if (c && !$("#board").classList.con
 let STADIO = null;
 async function openStadium(st){
   openSheet(`<h3>🏟️ ${esc(st.full)}</h3><p class="muted" style="margin:-6px 0 10px">Le prossime partite del Venezia in casa</p><div id="sdBody"><p class="muted">Carico il calendario…</p></div>
-    <div class="row" style="margin-top:12px"><button class="btn ghost" id="sdGo">🧭 Portami qui</button><button class="btn ghost" onclick="closeSheet()">Chiudi</button></div>`);
+    <div class="row" style="margin-top:12px"><button class="btn ghost" id="sdGo"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button><button class="btn ghost" onclick="closeSheet()">Chiudi</button></div>`);
   $("#sdGo").onclick = () => { closeSheet(); PLAN = null; openPlan({ name: st.full, lat: st.lat, lng: st.lng }); };
   if (!STADIO){ try{ STADIO = await fetch("stadio.json", { cache: "no-cache" }).then(r => r.json()); }catch(e){} }
   const box = $("#sdBody"); if (!box) return;
@@ -11008,7 +11009,7 @@ async function segOpen(s){
   const t = SEG_T[s.tipo];
   openSheet(`<h3>${t[0]} ${esc(t[1])}</h3><div class="tsub" style="text-align:left">Verificata da Trops · ${agoTxt(s.quando)}${s.nota ? " · " + esc(s.nota) : ""}</div>
     <div class="segimg" id="segImg">Carico la foto…</div>
-    <button class="btn" id="segGoto">Portami qui</button><button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`);
+    <button class="btn" id="segGoto"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button><button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`);
   $("#segGoto").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: t[1], lat: s.lat, lng: s.lng }); };
   try{ const j = await rpc("seg_foto", { p_id: s.id }); const im = $("#segImg"); if (im && j && /^data:image\//.test(j.foto || "")){ im.style.backgroundImage = `url('${j.foto}')`; im.textContent = ""; } else if (im) im.textContent = "Foto non disponibile"; }catch(e){}
 }
@@ -11071,7 +11072,7 @@ function tesInfo(t){
   openSheet(`<h3>💰 ${esc(t.nome)}</h3><div class="tesBig">${SCHEO_SVG}<b>+${t.premio}</b> schei</div>
     <p class="trnote">Arriva entro ${t.raggio} m dal tesoro col GPS acceso per riscattarlo. Ogni tesoro si può prendere una volta ogni 24 ore.</p>
     <div class="tsub">${wait ? "Già preso: torna fra " + tesLeft(t) : d === null ? "Accendi il GPS per sapere quanto manca" : near ? "Ci sei!" : "Sei a " + (d >= 1000 ? (d / 1000).toFixed(1) + " km" : Math.round(d) + " m")}</div>
-    ${near && !wait ? `<button class="btn" id="tesGo">💰 Riscatta +${t.premio}</button>` : `<button class="btn" id="tesNav">Portami qui</button>`}
+    ${near && !wait ? `<button class="btn" id="tesGo">💰 Riscatta +${t.premio}</button>` : `<button class="btn" id="tesNav"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>`}
     ${isTropss() ? `<button class="btn small ghost" id="tesDel" style="margin-top:8px">🗑️ Togli questo tesoro (solo Trops)</button>` : ""}
     <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`);
   if ($("#tesGo")) $("#tesGo").onclick = () => tesClaim(t);
@@ -11660,7 +11661,7 @@ const GON_TOUR_W = "https://tpembd.com/content?currency=EUR&trs=606360&shmarker=
 function gondTour(){
   openSheet(`<h3>🚣 Tour in gondola</h3><p class="muted" style="margin-top:-4px;line-height:1.4">Prenota online il giro in gondola con Venice Tours: scegli data e orario, paghi sul sito.<br>📍 Ritrovo: ${esc(GON_TOUR.n)}, vicino a Piazza San Marco</p>
     <div id="gonW" class="carW"><p class="muted">Carico le disponibilità…</p></div>
-    <button class="btn ghost" id="gonTGo" style="margin-top:10px">Portami al punto d'incontro</button>
+    <button class="btn ghost" id="gonTGo" style="margin-top:10px"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>
     <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`, "light");
   EXT_HOOK = "Tour in gondola"; tpMount($("#gonW"), "gondtour", GON_TOUR_W, "Tour in gondola");
   setTimeout(() => { const b = $("#gonW"); if (b && b.firstElementChild && b.firstElementChild.tagName === "P" && b.children.length > 1) b.firstElementChild.remove(); }, 2500);
@@ -11693,7 +11694,7 @@ function espOpen(x){
   if (x.gond) return gondTour();
   openSheet(`<h3>${x.ic} ${esc(x.n)}</h3><p class="muted" style="margin-top:-4px;line-height:1.4">${esc(x.sub)}<br>📍 ${esc(x.luogo)}<br><small>Il punto d'incontro esatto lo trovi nella conferma della prenotazione.</small></p>
     <div id="espW" class="carW"><p class="muted">Carico le disponibilità…</p></div>
-    <button class="btn ghost" id="espGo" style="margin-top:10px">Portami qui</button>
+    <button class="btn ghost" id="espGo" style="margin-top:10px"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>
     <button class="btn ghost" id="espAll" style="margin-top:8px">Altre esperienze</button>
     <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`, "light");
   EXT_HOOK = x.n; tpMount($("#espW"), "esp|" + x.n, x.w, x.n);
@@ -11756,7 +11757,7 @@ function gondTraghetto(t, p){
   openSheet(`<h3>⛴ Traghetto ${esc(t.n)}</h3><p class="muted" style="margin-top:-4px">Gondola che attraversa il Canal Grande da una sponda all'altra, in piedi come i veneziani</p>
     <div class="gonInfo"><div><b>Da</b> ${esc(p[2])}</div><div><b>A</b> ${esc(other[2])}</div><div><b>Orari</b> circa ${esc(t.o)} (non nei festivi)</div><div><b>Prezzo</b> circa 2 € · residenti 0,70 €</div></div>
     <p class="trnote">Orari e prezzi possono cambiare: controlla il cartello all'imbarco.</p>
-    <button class="btn" id="gonGo">Portami all'imbarco</button><button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`);
+    <button class="btn" id="gonGo"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button><button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`);
   $("#gonGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: "Traghetto " + p[2], lat: p[0], lng: p[1] }); };
 }
 function gondStazio(s){
@@ -11765,7 +11766,7 @@ function gondStazio(s){
     <div class="gonInfo"><div class="${night ? "" : "on"}"><b>Di giorno</b> 90 € · 30 minuti · 9–19</div><div class="${night ? "on" : ""}"><b>Di notte</b> 110 € · 35 minuti · 19–4</div><div><b>Massimo</b> 5 persone per gondola</div></div>
     <p class="trnote">Tariffe del Comune di Venezia. La durata può variare di qualche minuto per traffico, marea e meteo.</p>
     <button class="btn" id="gonBook" style="background:#c9a24a!important;color:#1a1408!important">🎟 Prenota un tour in gondola online</button>
-    <button class="btn ghost" id="gonGo" style="margin-top:8px">Portami qui</button>${s[3] && isTropss() ? `<button class="btn small ghost" id="gonDel" style="margin-top:8px">🗑️ Togli questo stazio (solo Trops)</button>` : ""}
+    <button class="btn ghost" id="gonGo" style="margin-top:8px"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>${s[3] && isTropss() ? `<button class="btn small ghost" id="gonDel" style="margin-top:8px">🗑️ Togli questo stazio (solo Trops)</button>` : ""}
     <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`);
   $("#gonGo").onclick = () => { closeSheet(); setMode("nautica"); openPlan({ name: "Gondole " + s[0], lat: s[1], lng: s[2] }); };
   $("#gonBook").onclick = gondTour;
@@ -12439,7 +12440,7 @@ function openSport(e){
     ${e.mio ? `<button class="btn ghost" id="spCancel" style="margin-top:12px;color:#d95f26">Annulla l'evento</button>`
       : e.ci_sono ? `<button class="btn ghost" id="spLeave" style="margin-top:12px">Non vengo più</button>`
       : `<button class="btn" id="spJoin" style="margin-top:12px" ${full || past ? "disabled" : ""}>${full ? "Completo" : past ? "Già iniziato" : "✋ Mi iscrivo"}</button>`}
-    <button class="btn ghost" id="spGo" style="margin-top:10px">🧭 Portami lì</button>
+    <button class="btn ghost" id="spGo" style="margin-top:10px"><svg class="navIc" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.8L20.5 3.5l-7.3 17-2.1-7.6z"/></svg>Naviga</button>
     <button class="btn ghost" style="margin-top:10px" onclick="closeSheet()">Chiudi</button>`);
   const act = async (fn, msg) => { try{ const j = await rpc(fn, { p_id: e.id }); if (j && j.errore){ toast(j.errore === "pieno" ? "Peccato, i posti sono finiti." : j.errore === "non_autorizzato" ? "Esci e rientra con il tuo account." : "Non riuscito, riprova."); }
       else { toast(msg); haptic(); } }catch(_){ toast("Controlla la connessione."); } closeSheet(); await loadSport(); const n = SPEV.find(x => x.id === e.id); if (n && fn !== "sport_cancel") openSport(n); };
