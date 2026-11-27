@@ -3,7 +3,7 @@
 // - libreria della mappa e mappa di base (OpenFreeMap): dalla memoria, scaricate una volta sola
 // - dati lenti (canali, ponti, fondali, pontili, bricole, locali, negozi, civici): subito dalla memoria, aggiornati in sottofondo
 // - tutto il resto (tabelloni, marea, voli, posizioni, ordini): sempre dalla rete
-const C = "unclick-v197", LIB = "cv-lib-1", MAP = "cv-map-1", DATA = "cv-data-1";
+const C = "unclick-v198", LIB = "cv-lib-1", MAP = "cv-map-1", DATA = "cv-data-1";
 const SHELL = ["index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "logo.webp", "logo-mark.webp", "barketplace.webp", "logo-tab.png", "food-tab.png", "food-smoke.png", "food-logo.webp", "srv-phone.png", "srv-hand.png", "logo-word.webp", "catalogo-barche.json", "splash.jpg", "apple-touch-icon.png", "icon-maskable.png", "assist.json", "fermate.json", "velox.json", "cantieri.json", "stadio.json", "rotte-lavoro.json", "rive-diporto.json", "civici.json"];
 const KEEP = [C, LIB, MAP, DATA];
 self.addEventListener("install", e => { e.waitUntil(caches.open(C).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: "reload" })))).then(() => self.skipWaiting())); });

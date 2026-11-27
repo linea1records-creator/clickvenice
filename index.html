@@ -455,7 +455,18 @@
   #swp .swCh .led{width:14px;height:14px;border-radius:50%;background:#334155}
   #swp .swCh.on{background:#123222;border-color:#22c55e} #swp .swCh.on .led{background:#22c55e;box-shadow:0 0 10px #22c55e}
   #swp .swCh small{font-weight:600;font-size:11px;color:#8ba0b5}
-  #swp .swCh:disabled{opacity:.45}
+  #swp .swCh[aria-disabled]{opacity:.5}
+  #swp .swCh .ico svg{width:34px;height:34px;display:block}
+  #swp .swCh.on .ico{color:#4ade80}
+  #swEd{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:2}
+  #swEd .swEdBox{width:100%;background:#17212d;border-radius:18px 18px 0 0;padding:16px 14px calc(16px + var(--safe-b));display:flex;flex-direction:column;gap:10px}
+  #swEd input#swEdNome{background:#0b121a;color:#e6edf3;border:1px solid #263445;border-radius:10px;padding:11px;font:inherit;font-size:16px}
+  #swEd .swEdIco{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+  #swEd .swEdIco button{padding:9px 0;border-radius:10px;border:1.5px solid #263445;background:#0b121a;color:#e6edf3;display:flex;justify-content:center}
+  #swEd .swEdIco button svg{width:24px;height:24px}
+  #swEd .swEdIco button.on{border-color:#22c55e;background:#123222}
+  #swEd .swEdHid{font-size:13px;color:#9fb3c8;display:flex;gap:8px;align-items:center;justify-content:flex-start;text-align:left}
+  #swEd .swEdHid input{width:20px;height:20px;flex:0 0 auto;margin:0}
   #swp .swFoot{display:flex;gap:8px;margin-top:10px;align-items:center;font-size:12.5px;color:#8ba0b5}
   #swp .swFoot select{background:#17212d;color:#e6edf3;border:1px solid #263445;border-radius:8px;padding:6px}
   #swp .swFoot a{color:#93c5fd;margin-left:auto}
@@ -2026,8 +2037,8 @@
   <div class="swSt" id="swSt"><i></i><span>Non collegato</span></div>
   <div class="swBtns"><button class="pri" id="swConn">🔗 Collega</button><button id="swAllOn">Tutti ON</button><button id="swAllOff">Tutti OFF</button></div>
   <div class="swGrid" id="swGrid"></div>
-  <div class="swFoot">Canali <select id="swN"><option>4</option><option>6</option><option>8</option><option>10</option><option>12</option></select>
-    <span>· tieni premuto un canale per rinominarlo</span><a href="strumenti-ble.html" target="_blank">Avanzate</a></div>
+  <div class="swFoot">Canali <select id="swN"><option>4</option><option>6</option><option>8</option><option>10</option><option selected>12</option></select>
+    <span>· tieni premuto un canale per scegliere nome e icona</span><a href="strumenti-ble.html" target="_blank">Avanzate</a></div>
 </div>
 <div id="dash" class="hidden">
     <div class="ckTop"><b class="ckTitle">BUSSOLA <span id="ckHead">–</span></b><span class="ckGps" id="ckGps">GPS in attesa…</span><button class="ckX" id="dashClose" aria-label="Chiudi">✕</button></div>
@@ -2236,7 +2247,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.65</p>
+      <p class="sub">clickVenice · versione 4.66</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -13442,7 +13453,7 @@ setTimeout(() => { const c = navigator.connection, wifi = c && (c.type === "wifi
    stato: 0 spento · 1 acceso · 8 non toccare */
 const SWP = { dev: null, chr: null, proto: null, stati: [] };
 const SW_MP = ["0003cbbb-0000-1000-8000-00805f9bfff0", "0003cbbb-0000-1000-8000-00805f9bfffa"], SW_CL = ["0003cbbb-0000-1000-8000-00805f9beff0", "0003cbbb-0000-1000-8000-00805f9beffa"];
-const swCfg = () => { try{ return JSON.parse(localStorage.getItem("blepanel_canali")) || { n: 8, ch: [] }; }catch(e){ return { n: 8, ch: [] }; } };
+const swCfg = () => { try{ return JSON.parse(localStorage.getItem("blepanel_canali")) || { n: 12, ch: [] }; }catch(e){ return { n: 12, ch: [] }; } };
 const swSave = c => { try{ localStorage.setItem("blepanel_canali", JSON.stringify(c)); }catch(e){} };
 function swCmd(stati){
   if (SWP.proto === "mp"){ const b = [0x5A, 0x01, 0x20, 0x0E, 0x01, ...stati, 0x08]; b.push(b.reduce((a, x) => a + x, 0) & 0xFF); return new Uint8Array(b); }
@@ -13452,7 +13463,8 @@ function swStato(t, cls){ const e = $("#swSt"); e.className = "swSt " + (cls || 
 function swPaint(){
   const c = swCfg(), g = $("#swGrid"); $("#swN").value = c.n; const ok = !!SWP.chr;
   g.innerHTML = Array.from({ length: c.n }, (_, i) => { const ch = c.ch[i] || {}, on = SWP.stati[i] != null ? SWP.stati[i] : !!ch.stato;
-    return `<button class="swCh${on ? " on" : ""}" data-i="${i}" ${ok ? "" : "disabled"}><span class="led"></span>${esc(ch.nome || "Canale " + (i + 1))}<small>${on ? "ACCESO" : "spento"}</small></button>`; }).join("");
+    if (ch.nascosto) return "";
+    return `<button class="swCh${on ? " on" : ""}" data-i="${i}" ${ok ? "" : 'aria-disabled="true"'}><span class="led"></span><span class="ico">${swSvg(ch.ico)}</span>${esc(ch.nome || "Canale " + (i + 1))}<small>${i + 1} · ${on ? "ACCESO" : "spento"}</small></button>`; }).join("");
   ["#swAllOn", "#swAllOff"].forEach(s => $(s).disabled = !ok);
   $("#swConn").textContent = ok ? "Scollega" : "🔗 Collega";
 }
@@ -13482,24 +13494,96 @@ function swNotify(ev){   // protocollo classico: F8/F9 + 12 stati
   for (let i = 0; i < 12; i++){ const st = parseInt(h[2 + i], 16); SWP.stati[i] = st < 8 && st % 2 === 1; }
   swPaint();
 }
+// collegamento: a mano la prima volta (Chrome chiede quale dispositivo), poi da solo appena il pannello è acceso e vicino
+const SW_NOME = "MG-P1SR-12P";
+async function swAttach(dev){
+  if (SWP.busy || (SWP.chr && SWP.dev === dev && dev.gatt.connected)) return;
+  SWP.busy = true; SWP.dev = dev; store.set("ln_sw_dev", dev.name || ""); store.set("ln_sw_id", dev.id);
+  if (!dev._swL){ dev._swL = 1; dev.addEventListener("gattserverdisconnected", () => { SWP.chr = null; swStato("Scollegato · mi ricollego appena il pannello è disponibile"); swPaint(); swAuto(); }); }
+  try{
+    swStato("Collego " + (dev.name || "pannello") + "…", "wait");
+    const srv = await Promise.race([dev.gatt.connect(), new Promise((_, no) => setTimeout(() => no(new Error("il pannello non risponde")), 12000))]);
+    let sv = null; try{ sv = await srv.getPrimaryService(SW_MP[0]); SWP.proto = "mp"; SWP.chr = await sv.getCharacteristic(SW_MP[1]); }catch(e){
+      sv = await srv.getPrimaryService(SW_CL[0]); SWP.proto = "cl"; SWP.chr = await sv.getCharacteristic(SW_CL[1]); }
+    try{ if (SWP.chr.properties.notify){ SWP.chr.addEventListener("characteristicvaluechanged", swNotify); await SWP.chr.startNotifications(); } }catch(e){}
+    swStato("Collegato · " + (dev.name || "pannello"), "on"); swPaint();
+    if (SWP.proto === "cl") setTimeout(() => SWP.chr && SWP.chr.writeValueWithResponse(new Uint8Array([0xF8, 0x00])).catch(() => {}), 500);
+    if (!$("#swp").classList.contains("hidden")) haptic(); else toast("⚡ Pannello " + (dev.name || "") + " collegato");
+  }catch(e){ SWP.chr = null; try{ dev.gatt.disconnect(); }catch(_){} swStato("Pannello non raggiungibile · riprovo da solo"); swPaint(); }
+  SWP.busy = false;
+}
 async function swConnect(){
-  if (SWP.dev && SWP.dev.gatt.connected){ SWP.dev.gatt.disconnect(); return; }
+  if (SWP.dev && SWP.dev.gatt.connected){ SWP.manualOff = true; SWP.dev.gatt.disconnect(); return; }
   if (!navigator.bluetooth) return toast("Questo browser non ha il Bluetooth web: usa Chrome su Android o computer");
+  SWP.manualOff = false;
   try{
     swStato("Scegli il pannello…", "wait");
-    const dev = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [SW_MP[0], SW_CL[0]] });
-    SWP.dev = dev; store.set("ln_sw_dev", dev.name || "");
-    dev.addEventListener("gattserverdisconnected", () => { SWP.chr = null; swStato("Scollegato"); swPaint(); });
-    swStato("Collego " + (dev.name || "pannello") + "…", "wait");
-    const srv = await dev.gatt.connect();
-    let s = null; try{ s = await srv.getPrimaryService(SW_MP[0]); SWP.proto = "mp"; SWP.chr = await s.getCharacteristic(SW_MP[1]); }catch(e){
-      s = await srv.getPrimaryService(SW_CL[0]); SWP.proto = "cl"; SWP.chr = await s.getCharacteristic(SW_CL[1]); }
-    try{ if (SWP.chr.properties.notify){ SWP.chr.addEventListener("characteristicvaluechanged", swNotify); await SWP.chr.startNotifications(); } }catch(e){}
-    swStato("Collegato · " + (dev.name || "pannello") + (SWP.proto === "mp" ? " · MP" : " · classico"), "on"); swPaint();
-    if (SWP.proto === "cl") setTimeout(() => SWP.chr && SWP.chr.writeValueWithResponse(new Uint8Array([0xF8, 0x00])).catch(() => {}), 500);
-  }catch(e){ SWP.chr = null; swStato(/cancel|chooser/i.test(e.message) ? "Non collegato" : "Non riesco a collegarmi: " + e.message); swPaint(); }
+    const dev = await navigator.bluetooth.requestDevice({ filters: [{ namePrefix: "MG-" }], optionalServices: [SW_MP[0], SW_CL[0]] });
+    await swAttach(dev);
+  }catch(e){ swStato(/cancel|chooser/i.test(e.message) ? "Non collegato" : "Non riesco a collegarmi: " + e.message); swPaint(); }
 }
-function swOpen(){ $("#swp").classList.remove("hidden"); haptic(); try{ $("#modeHint").classList.add("hidden"); clearTimeout(toast._t); }catch(e){} swPaint(); if (!SWP.chr) swStato(store.get("ln_sw_dev", "") ? "Non collegato · ultimo pannello: " + store.get("ln_sw_dev", "") : "Non collegato"); }
+// ricollegamento automatico: Chrome ricorda il pannello già autorizzato; aspetto che trasmetta e mi collego
+async function swAuto(){
+  if (SWP.manualOff || SWP.chr || !navigator.bluetooth || !navigator.bluetooth.getDevices) return;
+  let devs = []; try{ devs = await navigator.bluetooth.getDevices(); }catch(e){ return; }
+  const id = store.get("ln_sw_id", ""), dev = devs.find(d => d.id === id) || devs.find(d => (d.name || "").startsWith(SW_NOME)) || devs.find(d => /^MG-/.test(d.name || ""));
+  if (!dev) return;
+  if (dev.watchAdvertisements && !dev._swW){
+    dev._swW = 1;
+    dev.addEventListener("advertisementreceived", () => { if (!SWP.chr && !SWP.manualOff) swAttach(dev); });
+    try{ await dev.watchAdvertisements(); return; }catch(e){ dev._swW = 0; }
+  }
+  if (!dev.watchAdvertisements || !dev._swW) swAttach(dev);   // senza "ascolto" provo a collegarmi direttamente
+}
+setTimeout(swAuto, 4000);
+setInterval(() => { if (!document.hidden && !SWP.chr && !SWP.busy && !(SWP.dev && SWP.dev._swW)) swAuto(); }, 25000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) setTimeout(swAuto, 800); });
+function swOpen(){ $("#swp").classList.remove("hidden"); haptic(); try{ $("#modeHint").classList.add("hidden"); clearTimeout(toast._t); }catch(e){} swPaint();
+  if (!SWP.chr) swStato(store.get("ln_sw_dev", "") ? "In attesa di " + store.get("ln_sw_dev", "") + " · si collega da solo quando è acceso" : "Non collegato · premi Collega la prima volta"); SWP.manualOff = false; swAuto(); }
+// icone degli accessori
+const SW_P = {   // icone a linee (24×24), uguali su tutti i telefoni
+  luce: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.1V16h5v-.1c0-.8.4-1.5 1.1-2.1A6 6 0 0 0 12 3z"/>',
+  faro: '<path d="M4 8l8-3v14l-8-3z"/><path d="M15 9l5-2M15 12h6M15 15l5 2"/>',
+  nav: '<circle cx="7.5" cy="12" r="4" fill="#ef4444" stroke="#ef4444"/><circle cx="16.5" cy="12" r="4" fill="#22c55e" stroke="#22c55e"/>',
+  ancora: '<circle cx="12" cy="5" r="2"/><path d="M12 7v14M8 10h8M5 14a7 7 0 0 0 14 0M5 14l-1.5 1.5M19 14l1.5 1.5"/>',
+  cabina: '<path d="M3 19V7M3 15h18v4M21 15v-2.5A2.5 2.5 0 0 0 18.5 10H11v5"/><circle cx="7" cy="12" r="1.6"/>',
+  coperta: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>',
+  sub: '<path d="M2 9c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6 0M2 14c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6 0M2 19c2.5-2 4.5-2 7 0s4.5 2 7 0 4.5-2 6 0"/>',
+  led: '<path d="M3 18a9 9 0 0 1 18 0M6.5 18a5.5 5.5 0 0 1 11 0M10 18a2 2 0 0 1 4 0"/>',
+  pompa: '<path d="M12 3s-6 6.5-6 11a6 6 0 0 0 12 0c0-4.5-6-11-6-11z"/><path d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/>',
+  acqua: '<path d="M4 20V8a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4"/><path d="M10 11h8M12 14v1M15 14v1M18 14v1M12 18v1M15 18v1M18 18v1"/>',
+  tromba: '<path d="M3 10v4h4l8 5V5l-8 5z"/><path d="M18 9c1 .8 1.6 1.9 1.6 3s-.6 2.2-1.6 3"/>',
+  tergi: '<path d="M3 17a9 9 0 0 1 18 0"/><path d="M12 17L6.5 8.5"/><circle cx="12" cy="17" r="1.3"/>',
+  frigo: '<rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M6 10h12M9 6v2M9 13v3"/>',
+  radio: '<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M7 8l9-5"/><circle cx="8" cy="14" r="2.5"/><path d="M14 12h4M14 16h4"/>',
+  eco: '<path d="M12 21L4 7a11 11 0 0 1 16 0z"/><path d="M8 10a6 6 0 0 1 8 0"/>',
+  stereo: '<path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+  usb: '<path d="M9 2v5M15 2v5M6 7h12v5a6 6 0 0 1-12 0zM12 18v4"/>',
+  ventola: '<circle cx="12" cy="12" r="1.8"/><path d="M12 10.2C11 6 13 3 16 4.5c2 1 1 4-4 5.7zM13.6 12.9c3.2 2.9 3.4 6.5.1 6.8-2.2.2-2.9-2.9-.1-6.8zM10.4 12.9C6.3 14.2 3.3 12.2 5.4 9.6c1.4-1.7 4.1-.5 5 3.3z"/>',
+  verricello: '<circle cx="9" cy="12" r="5"/><circle cx="9" cy="12" r="1.5"/><path d="M14 12h3M17 10v4M17 12h4v9"/>',
+  inverter: '<rect x="3" y="7" width="16" height="11" rx="2"/><path d="M19 10.5h2v4h-2M7 12.5h3M8.5 11v3M13 12.5h3"/>',
+  boiler: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.4 1.3-3.8 2.5-5 .3 1.7 1 2.6 2 3 0-3 .2-5.5.5-8z"/>',
+  altro: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9L7 7M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+  bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>' };
+const SW_ICO = { luce: "Luce", faro: "Faro", nav: "Luci di via", ancora: "Luce d'ancoraggio", cabina: "Luce cabina", coperta: "Luci di coperta",
+  sub: "Luci subacquee", led: "LED", pompa: "Pompa di sentina", acqua: "Pompa acqua / doccia", tromba: "Tromba", tergi: "Tergicristallo",
+  frigo: "Frigo", radio: "Radio / VHF", eco: "GPS / ecoscandaglio", stereo: "Stereo", usb: "Prese USB / 12V", ventola: "Ventola / aspiratore",
+  verricello: "Verricello", inverter: "Inverter / batteria", boiler: "Boiler", altro: "Altro" };
+const swSvg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${SW_P[k] || SW_P.bolt}</svg>`;
+function swEdit(i){
+  const c = swCfg(), ch = c.ch[i] = Object.assign({ nome: "Canale " + (i + 1) }, c.ch[i] || {});
+  let m = $("#swEd"); if (!m){ m = document.createElement("div"); m.id = "swEd"; $("#swp").appendChild(m); }
+  m.innerHTML = `<div class="swEdBox"><b>Canale ${i + 1}</b>
+    <input id="swEdNome" value="${esc(ch.nome)}" maxlength="24" placeholder="Nome accessorio">
+    <div class="swEdIco">${Object.entries(SW_ICO).map(([k, v]) => `<button data-k="${k}" class="${ch.ico === k ? "on" : ""}" title="${esc(v)}" aria-label="${esc(v)}">${swSvg(k)}</button>`).join("")}</div>
+    <label class="swEdHid"><input type="checkbox" id="swEdHid" ${ch.nascosto ? "checked" : ""}> Nascondi questo canale (non collegato a niente)</label>
+    <div class="swBtns"><button id="swEdNo">Annulla</button><button class="pri" id="swEdOk">Salva</button></div></div>`;
+  let ico = ch.ico || "";
+  m.querySelectorAll(".swEdIco button").forEach(b => b.onclick = () => { ico = b.dataset.k; m.querySelectorAll(".swEdIco button").forEach(x => x.classList.toggle("on", x === b));
+    const n = $("#swEdNome"); if (!n.value.trim() || /^Canale \d+$/.test(n.value.trim()) || Object.values(SW_ICO).includes(n.value.trim())) n.value = SW_ICO[ico]; });
+  $("#swEdNo").onclick = () => m.remove();
+  $("#swEdOk").onclick = () => { const c2 = swCfg(); c2.ch[i] = Object.assign(c2.ch[i] || {}, { nome: $("#swEdNome").value.trim() || "Canale " + (i + 1), ico, nascosto: $("#swEdHid").checked }); swSave(c2); m.remove(); swPaint(); };
+}
 (function(){
   $("#swX").onclick = () => $("#swp").classList.add("hidden");
   $("#swConn").onclick = swConnect;
@@ -13508,10 +13592,9 @@ function swOpen(){ $("#swp").classList.remove("hidden"); haptic(); try{ $("#mode
   let hold = null, held = false;
   const G = $("#swGrid");
   G.addEventListener("pointerdown", e => { const b = e.target.closest(".swCh"); if (!b) return; held = false;
-    hold = setTimeout(() => { held = true; const i = +b.dataset.i, c = swCfg(), n = prompt("Nome del canale " + (i + 1), (c.ch[i] || {}).nome || "Canale " + (i + 1));
-      if (n != null){ c.ch[i] = Object.assign(c.ch[i] || {}, { nome: n.trim() || "Canale " + (i + 1) }); swSave(c); swPaint(); } }, 650); });
+    hold = setTimeout(() => { held = true; haptic(); swEdit(+b.dataset.i); }, 600); });
   ["pointerup", "pointercancel", "pointerleave"].forEach(ev => G.addEventListener(ev, () => clearTimeout(hold)));
-  G.addEventListener("click", e => { const b = e.target.closest(".swCh"); if (!b || b.disabled) return; if (held){ held = false; return; } swToggle(+b.dataset.i); });
+  G.addEventListener("click", e => { const b = e.target.closest(".swCh"); if (!b) return; if (held){ held = false; return; } if (b.getAttribute("aria-disabled")){ toast("Pannello non collegato"); return; } if (held){ held = false; return; } swToggle(+b.dataset.i); });
   // 3 tocchi su Naviga in meno di un secondo
   let taps = [];
   $("#tabs").addEventListener("click", e => { const b = e.target.closest('[data-pm="nautica"]'); if (!b){ taps = []; return; }
