@@ -2195,7 +2195,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.53</p>
+      <p class="sub">clickVenice · versione 4.54</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -5867,7 +5867,7 @@ async function nominatim(q){
 const BIZ_SHOP = { supermarket: "Supermercato", convenience: "Alimentari", bakery: "Panificio", butcher: "Macelleria", greengrocer: "Frutta e verdura", clothes: "Abbigliamento", shoes: "Scarpe",
   jewelry: "Gioielleria", gift: "Regali", books: "Libreria", hairdresser: "Parrucchiere", beauty: "Estetista", optician: "Ottico", hardware: "Ferramenta", doityourself: "Bricolage",
   boat: "Nautica", wine: "Enoteca", alcohol: "Enoteca", tobacco: "Tabacchi", pharmacy: "Farmacia", art: "Arte", glass: "Vetro", mask: "Maschere", florist: "Fiorista", kiosk: "Edicola",
-  newsagent: "Edicola", stationery: "Cartoleria", pastry: "Pasticceria", confectionery: "Dolciumi", deli: "Gastronomia", seafood: "Pescheria", electronics: "Elettronica", mobile_phone: "Telefonia", laundry: "Lavanderia" };
+  newsagent: "Edicola", school: "Scuola", university: "Università", college: "Istituto", kindergarten: "Scuola dell'infanzia", hotel: "Hotel", guest_house: "B&B", museum: "Museo", church: "Chiesa", hospital: "Ospedale", library: "Biblioteca", theatre: "Teatro", cinema: "Cinema", bank: "Banca", post_office: "Posta", townhall: "Comune", police: "Polizia", gallery: "Galleria", stationery: "Cartoleria", pastry: "Pasticceria", confectionery: "Dolciumi", deli: "Gastronomia", seafood: "Pescheria", electronics: "Elettronica", mobile_phone: "Telefonia", laundry: "Lavanderia" };
 function bizSearch(q){
   const w = norm(q).split(" ").filter(Boolean).map(x => x.replace(/s$/, "")); if (!w.length) return [];
   if (!NEGOZI && typeof loadNegozi === "function" && !bizSearch.l){ bizSearch.l = 1; loadNegozi().catch(() => {}); }
@@ -5920,7 +5920,7 @@ function navLocal(q){
 }
 // dai motori di ricerca tengo solo calli, fondamenta, campi, canali, isole e posti d'acqua
 const NAV_OK_KEY = /^(highway|place|waterway|natural|bridge)$/, NAV_OK_VAL = /^(marina|slipway|pier|ferry_terminal|boatyard|dock|shipyard)$/;
-const BIZ_KEY = /^(amenity|shop|tourism|craft|office|leisure|healthcare)$/;
+const BIZ_KEY = /^(amenity|shop|tourism|craft|office|leisure|healthcare|building|historic)$/;
 const navKeep = (k, v) => BIZ_KEY.test(k || "") || (NAV_OK_KEY.test(k || "") && !/^(bus_stop|platform|motorway|trunk|primary|secondary|tertiary|traffic_signals|crossing|street_lamp)$/.test(v || "")) || NAV_OK_VAL.test(v || "");
 async function photonNav(q){
   const ref = refPoint();
@@ -5928,7 +5928,7 @@ async function photonNav(q){
   const j = await r.json();
   return (j.features || []).filter(f => navKeep((f.properties || {}).osm_key, (f.properties || {}).osm_value)).map(f => {
     const pr = f.properties || {}, [lo, la] = f.geometry.coordinates;
-    const kind = BIZ_KEY.test(pr.osm_key || "") ? (BIZ_SHOP[pr.osm_value] || POI_TYPES[pr.osm_value] || "Attività") : pr.osm_key === "place" ? (/island|islet/.test(pr.osm_value) ? "Isola" : "Luogo") : pr.osm_key === "waterway" ? "Canale" : pr.osm_key === "highway" ? "Calle" : "Approdo";
+    const kind = BIZ_KEY.test(pr.osm_key || "") ? (BIZ_SHOP[pr.osm_value] || POI_TYPES[pr.osm_value] || (pr.osm_key === "building" || pr.osm_key === "historic" ? "Edificio" : "Attività")) : pr.osm_key === "place" ? (/island|islet/.test(pr.osm_value) ? "Isola" : "Luogo") : pr.osm_key === "waterway" ? "Canale" : pr.osm_key === "highway" ? "Calle" : "Approdo";
     return { name: pr.name || pr.street || q, sub: [kind, pr.district || pr.locality || pr.city].filter(Boolean).join(" · ") + " · " + fmtDist(hav(ref.lat, ref.lng, la, lo)), lat: la, lng: lo };
   });
 }
