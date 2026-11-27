@@ -2171,7 +2171,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.40</p>
+      <p class="sub">clickVenice · versione 4.41</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -6292,7 +6292,7 @@ function drawRive(){
       if (map.getStyle().glyphs) map.addLayer({ id: "rive-lbl", type: "symbol", source: "rive", minzoom: 15.5, layout: { visibility: "none", "text-field": ["get", "t"], "text-size": 11, "text-offset": [0, 1.1], "text-anchor": "top", "text-font": ["Noto Sans Regular"], "text-optional": true },
         paint: { "text-color": "#1d4e89", "text-halo-color": "#fff", "text-halo-width": 1.5 } });
     }
-    map.getSource("rive").setData({ type: "FeatureCollection", features: RIVE.map((r, i) => ({ type: "Feature", properties: { i, t: "Sosta diporto · " + r.n }, geometry: { type: "Point", coordinates: [r.lng, r.lat] } })) });
+    map.getSource("rive").setData({ type: "FeatureCollection", features: RIVE.map((r, i) => ({ type: "Feature", properties: { i, t: "Sosta diporto · " + r.n, n: r.n, hk: "r" + (+r.lat).toFixed(5) + "," + (+r.lng).toFixed(5) }, geometry: { type: "Point", coordinates: [r.lng, r.lat] } })) });
     layerVis();
   }catch(e){}
 }
@@ -8204,8 +8204,9 @@ function drawFuel(){
   const ex = (typeof EXTRA !== "undefined" ? EXTRA : []).filter(x => x.t === "benzinaio" || x.t === "benzinaio_terra")
     .filter(x => !FUEL.some(s => dist(s, x) < 60)).map(x => ({ nome: x.n, lat: x.lat, lng: x.lng, p: {}, terra: x.t === "benzinaio_terra", extra: x.id }));
   FUEL_ALL = FUEL.concat(ex);
+  FUEL_ALL.forEach(s => { if (!s._hk) s._hk = s.id ? "i" + s.id : s.extra ? "x" + s.extra : (+s.lat).toFixed(5) + "," + (+s.lng).toFixed(5); });   // chiave fissa per le modifiche di tropss
   map.getSource("benzinai").setData({ type: "FeatureCollection", features: FUEL_ALL.map((s, i) => { const pr = fuelPrice(s, k);
-    return { type: "Feature", properties: { i, img: fuelImg(pr ? pr.toFixed(3).replace(".", ",") : "—", k, s.terra) }, geometry: { type: "Point", coordinates: [s.lng, s.lat] } }; }) });
+    return { type: "Feature", properties: { i, hk: s._hk, nome: s.nome || s.marca || "Distributore", img: fuelImg(pr ? pr.toFixed(3).replace(".", ",") : "—", k, s.terra) }, geometry: { type: "Point", coordinates: [s.lng, s.lat] } }; }) });
 }
 async function loadFuel(){
   const c = store.get("ln_fuel2", { at: 0 }); if (Date.now() - c.at < 3 * 3600e3 && FUEL.length) return;
@@ -8213,6 +8214,7 @@ async function loadFuel(){
     if (j && Array.isArray(j.s)){ FUEL = j.s.filter(x => !/bunker/i.test(x.nome || "")); store.set("ln_fuel2", { at: Date.now(), s: FUEL, agg: j.at }); drawFuel(); } }catch(e){}
 }
 function openFuel(s){
+  { const E = typeof EDITS !== "undefined" && EDITS.get("benzinai|hk=" + s._hk); if (E) s = Object.assign({}, s, E.n ? { nome: E.n } : {}, E.lat != null ? { lat: E.lat, lng: E.lng } : {}); }   // nome e posto decisi da tropss
   const k = fuelKind(), b = (BOATS.find(x => x.id === boatId) || {}), eur = v => v ? v.toFixed(3).replace(".", ",") + " €/l" : "—";
   const riga = (n, key, on) => `<div style="display:flex;justify-content:space-between;padding:9px 12px;border-radius:12px;margin:6px 0;background:${on ? "#111" : "#eceef1"};color:${on ? "#fff" : "#111"}"><b>${n}</b><span>${eur(fuelPrice(s, key))}${s.p[key + "s"] && s.p[key] && s.p[key + "s"] !== s.p[key] ? ` <small style="opacity:.7">(self ${eur(s.p[key + "s"])})</small>` : ""}</span></div>`;
   openSheet(`<h3>⛽ ${esc(s.nome || s.marca || "Distributore")}</h3>
@@ -8247,7 +8249,7 @@ function openCantiere(c){
 function bricTop(col){ return /red|ross/i.test(col) ? "#d32f2f" : /green|verd/i.test(col) ? "#2e7d32" : /yellow|giall/i.test(col) ? "#f2992e" : WOOD_TOP; }
 function drawBricole(){
   if (!map || !map.getSource("bricole")) return;
-  map.getSource("bricole").setData({ type: "FeatureCollection", features: BRIC.map(b => ({ type: "Feature", properties: { c: b.col ? bricTop(b.col) : WOOD },
+  map.getSource("bricole").setData({ type: "FeatureCollection", features: BRIC.map(b => ({ type: "Feature", properties: { c: b.col ? bricTop(b.col) : WOOD, hk: "b" + (+b.lat).toFixed(6) + "," + (+b.lng).toFixed(6), n: "Bricola" },
     geometry: { type: "Point", coordinates: [b.lng, b.lat] } })) });
 }
 // ogni bricola: tre pali di legno legati, con la testa colorata se è un segnale.
@@ -11445,7 +11447,7 @@ function editsOn(srcId, d){
   const keys = ["hk", "k", "gk", "id", "n", "name", "nome"];
   return Object.assign({}, d, { features: d.features.map(f => { const P = f.properties || {};
     for (const l of ls) for (const k of keys){ if (P[k] === undefined || P[k] === "") continue; const e = EDITS.get(l + "|" + k + "=" + P[k]); if (!e) continue;
-      const q = Object.assign({}, P); if (e.n){ ["n", "name", "nome"].forEach(x => { if (q[x] !== undefined) q[x] = e.n; }); if (q.n === undefined && q.name === undefined && q.nome === undefined) q.name = e.n; }
+      const q = Object.assign({}, P); if (e.n && typeof q.t === "string" && P.n) q.t = q.t.replace(P.n, e.n); if (e.n){ ["n", "name", "nome"].forEach(x => { if (q[x] !== undefined) q[x] = e.n; }); if (q.n === undefined && q.name === undefined && q.nome === undefined) q.name = e.n; }
       if (e.c && l === "velox") q.c = e.c;
       const g = e.lat != null && e.lng != null && f.geometry && f.geometry.type === "Point" ? { type: "Point", coordinates: [e.lng, e.lat] } : f.geometry;
       return Object.assign({}, f, { properties: q, geometry: g }); }
