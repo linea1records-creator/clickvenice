@@ -2185,7 +2185,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.49</p>
+      <p class="sub">clickVenice · versione 4.50</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -7611,10 +7611,10 @@ function vxBanner(p, kmh){
   let nb = null;
   if (VX){
     const sec = Math.max(0, (p.t - VX.t0) / 1000), vLim = VX.lim / 3.6, tLeft = VX.L / vLim - sec, ahead = VX.done - sec * vLim;
-    const vMax = tLeft > 1 ? Math.min(99, VX.R / tLeft * 3.6) : 0, f = n => n.toFixed(1).replace(".", ","), dove = `${VX.to.name} a ${fmtDist(VX.R)}`;
-    if (ahead > 8 || (tLeft <= 1 && VX.R > 5)) nb = { st: "lento", t: `Rallenta · sei ${Math.max(1, Math.round(ahead))} m avanti · max ${f(vMax)} km/h · ${dove}` };
-    else if (ahead < -30 && kmh < VX.lim) nb = { st: "veloce", t: `Puoi andare più veloce · fino a ${f(vMax)} km/h · ${dove}` };
-    else nb = { st: "giusto", t: `Velocità giusta · max ${f(vMax)} km/h · limite ${VX.lim} · ${dove}` };
+    const vMax = tLeft > 1 ? Math.min(99, VX.R / tLeft * 3.6) : 0, f = n => n.toFixed(1).replace(".", ",");
+    if (ahead > 8 || (tLeft <= 1 && VX.R > 5)) nb = { st: "lento", t: `Rallenta · sei ${Math.max(1, Math.round(ahead))} m avanti · max ${f(vMax)} km/h` };
+    else if (ahead < -30 && kmh < VX.lim) nb = { st: "veloce", t: `Puoi andare più veloce · fino a ${f(vMax)} km/h` };
+    else nb = { st: "giusto", t: `Velocità giusta · max ${f(vMax)} km/h · limite ${VX.lim}` };
   } else if (vxResult && Date.now() - vxResult.at < 30000){
     const fuori = vxResult.avg > vxResult.lim + 0.5;
     nb = { st: fuori ? "fuori" : "dentro", t: `Velox ${vxResult.name} · media ${vxResult.avg.toFixed(1).replace(".", ",")} km/h · ${fuori ? "sopra il limite" : "nel limite ✓"}` };
