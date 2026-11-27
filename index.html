@@ -1621,6 +1621,9 @@
   body.zen #v-map > #searchBox{transform:translateY(-14px)} body.zen #v-map > .fabs{transform:translateX(14px)}
   #depthLegend{touch-action:none;cursor:grab;user-select:none} #depthLegend.drag{cursor:grabbing;box-shadow:0 10px 26px rgba(0,0,0,.35);transform:scale(1.03);transition:none}
   .navIc{width:1.05em;height:1.05em;vertical-align:-.15em;margin-right:6px;fill:currentColor;stroke:none;display:inline-block}
+  .vxLiveB{margin-top:8px;border:0;background:#fde8e8;color:#b91c1c;font-weight:800;border-radius:10px;padding:7px 10px;width:100%}
+  .vxAdm{display:flex;gap:5px;margin-top:8px} .vxAdm button{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;border:1.5px solid #e2e8f0;background:#fff;border-radius:9px;padding:6px 2px;font-weight:800;font-size:12px;color:#111}
+  .vxAdm button i{width:10px;height:10px;border-radius:50%;background:var(--c)} .vxAdm button.on{border-color:var(--c);background:#f8fafc}
 </style>
 <style id="camBtn">
   #fabGps svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -2172,7 +2175,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.43</p>
+      <p class="sub">clickVenice · versione 4.44</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -5004,7 +5007,7 @@ function addLayers(){
   map.addSource("velox", { type: "geojson", data: empty });
   addVeloxIcons();
   map.addLayer({ id: "velox", type: "symbol", source: "velox", layout: { visibility: LY.velox ? "visible" : "none",
-    "icon-image": ["match", ["get", "c"], "r", "vx-r", "g", "vx-g", "v", "vx-v", "vx-o"],
+    "icon-image": ["match", ["get", "c"], "r", "vx-r", "g", "vx-g", "vx-o"],
     "icon-size": ["interpolate", ["linear"], ["zoom"], 12, 0.5, 15, 0.75, 18, 1],
     "icon-allow-overlap": true, "icon-ignore-placement": true, "icon-pitch-alignment": "viewport", "icon-rotation-alignment": "viewport" } });
   map.addSource("ponti", { type: "geojson", data: empty });
@@ -5223,7 +5226,10 @@ function popupFor(f, ll){
   if (f.layer.id === "velox"){
     const v = VELOX.byId[f.properties.id]; if (!v) return;
     const tr = VELOX.tratte.filter(t => t.A.includes(v.id) || t.B.includes(v.id));
-    html = `<b>📷 Velox · ${esc(v.name)}</b><br><span style="color:${VX_COL[v.col] || "#aaa"};font-weight:700">● ${esc(VX_NOMI[v.col] || "")}</span>`;
+    html = `<b>📷 Velox · ${esc(v.name)}</b><br><span style="color:${VX_COL[v.col] || "#aaa"};font-weight:700">● ${esc(VX_NOMI[v.col] || "")}</span>`
+      + (v.live && v.base !== "r" ? `<br><small style="color:#888">Spia rossa segnalata alle ${new Date(v.live).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}</small>` : "")
+      + (v.col !== "r" ? `<br><button class="vxLiveB" data-vxlive="${esc(v.id)}">🔴 Spia rossa accesa</button>` : "")
+      + (isTropss() ? `<div class="vxAdm">${[["g", "Rotto"], ["o", "Funziona"], ["r", "Attivo"]].map(([k, n]) => `<button data-vxc="${k}" data-vxid="${esc(v.id)}" style="--c:${VX_COL[k]}" class="${v.base === k ? "on" : ""}"><i></i>${n}</button>`).join("")}</div>` : "");
   } else if (f.layer.id === "ponti"){
     const p = BRIDGES.byId[f.properties.id]; if (!p) return;
     const h = bridgeH(p), t = tideNow();
@@ -7515,8 +7521,8 @@ async function loadVelox(){
     // i velox (posizione, nome, colore) vengono dal database di clickVenice, che li decide; San Marco Boat li legge da qui
     const r = await fetch("velox.json", { cache: "no-cache" }); const j = await r.json();
     let L = null; try{ L = await rpc("velox_list", {}); }catch(e){}
-    VELOX.list = Array.isArray(L) && L.length ? L.map(a => ({ id: a.id, name: a.nome, lat: a.lat, lng: a.lng, col: a.colore, state: a.stato, kmh: a.kmh }))
-      : j.velox.map(a => ({ id: a[0], name: a[1], lat: a[2], lng: a[3], state: a[4], col: a[4] === "ko" ? "v" : a[4] === "check" ? "g" : "r" }));
+    VELOX.list = Array.isArray(L) && L.length ? L.map(a => ({ id: a.id, name: a.nome, lat: a.lat, lng: a.lng, col: a.colore, base: a.base, live: a.live, state: a.stato }))
+      : j.velox.map(a => ({ id: a[0], name: a[1], lat: a[2], lng: a[3], state: a[4], col: a[4] === "ok" ? "o" : "g", base: a[4] === "ok" ? "o" : "g" }));
     VELOX.byId = {}; VELOX.list.forEach(v => VELOX.byId[v.id] = v);
     VELOX.tratte = j.tratte.map(t => ({ A: t[0], B: t[1], v: t[2], note: t[3] || "", code: t[4] || "" }));   // usate solo per il limite, non si disegnano più
     drawVelox();
@@ -7524,8 +7530,26 @@ async function loadVelox(){
 }
 const ctr = ids => { const p = ids.map(i => VELOX.byId[i]).filter(Boolean); return p.length ? { lat: p.reduce((s, x) => s + x.lat, 0) / p.length, lng: p.reduce((s, x) => s + x.lng, 0) / p.length } : null; };
 // icona del fotovelox: fondo nero, macchina fotografica bianca, bordo del colore del limite (rosso 7 km/h, arancione 11 km/h, grigio se spento)
-const VX_COL = { r: "#e53935", o: "#fb8c00", g: "#8e8e93", v: "#2e7d32" };   // rosso, arancione, grigio, verde: li decide tropss
-const VX_NOMI = { r: "Rosso · attivo, limite 7 km/h", o: "Arancione · attivo, limite 11 km/h", g: "Grigio · da verificare", v: "Verde · spento, non controlla" };
+const VX_COL = { r: "#e53935", o: "#fb8c00", g: "#8e8e93" };   // rosso, arancione, grigio: li decide tropss (il rosso anche le segnalazioni, per 3 ore)
+const VX_NOMI = { r: "Rosso · funziona e la spia è accesa", o: "Arancione · funziona", g: "Grigio · rotto" };
+// tocchi sul popup del velox: segnalazione della spia (tutti) e stato (tropss)
+document.addEventListener("click", async e => {
+  const lv = e.target.closest && e.target.closest("[data-vxlive]"), st = e.target.closest && e.target.closest("[data-vxc]"); if (!lv && !st) return;
+  e.preventDefault(); e.stopPropagation(); haptic();
+  if (lv){ const id = lv.dataset.vxlive; lv.disabled = true; const j = await rpc("velox_live", { p_id: id }).catch(() => null);
+    if (!j || !j.ok){ lv.disabled = false; return toast("Segnalazione non inviata, riprova."); }
+    const v = VELOX.byId[id]; if (v){ v.col = "r"; v.live = new Date().toISOString(); } drawVelox(); document.querySelectorAll(".maplibregl-popup").forEach(p => p.remove());
+    return toast("🔴 Grazie! Il velox resta rosso per 3 ore"); }
+  const id = st.dataset.vxid, c = st.dataset.vxc, j = await rpc("velox_colore", { p_id: id, p_colore: c }).catch(() => null);
+  if (!j || !j.ok) return toast("Stato non salvato, riprova.");
+  const v = VELOX.byId[id]; if (v){ v.base = c; v.col = c === "r" || (v.live && Date.now() - Date.parse(v.live) < 3 * 3600e3) ? "r" : c; if (c !== "r" && c !== "o") v.live = null; } drawVelox();
+  document.querySelectorAll(".maplibregl-popup").forEach(p => p.remove()); toast("Velox: " + VX_NOMI[c].split(" · ")[1]);
+}, true);
+// i rossi lampeggiano piano
+setInterval(() => { if (!map || !map.getLayer("velox") || document.hidden) return; vxBlink.on = !vxBlink.on;
+  if (!vxBlink.t){ vxBlink.t = 1; try{ map.setPaintProperty("velox", "icon-opacity-transition", { duration: 800, delay: 0 }); }catch(e){} }
+  try{ map.setPaintProperty("velox", "icon-opacity", ["case", ["==", ["get", "c"], "r"], vxBlink.on ? 1 : .45, 1]); }catch(e){} }, 900);
+function vxBlink(){}
 function veloxIcon(col){
   const S = 72, c = document.createElement("canvas"); c.width = c.height = S; const g = c.getContext("2d");
   g.beginPath(); g.arc(36, 36, 31, 0, Math.PI * 2); g.fillStyle = "#111"; g.fill(); g.lineWidth = 8; g.strokeStyle = col; g.stroke();
@@ -11474,15 +11498,13 @@ function admEditAt(e){
   openSheet(`<h3>✏️ ${esc(nome)}</h3><p class="muted" style="margin-top:-4px">${esc(ADM_NOMI[F.layer] || F.layer)} · le modifiche valgono per tutti</p>
     <button class="btn" id="aeMove">📍 Sposta sulla mappa</button>
     <div class="field" style="margin-top:12px"><label>Nome del posto</label><div class="row" style="gap:6px"><input id="aeName" value="${esc(nome)}" maxlength="80" style="flex:1"><button class="btn small" id="aeNameOk">Salva</button></div></div>
-    ${VX ? `<div class="field"><label>Colore del velox (vale anche per San Marco Boat)</label><div class="aeCol">${[["r", "Rosso"], ["o", "Arancione"], ["g", "Grigio"], ["v", "Verde"]].map(([k, n]) => `<button data-aec="${k}" style="--c:${VX_COL[k]}" class="${(VELOX.byId[F.val.slice(3)] || {}).col === k ? "on" : ""}"><i></i>${n}</button>`).join("")}</div><small class="muted">${Object.values(VX_NOMI).join(" · ")}</small></div>` : ""}
+    ${VX ? `<p class="muted" style="font-size:12.5px">Lo stato (rotto, funziona, attivo) si cambia toccando il velox sulla mappa, fuori dalla modalità modifica.</p>` : ""}
     ${EDITS.has(F.layer + "|" + F.val) ? `<button class="btn ghost" id="aeReset" style="margin-top:4px">↩️ Torna com'era</button>` : ""}
     <button class="btn danger" id="aeDel" style="margin-top:8px">🗑 Elimina dalla mappa</button>
     <button class="btn ghost" style="margin-top:8px" onclick="closeSheet()">Chiudi</button>`, "light");
   $("#aeMove").onclick = () => { closeSheet(); MOVE_F = F; toast("📍 Ora tocca il punto nuovo sulla mappa", false, true); };
   $("#aeNameOk").onclick = () => { const v = $("#aeName").value.trim(); if (v.length < 2) return toast("Scrivi il nome"); admSave(F, { nome: v }, "Nome cambiato ✓"); };
-  document.querySelectorAll("[data-aec]").forEach(b => b.onclick = async () => { const id = F.val.slice(3), c = b.dataset.aec;
-    const j = await rpc("velox_colore", { p_id: id, p_colore: c }).catch(() => null); if (!j || !j.ok) return toast("Colore non salvato, riprova.");
-    const v = VELOX.byId[id]; if (v){ v.col = c; v.state = c === "r" || c === "o" ? "ok" : c === "v" ? "ko" : "check"; } drawVelox(); haptic(); closeSheet(); toast("Velox " + VX_NOMI[c].split(" · ")[0].toLowerCase() + " ✓"); });
+
   if ($("#aeReset")) $("#aeReset").onclick = () => admSave(F, { reset: true }, "Tornato com'era ✓");
   $("#aeDel").onclick = () => { closeSheet(); hideAsk(F.layer, F.val, nome); };
 }
