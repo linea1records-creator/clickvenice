@@ -2177,7 +2177,7 @@
     <div class="scroll">
       <div class="backbar" data-back="1">‹ myClick</div>
       <h2>Info</h2>
-      <p class="sub">clickVenice · versione 4.46</p>
+      <p class="sub">clickVenice · versione 4.47</p>
       <div class="card">
         <h4>📲 App sul telefono</h4>
         <button class="btn" id="instBtn">📲 Installa clickVenice</button>
@@ -7581,9 +7581,11 @@ function trattesFrom(id){
 function veloxTick(p, kmh){
   if (!VELOX.list.length) return;
   const pass = vxPassed(p);
+  // un velox con limite diverso da quello della tratta in corso non la chiude: è di un'altra tratta
+  if (pass && VX && VX.to.id !== pass.id && !vxLims(pass.id).has(VX.lim)) { vxAlong(p); paintVelox(p, kmh); return; }
   if (pass){
-    // fine tratta: sei passato davanti al velox che aspettavamo
-    if (VX && VX.to.id === pass.id){
+    // fine tratta: sei passato davanti al velox che aspettavamo (o a un altro con lo stesso limite)
+    if (VX){
       const sec = Math.max(1, (p.t - VX.t0) / 1000), avg = VX.L / sec * 3.6;
       vxResult = { avg, lim: VX.lim, at: Date.now(), name: pass.name };
       say(avg > VX.lim + 0.5 ? `Velox ${pass.name}, media ${avg.toFixed(1).replace(".", ",")}, sopra il limite` : `Velox ${pass.name}, media nel limite`);
@@ -7597,6 +7599,8 @@ function veloxTick(p, kmh){
   }
   paintVelox(p, kmh);
 }
+// velocità di un velox: quelle delle tratte di cui fa parte
+const vxLims = id => new Set(VELOX.tratte.filter(t => t.A.includes(id) || t.B.includes(id)).map(t => t.v));
 // passaggio davanti al velox: sei al traverso (perpendicolare al canale) o la distanza ha smesso di calare
 let vxNear = {};
 function vxPassed(p){
@@ -7617,7 +7621,9 @@ function vxPassed(p){
 function vxNext(from, p){
   if (typeof G === "undefined" || !G.done) return null;
   const src = gNear(p.lat, p.lng, 120); if (!src) return null;
-  const cand = VELOX.list.filter(v => v.id !== from.id && hav(p.lat, p.lng, v.lat, v.lng) < 3500).map(v => ({ v, nb: gNear(v.lat, v.lng, 120) })).filter(c => c.nb);
+  // la tratta esiste solo tra due velox con la stessa velocità: gli altri si saltano
+  const fl = vxLims(from.id);
+  const cand = VELOX.list.filter(v => v.id !== from.id && hav(p.lat, p.lng, v.lat, v.lng) < 3500 && (!fl.size || [...vxLims(v.id)].some(x => fl.has(x)))).map(v => ({ v, nb: gNear(v.lat, v.lng, 120) })).filter(c => c.nb);
   if (!cand.length) return null;
   const want = new Set(cand.map(c => c.nb.n)), N = G.la.length, d = new Float64Array(N).fill(Infinity), prev = new Int32Array(N).fill(-1), h = [[0, src.n]];
   d[src.n] = 0; let left = want.size;
@@ -7641,8 +7647,8 @@ function vxNext(from, p){
   });
   if (!best) return null;
   const tr = VELOX.tratte.find(t => (t.A.includes(from.id) && t.B.includes(best.v.id)) || (t.B.includes(from.id) && t.A.includes(best.v.id)));
-  const lims = tr ? [tr.v] : trattesFrom(from.id).concat(trattesFrom(best.v.id)).map(o => o.v);
-  const lim = lims.length ? Math.min(...lims) : 11;
+  const comuni = [...vxLims(best.v.id)].filter(x => !fl.size || fl.has(x));
+  const lim = tr ? tr.v : comuni.length ? Math.min(...comuni) : 11;
   const cum = [0]; for (let i = 1; i < best.pts.length; i++) cum.push(cum[i - 1] + hav(best.pts[i - 1][0], best.pts[i - 1][1], best.pts[i][0], best.pts[i][1]));
   return { from, to: best.v, pts: best.pts, cum, L: best.L, lim, t0: p.t, done: 0, R: best.L, off: 0, said: "" };
 }
